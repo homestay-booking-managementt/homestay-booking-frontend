@@ -60,11 +60,17 @@ export interface IUser {
     isActive: boolean;
 }
 
+export interface IPermission {
+    can_access: boolean;
+    must_check_owner: boolean;
+}
+
 interface AuthState {
     isAuthenticated: boolean;
     error: string;
     loading: boolean;
     currentUser: IUser;
+    permissions?: Record<string, IPermission>;
 }
 
 const initialState: AuthState = {
@@ -78,6 +84,7 @@ const initialState: AuthState = {
         isAdmin: isAdmin,
         isActive: isActive,
     },
+    permissions: undefined,
 };
 
 // Async thunk for login
@@ -114,6 +121,7 @@ export const authSlice = createSlice({
                 isAdmin: false,
                 isActive: false,
             };
+            state.permissions = undefined;
             removeTokens(false);
         },
         updateUserInfo: (state, action) => {
@@ -122,6 +130,11 @@ export const authSlice = createSlice({
             state.currentUser.roleId = action.payload.role_id;
             state.currentUser.isAdmin = action.payload.is_admin;
             state.currentUser.isActive = action.payload.is_active;
+
+            // Store permissions from API response
+            if (action.payload.role_permissions) {
+                state.permissions = action.payload.role_permissions;
+            }
         },
     },
     extraReducers: (builder) => {
@@ -137,6 +150,20 @@ export const authSlice = createSlice({
                     localStorage.setItem("id_token", action.payload.idToken);
                     localStorage.setItem("refresh_token", action.payload.refreshToken);
                     state.error = "";
+
+                    // Update user info and permissions from login response
+                    if (action.payload.user) {
+                        state.currentUser.userId = action.payload.user.id;
+                        state.currentUser.userName = action.payload.user.user_name;
+                        state.currentUser.roleId = action.payload.user.role_id;
+                        state.currentUser.isAdmin = action.payload.user.is_admin;
+                        state.currentUser.isActive = action.payload.user.is_active;
+                    }
+
+                    // Store permissions
+                    if (action.payload.role_permissions) {
+                        state.permissions = action.payload.role_permissions;
+                    }
                 }
             })
             .addCase(loginRequest.rejected, (state, action) => {
