@@ -1,0 +1,637 @@
+openapi: 3.0.3
+info:
+  title: RM Homestay API
+  version: 1.0.0
+  description: API chính cho hệ thống đặt phòng Homestay (Thuê nguyên căn)
+servers:
+  - url: http://localhost:8080/api
+tags:
+  - name: Auth
+    description: Đăng ký, Đăng nhập, Quản lý Token
+  - name: User
+    description: Thông tin người dùng và Upload
+  - name: Homestay
+    description: Quản lý và tìm kiếm Homestay (cho Khách và Chủ Homestay)
+  - name: Booking
+    description: Đặt và quản lý Booking
+  - name: Payment
+    description: Xử lý Thanh toán
+  - name: Review
+    description: Đánh giá và Phản hồi
+  - name: Chat
+    description: Chatbot và FAQ
+  - name: Complaint
+    description: Khiếu nại và Giải quyết
+  - name: Admin
+    description: Các chức năng quản lý hệ thống (Admin)
+
+components:
+  schemas:
+    HomestayCreateUpdate:
+      type: object
+      required: [name, address, city, pricePerNight, capacity]
+      properties:
+        name:
+          type: string
+          example: "Villa Biển Đẹp"
+        address:
+          type: string
+          example: "123 Đường Biển, Phường Mỹ An"
+        city:
+          type: string
+          example: "Đà Nẵng"
+        description:
+          type: string
+          example: "Căn hộ view biển tuyệt đẹp"
+        pricePerNight:
+          type: number
+          format: double
+          example: 1500000
+        capacity:
+          type: integer
+          example: 6
+        numBedrooms:
+          type: integer
+          example: 3
+        numBathrooms:
+          type: integer
+          example: 2
+        amenities:
+          type: array
+          items:
+            type: string
+          example: ["WiFi", "Điều hòa", "Bếp", "Bể bơi"]
+        images:
+          type: array
+          items:
+            type: string
+          example: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+
+paths:
+# ===========================
+# AUTH
+# ===========================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Đăng ký tài khoản
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, role]
+              properties:
+                name: { type: string, example: "Nguyễn Văn A" }
+                email: { type: string, example: "a@example.com" }
+                phone: { type: string, example: "0901234567" }
+                password: { type: string, format: password, example: "secure123" }
+                role: { type: string, enum: [CUSTOMER, HOST], example: "CUSTOMER" }
+      responses:
+        '201':
+          description: Đăng ký thành công
+        '400':
+          description: Lỗi dữ liệu hoặc Email đã tồn tại
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Đăng nhập lấy access token + refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: "a@example.com" }
+                password: { type: string, format: password, example: "secure123" }
+      responses:
+        '200':
+          description: Đăng nhập thành công
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Lấy access token mới bằng refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string, example: "jwt_refresh_token_string" }
+      responses:
+        '200':
+          description: Token mới
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Đăng xuất (xóa session hiện tại)
+      responses:
+        '200':
+          description: Đăng xuất thành công
+
+# ===========================
+# USER
+# ===========================
+  /users/me:
+    get:
+      tags: [User]
+      summary: Lấy thông tin người dùng hiện tại
+      responses:
+        '200':
+          description: Thông tin người dùng
+    put:
+      tags: [User]
+      summary: Cập nhật thông tin người dùng
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                phone: { type: string }
+                email: { type: string }
+      responses:
+        '200':
+          description: Cập nhật thành công
+
+  /upload:
+    post:
+      tags: [User]
+      summary: Upload ảnh (avatar, homestay)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: File ảnh cần upload
+      responses:
+        '200':
+          description: Trả về URL ảnh đã upload
+
+# ===========================
+# HOMESTAY
+# ===========================
+  /homestays:
+    get:
+      tags: [Homestay]
+      summary: Lấy danh sách homestay công khai
+      parameters:
+        - in: query
+          name: city
+          schema: { type: string }
+          description: Lọc theo thành phố
+        - in: query
+          name: capacity
+          schema: { type: integer }
+          description: Lọc theo sức chứa tối thiểu
+        - in: query
+          name: checkIn
+          schema: { type: string, format: date }
+          description: Ngày nhận phòng
+        - in: query
+          name: checkOut
+          schema: { type: string, format: date }
+          description: Ngày trả phòng
+      responses:
+        '200':
+          description: Danh sách homestay công khai
+
+    post:
+      tags: [Homestay]
+      summary: Gửi yêu cầu tạo mới homestay (Host)
+      description: Yêu cầu này sẽ tạo một bản ghi trong 'homestay_request' và chờ Admin duyệt.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HomestayCreateUpdate'
+      responses:
+        '201':
+          description: Yêu cầu tạo homestay thành công, đang chờ duyệt
+        '403':
+          description: Không có quyền (Chỉ Host)
+
+  /homestays/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+        description: ID của Homestay
+    get:
+      tags: [Homestay]
+      summary: Lấy chi tiết homestay
+      responses:
+        '200':
+          description: Chi tiết homestay
+
+    put:
+      tags: [Homestay]
+      summary: Gửi yêu cầu cập nhật homestay (Host)
+      description: Yêu cầu này sẽ tạo một bản ghi UPDATE trong 'homestay_request' và chờ Admin duyệt.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HomestayCreateUpdate'
+      responses:
+        '202':
+          description: Yêu cầu cập nhật đã được ghi nhận, chờ duyệt
+        '403':
+          description: Không có quyền (Chỉ Host sở hữu)
+
+    delete:
+      tags: [Homestay]
+      summary: Xóa homestay (Host hoặc Admin)
+      responses:
+        '204':
+          description: Đã xóa
+
+  /homestays/mine:
+    get:
+      tags: [Homestay]
+      summary: Lấy danh sách homestay của chủ hiện tại
+      description: Chỉ chủ homestay (Host) mới có quyền xem danh sách các homestays mà họ sở hữu, bao gồm cả các homestay đang chờ duyệt/bị từ chối.
+      responses:
+        '200':
+          description: Danh sách homestay của chủ hiện tại
+
+# ===========================
+# BOOKING (Thue ca can)
+# ===========================
+  /bookings:
+    get:
+      tags: [Booking]
+      summary: Lấy danh sách booking (của tôi/của homestay tôi sở hữu)
+      responses:
+        '200':
+          description: Danh sách booking
+    post:
+      tags: [Booking]
+      summary: Đặt toàn bộ homestay
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [homestayId, checkIn, checkOut]
+              properties:
+                homestayId: { type: integer, example: 123 }
+                checkIn: { type: string, format: date, example: "2025-12-24" }
+                checkOut: { type: string, format: date, example: "2025-12-28" }
+                numGuests: { type: integer, example: 5 }
+      responses:
+        '201':
+          description: Đặt homestay thành công, chờ thanh toán/xác nhận
+        '400':
+          description: Homestay không khả dụng hoặc dữ liệu không hợp lệ
+
+  /bookings/{id}/cancel:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+        description: ID của Booking
+    post:
+      tags: [Booking]
+      summary: Hủy booking
+      responses:
+        '200':
+          description: Đã hủy booking
+
+  /bookings/{id}/status:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+        description: ID của Booking
+    put:
+      tags: [Booking]
+      summary: Cập nhật trạng thái đặt phòng (Host/Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, confirmed, paid, checked_in, checked_out, canceled, refunded]
+                  example: confirmed
+      responses:
+        '200':
+          description: Cập nhật trạng thái booking thành công
+
+# ===========================
+# PAYMENT
+# ===========================
+  /payments:
+    post:
+      tags: [Payment]
+      summary: Khởi tạo thanh toán cho booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bookingId, method]
+              properties:
+                bookingId: { type: integer, example: 123 }
+                method: { type: string, enum: [VNPAY, MOMO, CARD, TRANSFER], example: "VNPAY" }
+      responses:
+        '200':
+          description: Trả về liên kết/thông tin thanh toán
+
+# ===========================
+# REVIEW & REPLY
+# ===========================
+  /reviews:
+    post:
+      tags: [Review]
+      summary: Gửi đánh giá cho Homestay sau khi check-out
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bookingId, rating]
+              properties:
+                bookingId: { type: integer, example: 456 }
+                rating: { type: integer, minimum: 1, maximum: 5, example: 5 }
+                comment: { type: string, example: "Homestay rất tuyệt vời!" }
+      responses:
+        '201':
+          description: Gửi đánh giá thành công
+
+  /reviews/{id}/reply:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+        description: ID của Review
+    post:
+      tags: [Review]
+      summary: Phản hồi đánh giá (Host/Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, example: "Cảm ơn quý khách đã tin tưởng!" }
+      responses:
+        '201':
+          description: Phản hồi thành công
+
+# ===========================
+# COMPLAINT
+# ===========================
+  /complaints:
+    post:
+      tags: [Complaint]
+      summary: Gửi một khiếu nại
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, content]
+              properties:
+                bookingId: { type: integer, description: "ID Booking liên quan (Tùy chọn)" }
+                homestayId: { type: integer, description: "ID Homestay liên quan (Tùy chọn)" }
+                subject: { type: string, example: "Không hài lòng về chất lượng dịch vụ" }
+                content: { type: string, example: "Homestay không sạch sẽ như quảng cáo." }
+      responses:
+        '201':
+          description: Gửi khiếu nại thành công
+
+  /complaints/mine:
+    get:
+      tags: [Complaint]
+      summary: Xem danh sách khiếu nại của tôi
+      responses:
+        '200':
+          description: Danh sách khiếu nại
+
+# ===========================
+# CHAT / FAQ
+# ===========================
+  /chat/faq:
+    get:
+      tags: [Chat]
+      summary: Lấy danh sách FAQ/Câu hỏi thường gặp
+      responses:
+        '200':
+          description: Danh sách FAQ
+
+  /chat/session:
+    post:
+      tags: [Chat]
+      summary: Bắt đầu một phiên chat mới với Bot/Support
+      responses:
+        '201':
+          description: Trả về Session ID
+
+  /chat/session/{sessionId}/messages:
+    parameters:
+      - in: path
+        name: sessionId
+        required: true
+        schema: { type: integer }
+        description: ID Phiên chat
+    post:
+      tags: [Chat]
+      summary: Gửi tin nhắn trong phiên chat
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message: { type: string, example: "Tôi muốn hỏi về chính sách hủy phòng." }
+      responses:
+        '200':
+          description: Trả về tin nhắn của Bot/Host
+
+  /chat/messages/{messageId}/feedback:
+    parameters:
+      - in: path
+        name: messageId
+        required: true
+        schema: { type: integer }
+        description: ID Tin nhắn của Bot
+    post:
+      tags: [Chat]
+      summary: Phản hồi (Feedback) cho tin nhắn của Chatbot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rating]
+              properties:
+                rating: { type: integer, minimum: 1, maximum: 5, example: 5 }
+                comment: { type: string, example: "Câu trả lời rất hữu ích!" }
+      responses:
+        '201':
+          description: Ghi nhận phản hồi thành công
+
+# ===========================
+# ADMIN
+# ===========================
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách người dùng (Admin)
+      parameters:
+        - name: role
+          in: query
+          schema: { type: string }
+          description: Lọc theo vai trò (CUSTOMER, HOST, ADMIN)
+      responses:
+        '200':
+          description: Danh sách người dùng
+        '403':
+          description: Không có quyền truy cập
+
+  /admin/users/{id}/status:
+    put:
+      tags: [Admin]
+      summary: Cập nhật trạng thái người dùng (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID của người dùng
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: integer, enum: [1, 0], example: 0, description: "1:active, 0:inactive" }
+      responses:
+        '200':
+          description: Cập nhật trạng thái người dùng thành công
+
+  /admin/homestay-requests/pending:
+    get:
+      tags: [Admin]
+      summary: Lấy danh sách yêu cầu Homestay đang chờ duyệt
+      description: Cho phép admin xem tất cả yêu cầu (tạo mới/cập nhật) ở trạng thái pending.
+      responses:
+        '200':
+          description: Danh sách yêu cầu Homestay
+
+  /admin/homestay-requests/{id}/review:
+    put:
+      tags: [Admin]
+      summary: Duyệt hoặc từ chối yêu cầu Homestay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+          description: ID của yêu cầu Homestay trong bảng `homestay_request`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [approved, rejected], example: approved }
+                adminComment: { type: string, description: "Bình luận/lý do của Admin" }
+      responses:
+        '200':
+          description: Yêu cầu Homestay đã được cập nhật trạng thái
+
+  /admin/bookings:
+    get:
+      tags: [Admin]
+      summary: Quản lý đơn đặt phòng (Admin)
+      responses:
+        '200':
+          description: Danh sách đơn đặt phòng
+
+  /admin/complaints:
+    get:
+      tags: [Admin]
+      summary: Quản lý khiếu nại (Admin)
+      responses:
+        '200':
+          description: Danh sách khiếu nại
+
+  /admin/reports/revenue:
+    get:
+      tags: [Admin]
+      summary: Báo cáo doanh thu homestay tổng hợp
+      responses:
+        '200':
+          description: Thống kê doanh thu
+
+  /admin/faqs:
+    get:
+      tags: [Admin]
+      summary: Quản lý FAQ
+      responses:
+        '200':
+          description: Danh sách FAQ
+    post:
+      tags: [Admin]
+      summary: Thêm FAQ mới
+      responses:
+        '201':
+          description: Tạo FAQ thành công
+  /admin/faqs/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: integer }
+        description: ID của FAQ
+    put:
+      tags: [Admin]
+      summary: Cập nhật FAQ
+      responses:
+        '200':
+          description: Cập nhật FAQ thành công
+    delete:
+      tags: [Admin]
+      summary: Xóa FAQ
+      responses:
+        '204':
+          description: Xóa FAQ thành công

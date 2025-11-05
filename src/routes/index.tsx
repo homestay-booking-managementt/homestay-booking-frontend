@@ -1,10 +1,24 @@
 import Login from "@/auth/Login";
 import PrivateRoute from "@/auth/PrivateRoute";
+import BookingDashboardPage from "@/pages/Booking";
+import BookingHistoryPage from "@/pages/BookingHistory";
+import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
+import {
+    AdminDashboardPage,
+    AdminHomestayApprovalPage,
+    AdminChatMonitorPage,
+    AdminSystemStatsPage,
+} from "@/pages/Admin";
+import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
+import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
+import PaymentPortalPage from "@/pages/Payment";
+import ProfilePage from "@/pages/Profile";
+import ReviewCenterPage from "@/pages/Reviews";
+import SupportCenterPage from "@/pages/Support";
 import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
-import HomePage from "@/pages/HomePage";
 import { useRoutes } from "react-router-dom";
 
 const PublicRoutes = [
@@ -31,18 +45,89 @@ const PrivateRoutes = [
     {
         element: <PrivateRoute />,
         children: [
-            // Home page
             {
                 path: "/",
-                element: <HomePage />,
-            },
-            {
-                path: "/dashboard",
                 element: <DashboardPage />,
                 children: [
                     {
                         index: true,
                         element: <DashboardHome />,
+                    },
+                    {
+                        path: "homestays",
+                        element: <HomestayListPage />,
+                    },
+                    {
+                        path: "homestays/new",
+                        element: <HomestayFormPage />,
+                    },
+                    {
+                        path: "homestays/mine",
+                        element: <MyHomestaysPage />,
+                    },
+                    {
+                        path: "homestays/:homestayId",
+                        element: <HomestayDetailPage />,
+                    },
+                    {
+                        path: "homestays/:homestayId/edit",
+                        element: <HomestayFormPage />,
+                    },
+                    {
+                        path: "bookings",
+                        element: <BookingDashboardPage />,
+                    },
+                    {
+                        path: "bookings/history",
+                        element: <BookingHistoryPage />,
+                    },
+                    {
+                        path: "payments",
+                        element: <PaymentPortalPage />,
+                    },
+                    {
+                        path: "reviews",
+                        element: <ReviewCenterPage />,
+                    },
+                    {
+                        path: "complaints",
+                        element: <ComplaintCenterPage />,
+                    },
+                    {
+                        path: "support",
+                        element: <SupportCenterPage />,
+                    },
+                    {
+                        path: "profile",
+                        element: <ProfilePage />,
+                    },
+                    {
+                        path: "host/bookings",
+                        element: <HostBookingManagementPage />,
+                    },
+                    {
+                        path: "host/revenue",
+                        element: <HostRevenueReportPage />,
+                    },
+                    {
+                        path: "host/chat",
+                        element: <HostChatPage />,
+                    },
+                    {
+                        path: "admin",
+                        element: <AdminDashboardPage />,
+                    },
+                    {
+                        path: "admin/homestays",
+                        element: <AdminHomestayApprovalPage />,
+                    },
+                    {
+                        path: "admin/chat-monitor",
+                        element: <AdminChatMonitorPage />,
+                    },
+                    {
+                        path: "admin/statistics",
+                        element: <AdminSystemStatsPage />,
                     },
                 ],
             },

@@ -152,7 +152,7 @@ export const RoleBasedExample = () => {
     return (
         <div className="sidebar">
             <ul className="nav">
-                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/">Dashboard</a></li>
 
                 {canViewReports && (
                     <li><a href="/reports">Reports</a></li>

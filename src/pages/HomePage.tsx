@@ -8,7 +8,7 @@ const HomePage = () => {
             A React + TypeScript + Vite application with Redux Toolkit, React Router, and Axios.
           </p>
           <div className="mt-4">
-            <a href="/dashboard" className="btn btn-primary btn-lg me-2">
+            <a href="/" className="btn btn-primary btn-lg me-2">
               Go to Dashboard
             </a>
           </div>

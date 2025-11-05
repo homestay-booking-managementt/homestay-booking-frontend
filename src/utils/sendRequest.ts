@@ -5,12 +5,13 @@ import { ERROR_STATUS } from "../types/request";
 import { showAlert } from "./showAlert";
 
 interface RequestOptions {
-  payload?: object;
+  payload?: object | FormData;
   thunkApi?: { rejectWithValue: (value: unknown) => unknown };
   method: Method;
   defineAlert?: boolean;
   timeout?: number;
   dataMap?: (data: unknown) => unknown;
+  headers?: AxiosRequestConfig["headers"];
 }
 
 export const sendRequest = async (url: string, options?: Partial<RequestOptions>) => {
@@ -27,6 +28,10 @@ export const sendRequest = async (url: string, options?: Partial<RequestOptions>
 
   if (options?.timeout) {
     config["timeout"] = options.timeout;
+  }
+
+  if (options?.headers) {
+    config["headers"] = options.headers;
   }
 
   const request = axios(config)
