@@ -1,70 +1,264 @@
 {
   "users": [
-    { "id": 1, "role_id": 1, "name": "Nguyễn Duy Biền", "email": "bien@example.com", "phone": "0912345678", "passwd": "123456", "status": 1, "is_deleted": false, "created_at": "2025-01-01T08:00:00" },
-    { "id": 2, "role_id": 2, "name": "Trần Văn Dương", "email": "duong@example.com", "phone": "0987654321", "passwd": "123456", "status": 1, "is_deleted": false, "created_at": "2025-01-02T09:00:00" }
+    {
+      "id": 1,
+      "role_id": 1,
+      "name": "Nguyễn Duy Biền",
+      "email": "bien@example.com",
+      "phone": "0912345678",
+      "passwd": "123456",
+      "status": 1,
+      "is_deleted": false,
+      "created_at": "2025-01-01T08:00:00"
+    },
+    {
+      "id": 2,
+      "role_id": 2,
+      "name": "Trần Văn Dương",
+      "email": "duong@example.com",
+      "phone": "0987654321",
+      "passwd": "123456",
+      "status": 1,
+      "is_deleted": false,
+      "created_at": "2025-01-02T09:00:00"
+    }
   ],
-
   "roles": [
-    { "id": 1, "name": "customer", "description": "Người đặt phòng" },
-    { "id": 2, "name": "host", "description": "Chủ homestay" },
-    { "id": 3, "name": "admin", "description": "Quản trị viên" }
+    {
+      "id": 1,
+      "name": "customer",
+      "description": "Người đặt phòng"
+    },
+    {
+      "id": 2,
+      "name": "host",
+      "description": "Chủ homestay"
+    },
+    {
+      "id": 3,
+      "name": "admin",
+      "description": "Quản trị viên"
+    }
   ],
-
   "homestays": [
-    { "id": 1, "user_id": 2, "approved_by": 3, "name": "Cozy Mountain Retreat", "description": "Homestay trên núi yên bình", "address": "Đà Lạt", "rating": 4.8, "capacity": 6, "num_rooms": 3, "bathroom_count": 2, "base_price": 1200000, "amenities": ["wifi", "parking"], "status": 1, "created_at": "2025-01-03T08:00:00", "approved_at": "2025-01-04T09:00:00", "is_deleted": false },
-    { "id": 2, "user_id": 2, "approved_by": 3, "name": "Beachfront Villa", "description": "Biệt thự biển cao cấp", "address": "Nha Trang", "rating": 4.9, "capacity": 8, "num_rooms": 4, "bathroom_count": 3, "base_price": 2500000, "amenities": ["pool", "sea view"], "status": 1, "created_at": "2025-01-05T08:00:00", "approved_at": "2025-01-06T09:00:00", "is_deleted": false }
+    {
+      "id": 1,
+      "user_id": 2,
+      "approved_by": 3,
+      "name": "Cozy Mountain Retreat",
+      "description": "Homestay trên núi yên bình",
+      "address": "Đà Lạt",
+      "rating": 4.8,
+      "capacity": 6,
+      "num_rooms": 3,
+      "bathroom_count": 2,
+      "base_price": 1200000,
+      "amenities": [
+        "wifi",
+        "parking"
+      ],
+      "status": 1,
+      "created_at": "2025-01-03T08:00:00",
+      "approved_at": "2025-01-04T09:00:00",
+      "is_deleted": false
+    },
+    {
+      "id": 2,
+      "user_id": 2,
+      "approved_by": 3,
+      "name": "Beachfront Villa",
+      "description": "Biệt thự biển cao cấp",
+      "address": "Nha Trang",
+      "rating": 4.9,
+      "capacity": 8,
+      "num_rooms": 4,
+      "bathroom_count": 3,
+      "base_price": 2500000,
+      "amenities": [
+        "pool",
+        "sea view"
+      ],
+      "status": 1,
+      "created_at": "2025-01-05T08:00:00",
+      "approved_at": "2025-01-06T09:00:00",
+      "is_deleted": false
+    }
   ],
-
   "homestay_images": [
-    { "id": 1, "homestay_id": 1, "url": "https://agotourist.com/wp-content/uploads/2020/04/lengkeng-homestay-da-lat-1.jpg", "alt": "View núi", "is_primary": true, "created_at": "2025-01-03T08:00:00" },
-    { "id": 2, "homestay_id": 2, "url": "https://lh3.googleusercontent.com/p/AF1QipM1baINxuwoYbNWNDSKa0uq8nnziXFmKZNX4TBG=w574-h384-n-k-rw-no-v1", "alt": "Hướng biển", "is_primary": true, "created_at": "2025-01-05T08:00:00" }
+    {
+      "id": 1,
+      "homestay_id": 1,
+      "url": "/images/mountain1.jpg",
+      "alt": "View núi",
+      "is_primary": true,
+      "created_at": "2025-01-03T08:00:00"
+    },
+    {
+      "id": 2,
+      "homestay_id": 2,
+      "url": "/images/beach1.jpg",
+      "alt": "Hướng biển",
+      "is_primary": true,
+      "created_at": "2025-01-05T08:00:00"
+    }
   ],
-
   "bookings": [
-    { "id": 1, "user_id": 1, "homestay_id": 1, "check_in": "2025-02-10", "check_out": "2025-02-13", "nights": 3, "total_price": 3600000, "status": "checked_out", "created_at": "2025-02-01T10:00:00" },
-    { "id": 2, "user_id": 1, "homestay_id": 2, "check_in": "2025-03-01", "check_out": "2025-03-05", "nights": 4, "total_price": 10000000, "status": "paid", "created_at": "2025-02-15T10:00:00" }
+    {
+      "id": 1,
+      "user_id": 1,
+      "homestay_id": 1,
+      "check_in": "2025-02-10",
+      "check_out": "2025-02-13",
+      "nights": 3,
+      "total_price": 3600000,
+      "status": "checked_out",
+      "created_at": "2025-02-01T10:00:00"
+    },
+    {
+      "id": 2,
+      "user_id": 1,
+      "homestay_id": 2,
+      "check_in": "2025-03-01",
+      "check_out": "2025-03-05",
+      "nights": 4,
+      "total_price": 10000000,
+      "status": "paid",
+      "created_at": "2025-02-15T10:00:00"
+    }
   ],
-
   "reviews": [
-    { "id": 1, "booking_id": 1, "homestay_id": 1, "customer_id": 1, "rating": 5, "comment": "Rất tuyệt vời, chủ nhà thân thiện!", "status": 1, "created_at": "2025-02-14T10:00:00", "is_deleted": false },
-    { "id": 2, "booking_id": 2, "homestay_id": 2, "customer_id": 1, "rating": 4, "comment": "View đẹp, đồ ăn ngon!", "status": 1, "created_at": "2025-03-06T10:00:00", "is_deleted": false }
+    {
+      "id": 1,
+      "booking_id": 1,
+      "homestay_id": 1,
+      "customer_id": 1,
+      "rating": 5,
+      "comment": "Rất tuyệt vời, chủ nhà thân thiện!",
+      "status": 1,
+      "created_at": "2025-02-14T10:00:00",
+      "is_deleted": false
+    },
+    {
+      "id": 2,
+      "booking_id": 2,
+      "homestay_id": 2,
+      "customer_id": 1,
+      "rating": 4,
+      "comment": "View đẹp, đồ ăn ngon!",
+      "status": 1,
+      "created_at": "2025-03-06T10:00:00",
+      "is_deleted": false
+    }
   ],
-
   "payments": [
-    { "id": 1, "booking_id": 1, "amount": 3600000, "method": "credit_card", "status": "paid", "transaction_code": "TXN001", "paid_at": "2025-02-10T08:00:00" },
-    { "id": 2, "booking_id": 2, "amount": 10000000, "method": "paypal", "status": "pending", "transaction_code": "TXN002", "paid_at": "2025-03-01T08:00:00" }
+    {
+      "id": 1,
+      "booking_id": 1,
+      "amount": 3600000,
+      "method": "credit_card",
+      "status": "paid",
+      "transaction_code": "TXN001",
+      "paid_at": "2025-02-10T08:00:00"
+    },
+    {
+      "id": 2,
+      "booking_id": 2,
+      "amount": 10000000,
+      "method": "paypal",
+      "status": "pending",
+      "transaction_code": "TXN002",
+      "paid_at": "2025-03-01T08:00:00"
+    }
   ],
-
   "complaints": [
-    { "id": 1, "user_id": 1, "booking_id": 2, "subject": "Phòng không sạch sẽ", "content": "Khi nhận phòng có mùi ẩm mốc.", "status": "pending", "created_at": "2025-03-06T10:00:00" }
+    {
+      "id": 1,
+      "user_id": 1,
+      "booking_id": 2,
+      "subject": "Phòng không sạch sẽ",
+      "content": "Khi nhận phòng có mùi ẩm mốc.",
+      "status": "pending",
+      "created_at": "2025-03-06T10:00:00"
+    }
   ],
-
   "policies": [
-    { "id": 1, "homestay_id": 1, "name": "Free cancel", "policy_type": "cancel", "description": "Hủy miễn phí trong 48h", "is_active": true, "created_at": "2025-01-10T09:00:00" }
+    {
+      "id": 1,
+      "homestay_id": 1,
+      "name": "Free cancel",
+      "policy_type": "cancel",
+      "description": "Hủy miễn phí trong 48h",
+      "is_active": true,
+      "created_at": "2025-01-10T09:00:00"
+    }
   ],
-
   "chat_sessions": [
-    { "id": 1, "customer_id": 1, "host_id": 2, "initiated_by": "customer", "status": "active", "started_at": "2025-02-10T08:00:00" }
+    {
+      "id": 1,
+      "customer_id": 1,
+      "host_id": 2,
+      "initiated_by": "customer",
+      "status": "active",
+      "started_at": "2025-02-10T08:00:00"
+    }
   ],
-
   "chat_messages": [
-    { "id": 1, "session_id": 1, "is_from_bot": false, "message_type": "text", "content": "Xin chào, tôi muốn hỏi về phòng trống.", "is_read": true, "created_at": "2025-02-10T09:00:00" },
-    { "id": 2, "session_id": 1, "is_from_bot": false, "message_type": "text", "content": "Homestay còn phòng nhé!", "is_read": true, "created_at": "2025-02-10T09:01:00" }
+    {
+      "id": 1,
+      "session_id": 1,
+      "is_from_bot": false,
+      "message_type": "text",
+      "content": "Xin chào, tôi muốn hỏi về phòng trống.",
+      "is_read": true,
+      "created_at": "2025-02-10T09:00:00"
+    },
+    {
+      "id": 2,
+      "session_id": 1,
+      "is_from_bot": false,
+      "message_type": "text",
+      "content": "Homestay còn phòng nhé!",
+      "is_read": true,
+      "created_at": "2025-02-10T09:01:00"
+    }
   ],
-
   "notifications": [
-    { "id": 1, "user_id": 1, "title": "Booking Confirmed", "body": "Đặt phòng #1 của bạn đã được xác nhận.", "is_read": false, "created_at": "2025-02-01T11:00:00" }
+    {
+      "id": 1,
+      "user_id": 1,
+      "title": "Booking Confirmed",
+      "body": "Đặt phòng #1 của bạn đã được xác nhận.",
+      "is_read": false,
+      "created_at": "2025-02-01T11:00:00"
+    }
   ],
-
   "review_reports": [
-    { "id": 1, "review_id": 2, "reporter_id": 2, "reason": "Spam nội dung", "status": 0, "created_at": "2025-03-08T08:00:00" }
+    {
+      "id": 1,
+      "review_id": 2,
+      "reporter_id": 2,
+      "reason": "Spam nội dung",
+      "status": 0,
+      "created_at": "2025-03-08T08:00:00"
+    }
   ],
-
   "chat_log_admins": [
-    { "id": 1, "admin_id": 3, "action": "delete_message", "note": "Xóa tin nhắn vi phạm", "created_at": "2025-03-09T08:00:00" }
+    {
+      "id": 1,
+      "admin_id": 3,
+      "action": "delete_message",
+      "note": "Xóa tin nhắn vi phạm",
+      "created_at": "2025-03-09T08:00:00"
+    }
   ],
-
   "chatbot_trainings": [
-    { "id": 1, "question_pattern": "Hủy phòng", "answer_template": "Bạn có thể hủy phòng trong 48h kể từ khi đặt.", "category": "policy", "is_active": true, "created_at": "2025-02-10T08:00:00" }
+    {
+      "id": 1,
+      "question_pattern": "Hủy phòng",
+      "answer_template": "Bạn có thể hủy phòng trong 48h kể từ khi đặt.",
+      "category": "policy",
+      "is_active": true,
+      "created_at": "2025-02-10T08:00:00"
+    }
   ]
 }

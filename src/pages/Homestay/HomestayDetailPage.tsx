@@ -294,39 +294,100 @@ const HomestayDetailPage = () => {
     );
 
   return (
-    <div className="container py-4">
-      <HomestayHeader homestay={homestay} formatCurrency={formatCurrency} />
-      <HomestayImageCarousel images={homestay.images} />
-
-      <div className="row">
-        <div className="col-lg-8">
-          <HomestayInfoCard homestay={homestay} />
+    <div className="container">
+      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+        <div>
+          <h1 className="h3 mb-1">{homestay.name}</h1>
+          <p className="text-muted mb-0">
+            {homestay.address}
+          </p>
         </div>
-        <div className="col-lg-4">
-          <HostInfoCard host={homestay.host} />
+        <div className="d-flex gap-2 mt-3 mt-md-0">
+          <Link className="btn btn-outline-primary" to={`/homestays/${homestay.id}/edit`}>
+            Edit
+          </Link>
+          <button
+            className="btn btn-danger"
+            disabled={deleting}
+            onClick={handleDelete}
+            type="button"
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
         </div>
       </div>
 
-      <div className="d-flex gap-2 mt-4">
-        <Link
-          className="btn btn-outline-primary"
-          to={`/homestays/${homestay.id}/edit`}
-        >
-          <i className="bi bi-pencil-square me-1" />
-          Sửa thông tin
-        </Link>
-        <button
-          className={`btn ${deleting ? "btn-secondary" : "btn-danger"}`}
-          disabled={deleting}
-          onClick={handleDelete}
-          type="button"
-        >
-          <i className="bi bi-trash3 me-1" />
-          {deleting ? "Đang xóa..." : "Xóa homestay"}
-        </button>
-        <Link className="btn btn-link ms-auto" to="/homestays">
-          ← Quay lại danh sách
-        </Link>
+      {homestay.images && homestay.images.length > 0 && (
+        <div className="row g-3 mb-4">
+          {homestay.images.map((img) => (
+            <div className="col-12 col-md-6 col-xl-4" key={img.id}>
+              <div className="ratio ratio-16x9">
+                <img
+                  alt={img.alt || `Image ${img.id}`}
+                  className="rounded shadow-sm"
+                  src={img.url}
+                  style={{ objectFit: "cover" }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+
+      <div className="card shadow-sm">
+        <div className="card-body">
+          <div className="row">
+            <div className="col-md-6">
+              <h5 className="card-title">Overview</h5>
+              <ul className="list-group list-group-flush">
+                <li className="list-group-item px-0 d-flex justify-content-between">
+                  <span>Price per night</span>
+                  <strong>{formatCurrency(homestay.base_price)}</strong>
+                </li>
+                <li className="list-group-item px-0 d-flex justify-content-between">
+                  <span>Capacity</span>
+                  <strong>{homestay.capacity} guests</strong>
+                </li>
+                <li className="list-group-item px-0 d-flex justify-content-between">
+                  <span>Bathroom</span>
+                  <strong>{homestay.bathroom_count ?? "--"}</strong>
+                </li>
+                <li className="list-group-item px-0 d-flex justify-content-between">
+                  <span>Numroom</span>
+                  <strong>{homestay.num_rooms ?? "--"}</strong>
+                </li>
+                {homestay.status && (
+                  <li className="list-group-item px-0 d-flex justify-content-between">
+                    <span>Status</span>
+                    <span className="badge bg-secondary text-uppercase">{homestay.status}</span>
+                  </li>
+                )}
+              </ul>
+            </div>
+            <div className="col-md-6">
+              <h5 className="card-title">Amenities</h5>
+              {homestay.amenities && homestay.amenities.length > 0 ? (
+                <div className="d-flex flex-wrap gap-2">
+                  {homestay.amenities.map((amenity) => (
+                    <span className="badge bg-light text-dark border" key={amenity}>
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted">Amenities not provided yet.</p>
+              )}
+            </div>
+          </div>
+
+          {homestay.description && (
+            <div className="mt-4">
+              <h5>Description</h5>
+              <p className="mb-0">{homestay.description}</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

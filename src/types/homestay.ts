@@ -1,4 +1,3 @@
-
 // export interface HomestayPayload {
 //   name: string;
 //   address: string;
@@ -54,22 +53,17 @@ export interface HomestayPayload {
   address: string;
   city: string;
   description?: string;
-  pricePerNight: number;
+  base_price: number;      // đổi từ pricePerNight → base_price cho đúng db.json
   capacity: number;
-  numBedrooms?: number;
-  numBathrooms?: number;
+  num_rooms?: number;      // đổi từ numBedrooms → num_rooms
+  bathroom_count?: number; // thêm nếu muốn hiển thị chi tiết phòng tắm
   amenities?: string[];
   images?: string[];
 }
 
-export interface Homestay extends HomestayPayload {
-  id: number;
-  ownerId?: number;
-  status?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
+// --------------------
+// Bộ lọc homestay
+// --------------------
 export interface HomestayFilters {
   city?: string;
   capacity?: number;
@@ -104,16 +98,13 @@ export interface Homestay {
   description?: string;
   amenities?: string[];
   status?: number;
-  created_at: string;
-  approved_at: string;
+  created_at?: string;
 
   // Chủ sở hữu (nếu expand user)
-  host: {
+  host?: {
     id: number;
     name: string;
     email?: string;
-    phone?: string;
-    created_at: string;
   };
 
   // Danh sách ảnh (nếu expand homestay_images)
