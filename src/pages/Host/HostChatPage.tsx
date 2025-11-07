@@ -214,7 +214,9 @@ const HostChatPage = () => {
                     >
                       <div className="small fw-semibold mb-1">{msg.senderName}</div>
                       <div>{msg.message}</div>
-                      <div className={`small mt-1 ${msg.senderRole === "host" ? "text-white-50" : "text-muted"}`}>
+                      <div
+                        className={`small mt-1 ${msg.senderRole === "host" ? "text-white-50" : "text-muted"}`}
+                      >
                         {new Date(msg.timestamp).toLocaleTimeString()}
                       </div>
                     </div>

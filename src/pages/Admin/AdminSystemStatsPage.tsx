@@ -100,10 +100,16 @@ const AdminSystemStatsPage = () => {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">System Statistics</h1>
-          <p className="text-muted mb-0">Comprehensive overview of platform performance and metrics.</p>
+          <p className="text-muted mb-0">
+            Comprehensive overview of platform performance and metrics.
+          </p>
         </div>
         <div className="d-flex gap-2">
-          <select className="form-select" value={period} onChange={(e) => setPeriod(e.target.value as any)}>
+          <select
+            className="form-select"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value as any)}
+          >
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
             <option value="year">This Year</option>
@@ -133,7 +139,9 @@ const AdminSystemStatsPage = () => {
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <div className="text-muted small mb-1">Total Revenue</div>
-              <div className="h3 fw-bold text-success mb-0">{stats.totalRevenue.toLocaleString()}₫</div>
+              <div className="h3 fw-bold text-success mb-0">
+                {stats.totalRevenue.toLocaleString()}₫
+              </div>
               <div className="text-muted small mt-1">From {stats.totalBookings} bookings</div>
             </div>
           </div>
@@ -217,7 +225,11 @@ const AdminSystemStatsPage = () => {
                   const avgPerBooking = Math.round(data.revenue / data.bookings);
                   const growth =
                     index > 0
-                      ? Math.round(((data.revenue - monthlyData[index - 1].revenue) / monthlyData[index - 1].revenue) * 100)
+                      ? Math.round(
+                          ((data.revenue - monthlyData[index - 1].revenue) /
+                            monthlyData[index - 1].revenue) *
+                            100
+                        )
                       : 0;
 
                   return (
@@ -301,7 +313,9 @@ const AdminSystemStatsPage = () => {
               <div>
                 <div className="d-flex justify-content-between mb-1">
                   <span>Inactive Listings</span>
-                  <span className="fw-semibold">{stats.totalHomestays - stats.activeHomestays}</span>
+                  <span className="fw-semibold">
+                    {stats.totalHomestays - stats.activeHomestays}
+                  </span>
                 </div>
                 <div className="progress" style={{ height: "8px" }}>
                   <div

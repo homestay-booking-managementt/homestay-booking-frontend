@@ -96,7 +96,9 @@ const HomestayListPage = () => {
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
         <div>
           <h1 className="h3 mb-1">Homestay Listings</h1>
-          <p className="text-muted mb-0">Browse and manage every homestay currently available in the system.</p>
+          <p className="text-muted mb-0">
+            Browse and manage every homestay currently available in the system.
+          </p>
         </div>
         <Link className="btn btn-primary mt-3 mt-md-0" to="/homestays/new">
           + Add Homestay
@@ -161,7 +163,12 @@ const HomestayListPage = () => {
           <button className="btn btn-primary" disabled={loading} type="submit">
             {loading ? "Searching..." : "Search"}
           </button>
-          <button className="btn btn-outline-secondary" onClick={handleReset} type="button" disabled={loading}>
+          <button
+            className="btn btn-outline-secondary"
+            onClick={handleReset}
+            type="button"
+            disabled={loading}
+          >
             Clear filters
           </button>
         </div>
@@ -186,7 +193,10 @@ const HomestayListPage = () => {
                       style={{ objectFit: "cover" }}
                     />
                   ) : (
-                    <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: 200 }}>
+                    <div
+                      className="card-img-top bg-light d-flex align-items-center justify-content-center"
+                      style={{ height: 200 }}
+                    >
                       <span className="text-muted">No image available</span>
                     </div>
                   )}
@@ -205,7 +215,10 @@ const HomestayListPage = () => {
                       </p>
                     )}
                     <div className="mt-3">
-                      <Link className="btn btn-outline-primary w-100" to={`/homestays/${homestay.id}`}>
+                      <Link
+                        className="btn btn-outline-primary w-100"
+                        to={`/homestays/${homestay.id}`}
+                      >
                         View details
                       </Link>
                     </div>

@@ -59,7 +59,9 @@ const MyHomestaysPage = () => {
       <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
         <div>
           <h1 className="h3 mb-1">My Homestays</h1>
-          <p className="text-muted mb-0">Manage the homestays you own, including their current approval status.</p>
+          <p className="text-muted mb-0">
+            Manage the homestays you own, including their current approval status.
+          </p>
         </div>
         <Link className="btn btn-primary mt-3 mt-md-0" to="/homestays/new">
           + Add Homestay
@@ -90,7 +92,10 @@ const MyHomestaysPage = () => {
                     style={{ objectFit: "cover" }}
                   />
                 ) : (
-                  <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: 200 }}>
+                  <div
+                    className="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style={{ height: 200 }}
+                  >
                     <span className="text-muted">No image available</span>
                   </div>
                 )}
@@ -109,7 +114,10 @@ const MyHomestaysPage = () => {
                   <p className="mb-2">Price: {formatCurrency(homestay.pricePerNight)}</p>
                   <p className="mb-3">Capacity: {homestay.capacity} guests</p>
                   <div className="mt-auto d-flex gap-2">
-                    <Link className="btn btn-outline-primary flex-grow-1" to={`/homestays/${homestay.id}`}>
+                    <Link
+                      className="btn btn-outline-primary flex-grow-1"
+                      to={`/homestays/${homestay.id}`}
+                    >
                       View details
                     </Link>
                     <Link className="btn btn-primary" to={`/homestays/${homestay.id}/edit`}>

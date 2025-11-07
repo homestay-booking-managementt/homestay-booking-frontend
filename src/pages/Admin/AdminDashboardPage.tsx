@@ -33,9 +33,18 @@ const AdminDashboardPage = () => {
   const [loading, setLoading] = useState(false);
 
   const [userForm, setUserForm] = useState({ userId: "", status: "1" });
-  const [requestForm, setRequestForm] = useState({ requestId: "", status: "approved", comment: "" });
+  const [requestForm, setRequestForm] = useState({
+    requestId: "",
+    status: "approved",
+    comment: "",
+  });
   const [faqForm, setFaqForm] = useState({ question: "", answer: "", category: "" });
-  const [faqEditForm, setFaqEditForm] = useState({ id: "", question: "", answer: "", category: "" });
+  const [faqEditForm, setFaqEditForm] = useState({
+    id: "",
+    question: "",
+    answer: "",
+    category: "",
+  });
 
   const [submittingUser, setSubmittingUser] = useState(false);
   const [submittingRequest, setSubmittingRequest] = useState(false);
@@ -52,14 +61,15 @@ const AdminDashboardPage = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [usersData, requestsData, bookingsData, complaintsData, revenueData, faqsData] = await Promise.all([
-        fetchUsers(),
-        fetchPendingHomestayRequests(),
-        fetchAdminBookings(),
-        fetchAdminComplaints(),
-        fetchRevenueReport(),
-        fetchAdminFaqs(),
-      ]);
+      const [usersData, requestsData, bookingsData, complaintsData, revenueData, faqsData] =
+        await Promise.all([
+          fetchUsers(),
+          fetchPendingHomestayRequests(),
+          fetchAdminBookings(),
+          fetchAdminComplaints(),
+          fetchRevenueReport(),
+          fetchAdminFaqs(),
+        ]);
 
       setUsers(Array.isArray(usersData) ? usersData : []);
       setRequests(Array.isArray(requestsData) ? requestsData : []);
@@ -200,12 +210,16 @@ const AdminDashboardPage = () => {
       <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">Admin dashboard</h1>
-          <p className="text-muted mb-0">Monitor platform health and perform administrative actions.</p>
+          <p className="text-muted mb-0">
+            Monitor platform health and perform administrative actions.
+          </p>
         </div>
         <div className="text-end">
           <div className="fw-semibold">Total revenue</div>
           <div>${totalRevenue.toLocaleString()}</div>
-          {revenue?.generatedAt ? <div className="text-muted small">Updated {revenue.generatedAt}</div> : null}
+          {revenue?.generatedAt ? (
+            <div className="text-muted small">Updated {revenue.generatedAt}</div>
+          ) : null}
         </div>
       </div>
 
@@ -248,7 +262,12 @@ const AdminDashboardPage = () => {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="card-title mb-0">Users</h5>
-            <button className="btn btn-sm btn-outline-secondary" disabled={loading} onClick={loadData} type="button">
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              disabled={loading}
+              onClick={loadData}
+              type="button"
+            >
               {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>
@@ -271,7 +290,9 @@ const AdminDashboardPage = () => {
                     <td>{user.email}</td>
                     <td>{user.role}</td>
                     <td>
-                      <span className={`badge ${user.status === 1 ? "bg-success-subtle" : "bg-secondary-subtle"}`}>
+                      <span
+                        className={`badge ${user.status === 1 ? "bg-success-subtle" : "bg-secondary-subtle"}`}
+                      >
                         {user.status === 1 ? "Active" : "Inactive"}
                       </span>
                     </td>
@@ -300,7 +321,9 @@ const AdminDashboardPage = () => {
                     type="number"
                     min={1}
                     value={userForm.userId}
-                    onChange={(event) => setUserForm((prev) => ({ ...prev, userId: event.target.value }))}
+                    onChange={(event) =>
+                      setUserForm((prev) => ({ ...prev, userId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -313,14 +336,20 @@ const AdminDashboardPage = () => {
                     id="admin-user-status"
                     name="status"
                     value={userForm.status}
-                    onChange={(event) => setUserForm((prev) => ({ ...prev, status: event.target.value }))}
+                    onChange={(event) =>
+                      setUserForm((prev) => ({ ...prev, status: event.target.value }))
+                    }
                   >
                     <option value="1">Active</option>
                     <option value="0">Inactive</option>
                   </select>
                 </div>
                 <div className="col-12 text-end">
-                  <button className="btn btn-outline-primary" disabled={submittingUser} type="submit">
+                  <button
+                    className="btn btn-outline-primary"
+                    disabled={submittingUser}
+                    type="submit"
+                  >
                     {submittingUser ? "Updating..." : "Update user"}
                   </button>
                 </div>
@@ -345,7 +374,9 @@ const AdminDashboardPage = () => {
                     type="number"
                     min={1}
                     value={requestForm.requestId}
-                    onChange={(event) => setRequestForm((prev) => ({ ...prev, requestId: event.target.value }))}
+                    onChange={(event) =>
+                      setRequestForm((prev) => ({ ...prev, requestId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -358,7 +389,9 @@ const AdminDashboardPage = () => {
                     id="admin-request-status"
                     name="status"
                     value={requestForm.status}
-                    onChange={(event) => setRequestForm((prev) => ({ ...prev, status: event.target.value }))}
+                    onChange={(event) =>
+                      setRequestForm((prev) => ({ ...prev, status: event.target.value }))
+                    }
                   >
                     <option value="approved">Approve</option>
                     <option value="rejected">Reject</option>
@@ -373,12 +406,18 @@ const AdminDashboardPage = () => {
                     id="admin-request-comment"
                     name="comment"
                     value={requestForm.comment}
-                    onChange={(event) => setRequestForm((prev) => ({ ...prev, comment: event.target.value }))}
+                    onChange={(event) =>
+                      setRequestForm((prev) => ({ ...prev, comment: event.target.value }))
+                    }
                     placeholder="Optional"
                   />
                 </div>
                 <div className="col-12 text-end">
-                  <button className="btn btn-outline-primary" disabled={submittingRequest} type="submit">
+                  <button
+                    className="btn btn-outline-primary"
+                    disabled={submittingRequest}
+                    type="submit"
+                  >
                     {submittingRequest ? "Submitting..." : "Submit review"}
                   </button>
                 </div>
@@ -485,7 +524,9 @@ const AdminDashboardPage = () => {
                     id="admin-faq-question"
                     name="question"
                     value={faqForm.question}
-                    onChange={(event) => setFaqForm((prev) => ({ ...prev, question: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqForm((prev) => ({ ...prev, question: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -499,7 +540,9 @@ const AdminDashboardPage = () => {
                     name="answer"
                     rows={3}
                     value={faqForm.answer}
-                    onChange={(event) => setFaqForm((prev) => ({ ...prev, answer: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqForm((prev) => ({ ...prev, answer: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -512,7 +555,9 @@ const AdminDashboardPage = () => {
                     id="admin-faq-category"
                     name="category"
                     value={faqForm.category}
-                    onChange={(event) => setFaqForm((prev) => ({ ...prev, category: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqForm((prev) => ({ ...prev, category: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-12 text-end">
@@ -537,7 +582,9 @@ const AdminDashboardPage = () => {
                     type="number"
                     min={1}
                     value={faqEditForm.id}
-                    onChange={(event) => setFaqEditForm((prev) => ({ ...prev, id: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqEditForm((prev) => ({ ...prev, id: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -550,7 +597,9 @@ const AdminDashboardPage = () => {
                     id="admin-faq-edit-question"
                     name="question"
                     value={faqEditForm.question}
-                    onChange={(event) => setFaqEditForm((prev) => ({ ...prev, question: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqEditForm((prev) => ({ ...prev, question: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -564,7 +613,9 @@ const AdminDashboardPage = () => {
                     name="answer"
                     rows={3}
                     value={faqEditForm.answer}
-                    onChange={(event) => setFaqEditForm((prev) => ({ ...prev, answer: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqEditForm((prev) => ({ ...prev, answer: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -577,7 +628,9 @@ const AdminDashboardPage = () => {
                     id="admin-faq-edit-category"
                     name="category"
                     value={faqEditForm.category}
-                    onChange={(event) => setFaqEditForm((prev) => ({ ...prev, category: event.target.value }))}
+                    onChange={(event) =>
+                      setFaqEditForm((prev) => ({ ...prev, category: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-12 text-end">
@@ -594,7 +647,10 @@ const AdminDashboardPage = () => {
               ) : (
                 <ul className="list-group list-group-flush">
                   {faqs.map((faq) => (
-                    <li className="list-group-item d-flex justify-content-between align-items-start" key={faq.id}>
+                    <li
+                      className="list-group-item d-flex justify-content-between align-items-start"
+                      key={faq.id}
+                    >
                       <div>
                         <div className="fw-semibold">{faq.question}</div>
                         <div className="text-muted small">{faq.category ?? "General"}</div>

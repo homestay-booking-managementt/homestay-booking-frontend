@@ -68,9 +68,9 @@ components:
           example: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
 
 paths:
-# ===========================
-# AUTH
-# ===========================
+  # ===========================
+  # AUTH
+  # ===========================
   /auth/register:
     post:
       tags: [Auth]
@@ -89,9 +89,9 @@ paths:
                 password: { type: string, format: password, example: "secure123" }
                 role: { type: string, enum: [CUSTOMER, HOST], example: "CUSTOMER" }
       responses:
-        '201':
+        "201":
           description: Đăng ký thành công
-        '400':
+        "400":
           description: Lỗi dữ liệu hoặc Email đã tồn tại
 
   /auth/login:
@@ -109,7 +109,7 @@ paths:
                 email: { type: string, example: "a@example.com" }
                 password: { type: string, format: password, example: "secure123" }
       responses:
-        '200':
+        "200":
           description: Đăng nhập thành công
 
   /auth/refresh:
@@ -126,7 +126,7 @@ paths:
               properties:
                 refreshToken: { type: string, example: "jwt_refresh_token_string" }
       responses:
-        '200':
+        "200":
           description: Token mới
 
   /auth/logout:
@@ -134,18 +134,18 @@ paths:
       tags: [Auth]
       summary: Đăng xuất (xóa session hiện tại)
       responses:
-        '200':
+        "200":
           description: Đăng xuất thành công
 
-# ===========================
-# USER
-# ===========================
+  # ===========================
+  # USER
+  # ===========================
   /users/me:
     get:
       tags: [User]
       summary: Lấy thông tin người dùng hiện tại
       responses:
-        '200':
+        "200":
           description: Thông tin người dùng
     put:
       tags: [User]
@@ -160,7 +160,7 @@ paths:
                 phone: { type: string }
                 email: { type: string }
       responses:
-        '200':
+        "200":
           description: Cập nhật thành công
 
   /upload:
@@ -179,12 +179,12 @@ paths:
                   format: binary
                   description: File ảnh cần upload
       responses:
-        '200':
+        "200":
           description: Trả về URL ảnh đã upload
 
-# ===========================
-# HOMESTAY
-# ===========================
+  # ===========================
+  # HOMESTAY
+  # ===========================
   /homestays:
     get:
       tags: [Homestay]
@@ -207,7 +207,7 @@ paths:
           schema: { type: string, format: date }
           description: Ngày trả phòng
       responses:
-        '200':
+        "200":
           description: Danh sách homestay công khai
 
     post:
@@ -219,11 +219,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HomestayCreateUpdate'
+              $ref: "#/components/schemas/HomestayCreateUpdate"
       responses:
-        '201':
+        "201":
           description: Yêu cầu tạo homestay thành công, đang chờ duyệt
-        '403':
+        "403":
           description: Không có quyền (Chỉ Host)
 
   /homestays/{id}:
@@ -237,7 +237,7 @@ paths:
       tags: [Homestay]
       summary: Lấy chi tiết homestay
       responses:
-        '200':
+        "200":
           description: Chi tiết homestay
 
     put:
@@ -248,18 +248,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HomestayCreateUpdate'
+              $ref: "#/components/schemas/HomestayCreateUpdate"
       responses:
-        '202':
+        "202":
           description: Yêu cầu cập nhật đã được ghi nhận, chờ duyệt
-        '403':
+        "403":
           description: Không có quyền (Chỉ Host sở hữu)
 
     delete:
       tags: [Homestay]
       summary: Xóa homestay (Host hoặc Admin)
       responses:
-        '204':
+        "204":
           description: Đã xóa
 
   /homestays/mine:
@@ -268,18 +268,18 @@ paths:
       summary: Lấy danh sách homestay của chủ hiện tại
       description: Chỉ chủ homestay (Host) mới có quyền xem danh sách các homestays mà họ sở hữu, bao gồm cả các homestay đang chờ duyệt/bị từ chối.
       responses:
-        '200':
+        "200":
           description: Danh sách homestay của chủ hiện tại
 
-# ===========================
-# BOOKING (Thue ca can)
-# ===========================
+  # ===========================
+  # BOOKING (Thue ca can)
+  # ===========================
   /bookings:
     get:
       tags: [Booking]
       summary: Lấy danh sách booking (của tôi/của homestay tôi sở hữu)
       responses:
-        '200':
+        "200":
           description: Danh sách booking
     post:
       tags: [Booking]
@@ -297,9 +297,9 @@ paths:
                 checkOut: { type: string, format: date, example: "2025-12-28" }
                 numGuests: { type: integer, example: 5 }
       responses:
-        '201':
+        "201":
           description: Đặt homestay thành công, chờ thanh toán/xác nhận
-        '400':
+        "400":
           description: Homestay không khả dụng hoặc dữ liệu không hợp lệ
 
   /bookings/{id}/cancel:
@@ -313,7 +313,7 @@ paths:
       tags: [Booking]
       summary: Hủy booking
       responses:
-        '200':
+        "200":
           description: Đã hủy booking
 
   /bookings/{id}/status:
@@ -339,12 +339,12 @@ paths:
                   enum: [pending, confirmed, paid, checked_in, checked_out, canceled, refunded]
                   example: confirmed
       responses:
-        '200':
+        "200":
           description: Cập nhật trạng thái booking thành công
 
-# ===========================
-# PAYMENT
-# ===========================
+  # ===========================
+  # PAYMENT
+  # ===========================
   /payments:
     post:
       tags: [Payment]
@@ -360,12 +360,12 @@ paths:
                 bookingId: { type: integer, example: 123 }
                 method: { type: string, enum: [VNPAY, MOMO, CARD, TRANSFER], example: "VNPAY" }
       responses:
-        '200':
+        "200":
           description: Trả về liên kết/thông tin thanh toán
 
-# ===========================
-# REVIEW & REPLY
-# ===========================
+  # ===========================
+  # REVIEW & REPLY
+  # ===========================
   /reviews:
     post:
       tags: [Review]
@@ -382,7 +382,7 @@ paths:
                 rating: { type: integer, minimum: 1, maximum: 5, example: 5 }
                 comment: { type: string, example: "Homestay rất tuyệt vời!" }
       responses:
-        '201':
+        "201":
           description: Gửi đánh giá thành công
 
   /reviews/{id}/reply:
@@ -405,12 +405,12 @@ paths:
               properties:
                 message: { type: string, example: "Cảm ơn quý khách đã tin tưởng!" }
       responses:
-        '201':
+        "201":
           description: Phản hồi thành công
 
-# ===========================
-# COMPLAINT
-# ===========================
+  # ===========================
+  # COMPLAINT
+  # ===========================
   /complaints:
     post:
       tags: [Complaint]
@@ -428,7 +428,7 @@ paths:
                 subject: { type: string, example: "Không hài lòng về chất lượng dịch vụ" }
                 content: { type: string, example: "Homestay không sạch sẽ như quảng cáo." }
       responses:
-        '201':
+        "201":
           description: Gửi khiếu nại thành công
 
   /complaints/mine:
@@ -436,18 +436,18 @@ paths:
       tags: [Complaint]
       summary: Xem danh sách khiếu nại của tôi
       responses:
-        '200':
+        "200":
           description: Danh sách khiếu nại
 
-# ===========================
-# CHAT / FAQ
-# ===========================
+  # ===========================
+  # CHAT / FAQ
+  # ===========================
   /chat/faq:
     get:
       tags: [Chat]
       summary: Lấy danh sách FAQ/Câu hỏi thường gặp
       responses:
-        '200':
+        "200":
           description: Danh sách FAQ
 
   /chat/session:
@@ -455,7 +455,7 @@ paths:
       tags: [Chat]
       summary: Bắt đầu một phiên chat mới với Bot/Support
       responses:
-        '201':
+        "201":
           description: Trả về Session ID
 
   /chat/session/{sessionId}/messages:
@@ -478,7 +478,7 @@ paths:
               properties:
                 message: { type: string, example: "Tôi muốn hỏi về chính sách hủy phòng." }
       responses:
-        '200':
+        "200":
           description: Trả về tin nhắn của Bot/Host
 
   /chat/messages/{messageId}/feedback:
@@ -502,12 +502,12 @@ paths:
                 rating: { type: integer, minimum: 1, maximum: 5, example: 5 }
                 comment: { type: string, example: "Câu trả lời rất hữu ích!" }
       responses:
-        '201':
+        "201":
           description: Ghi nhận phản hồi thành công
 
-# ===========================
-# ADMIN
-# ===========================
+  # ===========================
+  # ADMIN
+  # ===========================
   /admin/users:
     get:
       tags: [Admin]
@@ -518,9 +518,9 @@ paths:
           schema: { type: string }
           description: Lọc theo vai trò (CUSTOMER, HOST, ADMIN)
       responses:
-        '200':
+        "200":
           description: Danh sách người dùng
-        '403':
+        "403":
           description: Không có quyền truy cập
 
   /admin/users/{id}/status:
@@ -541,9 +541,10 @@ paths:
               type: object
               required: [status]
               properties:
-                status: { type: integer, enum: [1, 0], example: 0, description: "1:active, 0:inactive" }
+                status:
+                  { type: integer, enum: [1, 0], example: 0, description: "1:active, 0:inactive" }
       responses:
-        '200':
+        "200":
           description: Cập nhật trạng thái người dùng thành công
 
   /admin/homestay-requests/pending:
@@ -552,7 +553,7 @@ paths:
       summary: Lấy danh sách yêu cầu Homestay đang chờ duyệt
       description: Cho phép admin xem tất cả yêu cầu (tạo mới/cập nhật) ở trạng thái pending.
       responses:
-        '200':
+        "200":
           description: Danh sách yêu cầu Homestay
 
   /admin/homestay-requests/{id}/review:
@@ -576,7 +577,7 @@ paths:
                 status: { type: string, enum: [approved, rejected], example: approved }
                 adminComment: { type: string, description: "Bình luận/lý do của Admin" }
       responses:
-        '200':
+        "200":
           description: Yêu cầu Homestay đã được cập nhật trạng thái
 
   /admin/bookings:
@@ -584,7 +585,7 @@ paths:
       tags: [Admin]
       summary: Quản lý đơn đặt phòng (Admin)
       responses:
-        '200':
+        "200":
           description: Danh sách đơn đặt phòng
 
   /admin/complaints:
@@ -592,7 +593,7 @@ paths:
       tags: [Admin]
       summary: Quản lý khiếu nại (Admin)
       responses:
-        '200':
+        "200":
           description: Danh sách khiếu nại
 
   /admin/reports/revenue:
@@ -600,7 +601,7 @@ paths:
       tags: [Admin]
       summary: Báo cáo doanh thu homestay tổng hợp
       responses:
-        '200':
+        "200":
           description: Thống kê doanh thu
 
   /admin/faqs:
@@ -608,13 +609,13 @@ paths:
       tags: [Admin]
       summary: Quản lý FAQ
       responses:
-        '200':
+        "200":
           description: Danh sách FAQ
     post:
       tags: [Admin]
       summary: Thêm FAQ mới
       responses:
-        '201':
+        "201":
           description: Tạo FAQ thành công
   /admin/faqs/{id}:
     parameters:
@@ -627,11 +628,11 @@ paths:
       tags: [Admin]
       summary: Cập nhật FAQ
       responses:
-        '200':
+        "200":
           description: Cập nhật FAQ thành công
     delete:
       tags: [Admin]
       summary: Xóa FAQ
       responses:
-        '204':
+        "204":
           description: Xóa FAQ thành công

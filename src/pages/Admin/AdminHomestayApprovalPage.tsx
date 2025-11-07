@@ -130,7 +130,9 @@ const AdminHomestayApprovalPage = () => {
                     <div className="col-lg-8">
                       <div className="d-flex align-items-center gap-2 mb-3">
                         <h5 className="card-title mb-0">{homestay.name}</h5>
-                        <span className="badge bg-warning-subtle text-warning-emphasis">Pending Review</span>
+                        <span className="badge bg-warning-subtle text-warning-emphasis">
+                          Pending Review
+                        </span>
                       </div>
 
                       <div className="mb-3">
@@ -151,14 +153,19 @@ const AdminHomestayApprovalPage = () => {
 
                       <div className="mb-3">
                         <div className="text-muted small">Price</div>
-                        <div className="fw-bold text-primary">{homestay.pricePerNight.toLocaleString()}₫ / night</div>
+                        <div className="fw-bold text-primary">
+                          {homestay.pricePerNight.toLocaleString()}₫ / night
+                        </div>
                       </div>
 
                       <div className="mb-3">
                         <div className="text-muted small">Amenities</div>
                         <div className="d-flex flex-wrap gap-2">
                           {homestay.amenities.map((amenity, idx) => (
-                            <span key={idx} className="badge bg-secondary-subtle text-secondary-emphasis">
+                            <span
+                              key={idx}
+                              className="badge bg-secondary-subtle text-secondary-emphasis"
+                            >
                               {amenity}
                             </span>
                           ))}
@@ -181,7 +188,10 @@ const AdminHomestayApprovalPage = () => {
                           <h6 className="card-title mb-3">Review Actions</h6>
                           {selectedHomestay?.id === homestay.id ? (
                             <div>
-                              <label className="form-label" htmlFor={`reject-reason-${homestay.id}`}>
+                              <label
+                                className="form-label"
+                                htmlFor={`reject-reason-${homestay.id}`}
+                              >
                                 Rejection Reason
                               </label>
                               <textarea
@@ -199,7 +209,9 @@ const AdminHomestayApprovalPage = () => {
                                   onClick={() => handleReject(homestay.id)}
                                   type="button"
                                 >
-                                  {processing === homestay.id ? "Rejecting..." : "Confirm Rejection"}
+                                  {processing === homestay.id
+                                    ? "Rejecting..."
+                                    : "Confirm Rejection"}
                                 </button>
                                 <button
                                   className="btn btn-outline-secondary"
