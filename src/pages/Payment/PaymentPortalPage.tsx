@@ -36,10 +36,10 @@ const PaymentPortalPage = () => {
 
     setCreating(true);
     try {
-  const data = await initPayment(payload);
-  setPollId((prev) => data.paymentId ?? prev ?? null);
-  setPaymentUrl(data.checkoutUrl ?? data.paymentUrl ?? null);
-  setPaymentStatus(data.status ?? "pending");
+      const data = await initPayment(payload);
+      setPollId((prev) => data.paymentId ?? prev ?? null);
+      setPaymentUrl(data.checkoutUrl ?? data.paymentUrl ?? null);
+      setPaymentStatus(data.status ?? "pending");
       showAlert("Payment session created", "success");
     } catch (error) {
       showAlert("Unable to create payment", "danger");
@@ -56,9 +56,9 @@ const PaymentPortalPage = () => {
 
     setChecking(true);
     try {
-  const data = await pollPaymentStatus(pollId);
-  setPaymentStatus(data.status ?? "unknown");
-  showAlert(`Latest payment status: ${data.status ?? "unknown"}`, "success");
+      const data = await pollPaymentStatus(pollId);
+      setPaymentStatus(data.status ?? "unknown");
+      showAlert(`Latest payment status: ${data.status ?? "unknown"}`, "success");
     } catch (error) {
       showAlert("Unable to check payment status", "danger");
     } finally {
@@ -71,9 +71,7 @@ const PaymentPortalPage = () => {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">Payment portal</h1>
-          <p className="text-muted mb-0">
-            Generate payment sessions and track their status.
-          </p>
+          <p className="text-muted mb-0">Generate payment sessions and track their status.</p>
         </div>
         <div className="text-end">
           <div className="fw-semibold">Current status</div>
@@ -150,7 +148,9 @@ const PaymentPortalPage = () => {
           <div className="card shadow-sm h-100">
             <div className="card-body">
               <h5 className="card-title">Status checker</h5>
-              <p className="text-muted small">Track the latest status using the generated payment ID.</p>
+              <p className="text-muted small">
+                Track the latest status using the generated payment ID.
+              </p>
               <div className="mb-3">
                 <label className="form-label" htmlFor="payment-pollId">
                   Payment ID
@@ -164,7 +164,12 @@ const PaymentPortalPage = () => {
                   placeholder="Automatically filled after creation"
                 />
               </div>
-              <button className="btn btn-outline-primary" disabled={checking} onClick={handlePollStatus} type="button">
+              <button
+                className="btn btn-outline-primary"
+                disabled={checking}
+                onClick={handlePollStatus}
+                type="button"
+              >
                 {checking ? "Checking..." : "Check status"}
               </button>
               {paymentUrl ? (

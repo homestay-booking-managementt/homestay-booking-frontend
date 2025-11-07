@@ -3,16 +3,19 @@
 ## Initial Setup
 
 ### 1. Navigate to the project directory
+
 ```bash
 cd sth
 ```
 
 ### 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 ### 3. Configure environment
+
 ```bash
 # The .env file is already created with default values
 # Update it if your backend API runs on a different URL
@@ -20,6 +23,7 @@ cat .env
 ```
 
 ### 4. Start development server
+
 ```bash
 npm run dev
 ```
@@ -54,40 +58,47 @@ new/
 ## Core Features
 
 ### ✅ Authentication
+
 - JWT-based with refresh tokens
 - Auto token refresh on 401
 - Protected routes
 - Login page at `/login`
 
 ### ✅ Routing
+
 - React Router v6
 - Public and private routes
 - Error pages (404, 403, 401)
 - Nested routing support
 
 ### ✅ State Management
+
 - Redux Toolkit
 - Type-safe hooks (`useAppDispatch`, `useAppSelector`)
 - Auth slice included
 
 ### ✅ HTTP Client
+
 - Axios with interceptors
 - Auto token injection
 - Error handling
 - Request tracking
 
 ### ✅ Configuration
+
 - TypeScript path aliases (`@/*`)
 - Environment variables
 - ESLint + Prettier
 - Bootstrap 5
 
 ### ✅ Custom Hooks
+
 - `useDebounce` - Debounce values
 - `useLocalStorage` - Persist state
 - `useClickAway` - Detect outside clicks
 
 ### ✅ Utilities
+
 - `sendRequest` - API wrapper
 - `showAlert` - Toast notifications
 - `removeTokens` - Auth cleanup
@@ -116,29 +127,33 @@ npm run type-check   # Check TypeScript types
 ## Quick Examples
 
 ### Making an API Request
-```typescript
-import { sendRequest } from '@/utils/sendRequest';
 
-const data = await sendRequest('/api/users', { method: 'GET' });
+```typescript
+import { sendRequest } from "@/utils/sendRequest";
+
+const data = await sendRequest("/api/users", { method: "GET" });
 ```
 
 ### Using Redux
-```typescript
-import { useAppSelector, useAppDispatch } from '@/app/hooks';
 
-const user = useAppSelector(state => state.auth.currentUser);
+```typescript
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+
+const user = useAppSelector((state) => state.auth.currentUser);
 const dispatch = useAppDispatch();
 ```
 
 ### Showing Notifications
-```typescript
-import { showAlert } from '@/utils/showAlert';
 
-showAlert('Success!', 'success');
-showAlert('Error', 'danger');
+```typescript
+import { showAlert } from "@/utils/showAlert";
+
+showAlert("Success!", "success");
+showAlert("Error", "danger");
 ```
 
 ### Protected Route
+
 ```typescript
 // Routes are already set up with PrivateRoute wrapper
 // Just add your page to the PrivateRoutes array in routes/index.tsx
@@ -147,6 +162,7 @@ showAlert('Error', 'danger');
 ## Environment Variables
 
 Required in `.env`:
+
 ```env
 VITE_APP_BASE_URL=http://localhost:8000/api
 ```
@@ -169,12 +185,15 @@ VITE_APP_BASE_URL=http://localhost:8000/api
 ## Troubleshooting
 
 ### TypeScript Errors
+
 TypeScript compilation errors will resolve after running `npm install` and starting the dev server.
 
 ### Port Already in Use
+
 Change port in `vite.config.ts` (currently set to 3200).
 
 ### Token Issues
+
 Clear localStorage: `localStorage.clear()` in browser console.
 
 ## Tech Stack

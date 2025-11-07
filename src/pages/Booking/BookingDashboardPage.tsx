@@ -45,7 +45,10 @@ const BookingDashboardPage = () => {
   });
 
   const upcomingBookings = useMemo(
-    () => bookings.filter((booking) => booking.status && ["pending", "confirmed", "paid"].includes(booking.status)),
+    () =>
+      bookings.filter(
+        (booking) => booking.status && ["pending", "confirmed", "paid"].includes(booking.status)
+      ),
     [bookings]
   );
 
@@ -53,7 +56,11 @@ const BookingDashboardPage = () => {
     setLoading(true);
     try {
       const response = await fetchBookings();
-      const items = Array.isArray(response) ? response : Array.isArray(response?.items) ? response.items : [];
+      const items = Array.isArray(response)
+        ? response
+        : Array.isArray(response?.items)
+          ? response.items
+          : [];
       setBookings(items);
     } catch (error) {
       showAlert("Unable to load bookings", "danger");
@@ -136,9 +143,7 @@ const BookingDashboardPage = () => {
       <div className="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">Bookings</h1>
-          <p className="text-muted mb-0">
-            View, create, and manage bookings for your homestays.
-          </p>
+          <p className="text-muted mb-0">View, create, and manage bookings for your homestays.</p>
         </div>
         <div className="text-end">
           <div className="fw-semibold">Upcoming bookings</div>
@@ -163,7 +168,9 @@ const BookingDashboardPage = () => {
                     type="number"
                     min={1}
                     value={createForm.homestayId}
-                    onChange={(event) => setCreateForm((prev) => ({ ...prev, homestayId: event.target.value }))}
+                    onChange={(event) =>
+                      setCreateForm((prev) => ({ ...prev, homestayId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -177,7 +184,9 @@ const BookingDashboardPage = () => {
                     name="checkIn"
                     type="date"
                     value={createForm.checkIn}
-                    onChange={(event) => setCreateForm((prev) => ({ ...prev, checkIn: event.target.value }))}
+                    onChange={(event) =>
+                      setCreateForm((prev) => ({ ...prev, checkIn: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -191,7 +200,9 @@ const BookingDashboardPage = () => {
                     name="checkOut"
                     type="date"
                     value={createForm.checkOut}
-                    onChange={(event) => setCreateForm((prev) => ({ ...prev, checkOut: event.target.value }))}
+                    onChange={(event) =>
+                      setCreateForm((prev) => ({ ...prev, checkOut: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -206,7 +217,9 @@ const BookingDashboardPage = () => {
                     type="number"
                     min={1}
                     value={createForm.numGuests}
-                    onChange={(event) => setCreateForm((prev) => ({ ...prev, numGuests: event.target.value }))}
+                    onChange={(event) =>
+                      setCreateForm((prev) => ({ ...prev, numGuests: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-12 text-end">
@@ -235,7 +248,9 @@ const BookingDashboardPage = () => {
                     type="number"
                     min={1}
                     value={statusForm.bookingId}
-                    onChange={(event) => setStatusForm((prev) => ({ ...prev, bookingId: event.target.value }))}
+                    onChange={(event) =>
+                      setStatusForm((prev) => ({ ...prev, bookingId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -249,7 +264,10 @@ const BookingDashboardPage = () => {
                     name="status"
                     value={statusForm.status}
                     onChange={(event) =>
-                      setStatusForm((prev) => ({ ...prev, status: event.target.value as BookingStatusPayload["status"] }))
+                      setStatusForm((prev) => ({
+                        ...prev,
+                        status: event.target.value as BookingStatusPayload["status"],
+                      }))
                     }
                   >
                     {statusOptions.map((option) => (
@@ -274,7 +292,12 @@ const BookingDashboardPage = () => {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h5 className="card-title mb-0">Booking log</h5>
-            <button className="btn btn-sm btn-outline-secondary" disabled={loading} onClick={loadBookings} type="button">
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              disabled={loading}
+              onClick={loadBookings}
+              type="button"
+            >
               {loading ? "Refreshing..." : "Refresh"}
             </button>
           </div>
@@ -311,7 +334,9 @@ const BookingDashboardPage = () => {
                         <div className="text-muted small">{booking.checkOut ?? "--"}</div>
                       </td>
                       <td>
-                        <span className="badge bg-primary-subtle text-uppercase">{booking.status ?? "unknown"}</span>
+                        <span className="badge bg-primary-subtle text-uppercase">
+                          {booking.status ?? "unknown"}
+                        </span>
                       </td>
                       <td className="text-end">
                         <button

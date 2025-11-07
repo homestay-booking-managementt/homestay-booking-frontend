@@ -75,9 +75,7 @@ const ReviewCenterPage = () => {
     <div className="container">
       <div className="mb-4">
         <h1 className="h3 mb-2">Review center</h1>
-        <p className="text-muted mb-0">
-          Collect guest feedback and respond to their comments.
-        </p>
+        <p className="text-muted mb-0">Collect guest feedback and respond to their comments.</p>
       </div>
 
       <div className="row g-4">
@@ -97,7 +95,9 @@ const ReviewCenterPage = () => {
                     type="number"
                     min={1}
                     value={reviewForm.bookingId}
-                    onChange={(event) => setReviewForm((prev) => ({ ...prev, bookingId: event.target.value }))}
+                    onChange={(event) =>
+                      setReviewForm((prev) => ({ ...prev, bookingId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -110,7 +110,9 @@ const ReviewCenterPage = () => {
                     id="review-rating"
                     name="rating"
                     value={reviewForm.rating}
-                    onChange={(event) => setReviewForm((prev) => ({ ...prev, rating: event.target.value }))}
+                    onChange={(event) =>
+                      setReviewForm((prev) => ({ ...prev, rating: event.target.value }))
+                    }
                   >
                     {[5, 4, 3, 2, 1].map((value) => (
                       <option key={value} value={value}>
@@ -130,7 +132,9 @@ const ReviewCenterPage = () => {
                     rows={4}
                     placeholder="Share your stay experience"
                     value={reviewForm.comment}
-                    onChange={(event) => setReviewForm((prev) => ({ ...prev, comment: event.target.value }))}
+                    onChange={(event) =>
+                      setReviewForm((prev) => ({ ...prev, comment: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-12 text-end">
@@ -159,7 +163,9 @@ const ReviewCenterPage = () => {
                     type="number"
                     min={1}
                     value={replyForm.reviewId}
-                    onChange={(event) => setReplyForm((prev) => ({ ...prev, reviewId: event.target.value }))}
+                    onChange={(event) =>
+                      setReplyForm((prev) => ({ ...prev, reviewId: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -174,12 +180,18 @@ const ReviewCenterPage = () => {
                     rows={4}
                     placeholder="Thanks for staying with us!"
                     value={replyForm.message}
-                    onChange={(event) => setReplyForm((prev) => ({ ...prev, message: event.target.value }))}
+                    onChange={(event) =>
+                      setReplyForm((prev) => ({ ...prev, message: event.target.value }))
+                    }
                     required
                   />
                 </div>
                 <div className="col-12 text-end">
-                  <button className="btn btn-outline-primary" disabled={submittingReply} type="submit">
+                  <button
+                    className="btn btn-outline-primary"
+                    disabled={submittingReply}
+                    type="submit"
+                  >
                     {submittingReply ? "Sending..." : "Send reply"}
                   </button>
                 </div>
