@@ -23,33 +23,33 @@ The complete permission system has been set up in your project with the followin
 ### 1. Protect UI Elements
 
 ```tsx
-import { Permission } from '@/permission/Permision';
-import { FeatureKey } from '@/constants/feature';
+import { Permission } from "@/permission/Permision";
+import { FeatureKey } from "@/constants/feature";
 
 <Permission featureKey={FeatureKey.BLOG_EDIT}>
   <button>Edit</button>
-</Permission>
+</Permission>;
 ```
 
 ### 2. Protect Routes
 
 ```tsx
-import { PermissionWrapper } from '@/routes/PermissionWrapper';
-import { FeatureKey } from '@/constants/feature';
+import { PermissionWrapper } from "@/routes/PermissionWrapper";
+import { FeatureKey } from "@/constants/feature";
 
 const routes = [
   {
-    path: '/admin',
+    path: "/admin",
     element: PermissionWrapper(FeatureKey.ADMIN, <AdminPage />),
-  }
+  },
 ];
 ```
 
 ### 3. Use in Logic
 
 ```tsx
-import usePermission from '@/hooks/usePermission';
-import { FeatureKey } from '@/constants/feature';
+import usePermission from "@/hooks/usePermission";
+import { FeatureKey } from "@/constants/feature";
 
 const { hasPermission, checkOwner } = usePermission(FeatureKey.BLOG_EDIT, ownerId);
 
@@ -78,12 +78,12 @@ The mock auth returns two permission sets:
 Check `src/constants/feature.ts` for all available keys. Some examples:
 
 ```typescript
-FeatureKey.BLOG_VIEW
-FeatureKey.BLOG_CREATE
-FeatureKey.BLOG_EDIT
-FeatureKey.ADMIN
-FeatureKey.HOMESTAY_CREATE
-FeatureKey.BOOKING_APPROVE
+FeatureKey.BLOG_VIEW;
+FeatureKey.BLOG_CREATE;
+FeatureKey.BLOG_EDIT;
+FeatureKey.ADMIN;
+FeatureKey.HOMESTAY_CREATE;
+FeatureKey.BOOKING_APPROVE;
 // ... and many more
 ```
 
@@ -92,10 +92,7 @@ FeatureKey.BOOKING_APPROVE
 ### With Ownership Check
 
 ```tsx
-<Permission 
-  featureKey={FeatureKey.BLOG_EDIT}
-  ownerId={post.authorId}
->
+<Permission featureKey={FeatureKey.BLOG_EDIT} ownerId={post.authorId}>
   <button>Edit</button>
 </Permission>
 ```
@@ -111,10 +108,7 @@ FeatureKey.BOOKING_APPROVE
 ### With Fallback
 
 ```tsx
-<Permission 
-  featureKey={FeatureKey.ADMIN}
-  fallback={<div>Access Denied</div>}
->
+<Permission featureKey={FeatureKey.ADMIN} fallback={<div>Access Denied</div>}>
   <AdminPanel />
 </Permission>
 ```
@@ -174,6 +168,7 @@ When ready to connect to your real backend API:
 ## 📚 Documentation
 
 For detailed documentation, see:
+
 - **`PERMISSION_SYSTEM.md`** - Complete guide with all details
 - **`src/examples/PermissionExamples.tsx`** - 10 practical examples
 - **`src/examples/RouteExamples.tsx`** - Route protection examples

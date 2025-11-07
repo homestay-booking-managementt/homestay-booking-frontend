@@ -11,7 +11,7 @@ A React + TypeScript + Vite application with Redux Toolkit, React Router, and Ax
 - 🛣️ React Router v6 for routing
 - 🔐 JWT-based authentication
 - 📡 Axios for HTTP requests with interceptors
-- 🎯 TypeScript path aliases (@/*)
+- 🎯 TypeScript path aliases (@/\*)
 
 ## Getting Started
 

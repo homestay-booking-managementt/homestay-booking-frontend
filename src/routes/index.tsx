@@ -1,4 +1,7 @@
 import Login from "@/auth/Login";
+import Register from "@/auth/Register";
+import Me from "@/pages/Profile/Me";
+
 import PrivateRoute from "@/auth/PrivateRoute";
 import BookingDashboardPage from "@/pages/Booking";
 import BookingHistoryPage from "@/pages/BookingHistory";
@@ -41,6 +44,10 @@ const PublicRoutes = [
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
   {
     path: "/403",
@@ -119,6 +126,10 @@ const PrivateRoutes = [
           {
             path: "profile",
             element: <ProfilePage />,
+          },
+          {
+            path: "me",
+            element: <Me />,
           },
           {
             path: "host/bookings",

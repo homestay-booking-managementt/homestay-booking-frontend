@@ -120,9 +120,15 @@ const HomestayDetailPage = () => {
             <div className="col-12 col-md-6 col-xl-4" key={img.id}>
               <div className="ratio ratio-16x9">
                 <img
+<<<<<<< HEAD
                   alt={img.alt || `Image ${img.id}`}
                   className="rounded shadow-sm"
                   src={img.url}
+=======
+                  alt={`Image ${index + 1}`}
+                  className="rounded shadow-sm"
+                  src={imageUrl}
+>>>>>>> 3b66415 (login, register, me)
                   style={{ objectFit: "cover" }}
                 />
               </div>

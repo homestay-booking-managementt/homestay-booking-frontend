@@ -81,9 +81,15 @@ const HomestayListPage = () => {
       {/* Header */}
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
+<<<<<<< HEAD
           <h1 className="h3 mb-1">Danh sách Homestay</h1>
           <p className="text-muted mb-0">
             Duyệt qua các homestay hiện có trong hệ thống.
+=======
+          <h1 className="h3 mb-1">Homestay Listings</h1>
+          <p className="text-muted mb-0">
+            Browse and manage every homestay currently available in the system.
+>>>>>>> 3b66415 (login, register, me)
           </p>
         </div>
         <Link className="btn btn-primary mt-3 mt-md-0" to="/homestays/new">
@@ -152,11 +158,19 @@ const HomestayListPage = () => {
           </button>
           <button
             className="btn btn-outline-secondary"
+<<<<<<< HEAD
             type="button"
             onClick={handleReset}
             disabled={loading}
           >
             Xóa bộ lọc
+=======
+            onClick={handleReset}
+            type="button"
+            disabled={loading}
+          >
+            Clear filters
+>>>>>>> 3b66415 (login, register, me)
           </button>
         </div>
       </form>
@@ -185,10 +199,17 @@ const HomestayListPage = () => {
                     />
                   ) : (
                     <div
+<<<<<<< HEAD
                       className="bg-light d-flex align-items-center justify-content-center"
                       style={{ height: 220 }}
                     >
                       <span className="text-muted">Chưa có ảnh</span>
+=======
+                      className="card-img-top bg-light d-flex align-items-center justify-content-center"
+                      style={{ height: 200 }}
+                    >
+                      <span className="text-muted">No image available</span>
+>>>>>>> 3b66415 (login, register, me)
                     </div>
                   )}
 
@@ -229,7 +250,11 @@ const HomestayListPage = () => {
                         className="btn btn-outline-primary w-100"
                         to={`/homestays/${homestay.id}`}
                       >
+<<<<<<< HEAD
                         Xem chi tiết
+=======
+                        View details
+>>>>>>> 3b66415 (login, register, me)
                       </Link>
                     </div>
                   </div>

@@ -118,7 +118,9 @@ const HostBookingManagementPage = () => {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">Booking Requests</h1>
-          <p className="text-muted mb-0">Review and manage incoming reservation requests from guests.</p>
+          <p className="text-muted mb-0">
+            Review and manage incoming reservation requests from guests.
+          </p>
         </div>
         <div className="text-end">
           <div className="fw-semibold">Pending requests</div>
@@ -169,12 +171,16 @@ const HostBookingManagementPage = () => {
                         <div className="d-flex align-items-center gap-3">
                           <div>
                             <div className="text-muted small">Total amount</div>
-                            <div className="fw-bold text-primary">{booking.totalPrice.toLocaleString()}₫</div>
+                            <div className="fw-bold text-primary">
+                              {booking.totalPrice.toLocaleString()}₫
+                            </div>
                           </div>
                           <div className="vr"></div>
                           <div>
                             <div className="text-muted small">Requested</div>
-                            <div className="small">{new Date(booking.createdAt).toLocaleDateString()}</div>
+                            <div className="small">
+                              {new Date(booking.createdAt).toLocaleDateString()}
+                            </div>
                           </div>
                         </div>
                       </div>

@@ -716,6 +716,7 @@ const HostChatPage = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
             <div className="conversations-list">
               {filteredConversations.map((conversation) => (
                 <div
@@ -775,6 +776,27 @@ const HostChatPage = () => {
                         </span>
                         <span>•</span>
                         <span>{currentConversation.homestayName}</span>
+=======
+              {/* Messages */}
+              <div className="flex-grow-1 overflow-auto p-3" style={{ height: 0 }}>
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`mb-3 d-flex ${msg.senderRole === "host" ? "justify-content-end" : ""}`}
+                  >
+                    <div
+                      className={`p-3 rounded ${
+                        msg.senderRole === "host" ? "bg-primary text-white" : "bg-light"
+                      }`}
+                      style={{ maxWidth: "70%" }}
+                    >
+                      <div className="small fw-semibold mb-1">{msg.senderName}</div>
+                      <div>{msg.message}</div>
+                      <div
+                        className={`small mt-1 ${msg.senderRole === "host" ? "text-white-50" : "text-muted"}`}
+                      >
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+>>>>>>> 3b66415 (login, register, me)
                       </div>
                     </div>
                   </div>
