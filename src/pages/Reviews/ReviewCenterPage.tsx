@@ -2,10 +2,17 @@ import { createReview, replyReview } from "@/api/reviewApi";
 import type { ReviewPayload, ReviewReplyPayload } from "@/types/review";
 import { showAlert } from "@/utils/showAlert";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { FaStar } from "react-icons/fa";
+
 
 const ReviewCenterPage = () => {
+
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const bookingIdParam = query.get("bookingId") ?? "";
   const [reviewForm, setReviewForm] = useState({
-    bookingId: "",
+    bookingId: bookingIdParam,
     rating: "5",
     comment: "",
   });
@@ -101,7 +108,7 @@ const ReviewCenterPage = () => {
                     required
                   />
                 </div>
-                <div className="col-md-6">
+                {/* <div className="col-md-6">
                   <label className="form-label" htmlFor="review-rating">
                     Rating
                   </label>
@@ -120,7 +127,24 @@ const ReviewCenterPage = () => {
                       </option>
                     ))}
                   </select>
+                </div> */}
+
+                <div className="col-md-6">
+                  <label className="form-label d-block">Rating</label>
+                  <div className="d-flex align-items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span key={star}>
+                        <FaStar
+                          size={22}
+                          color={star <= Number(reviewForm.rating) ? "#ffc107" : "#ccc"}
+                          style={{ cursor: "pointer", transition: "color 0.2s ease" }}
+                          onClick={() => setReviewForm((prev) => ({ ...prev, rating: String(star) }))}
+                        />
+                      </span>
+                    ))}
+                  </div>
                 </div>
+
                 <div className="col-12">
                   <label className="form-label" htmlFor="review-comment">
                     Comment

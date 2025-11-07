@@ -101,7 +101,7 @@ const HomestayDetailPage = () => {
         <div>
           <h1 className="h3 mb-1">{homestay.name}</h1>
           <p className="text-muted mb-0">
-            {homestay.address}, {homestay.city}
+            {homestay.address}
           </p>
         </div>
         <div className="d-flex gap-2 mt-3 mt-md-0">
@@ -121,13 +121,13 @@ const HomestayDetailPage = () => {
 
       {homestay.images && homestay.images.length > 0 && (
         <div className="row g-3 mb-4">
-          {homestay.images.map((imageUrl, index) => (
-            <div className="col-12 col-md-6 col-xl-4" key={`${imageUrl}-${index}`}>
+          {homestay.images.map((img) => (
+            <div className="col-12 col-md-6 col-xl-4" key={img.id}>
               <div className="ratio ratio-16x9">
                 <img
-                  alt={`Image ${index + 1}`}
+                  alt={img.alt || `Image ${img.id}`}
                   className="rounded shadow-sm"
-                  src={imageUrl}
+                  src={img.url}
                   style={{ objectFit: "cover" }}
                 />
               </div>
@@ -135,6 +135,7 @@ const HomestayDetailPage = () => {
           ))}
         </div>
       )}
+
 
       <div className="card shadow-sm">
         <div className="card-body">
@@ -144,19 +145,19 @@ const HomestayDetailPage = () => {
               <ul className="list-group list-group-flush">
                 <li className="list-group-item px-0 d-flex justify-content-between">
                   <span>Price per night</span>
-                  <strong>{formatCurrency(homestay.pricePerNight)}</strong>
+                  <strong>{formatCurrency(homestay.base_price)}</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
                   <span>Capacity</span>
                   <strong>{homestay.capacity} guests</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
-                  <span>Bedrooms</span>
-                  <strong>{homestay.numBedrooms ?? "--"}</strong>
+                  <span>Bathroom</span>
+                  <strong>{homestay.bathroom_count ?? "--"}</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
-                  <span>Bathrooms</span>
-                  <strong>{homestay.numBathrooms ?? "--"}</strong>
+                  <span>Numroom</span>
+                  <strong>{homestay.num_rooms ?? "--"}</strong>
                 </li>
                 {homestay.status && (
                   <li className="list-group-item px-0 d-flex justify-content-between">
