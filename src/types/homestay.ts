@@ -1,3 +1,4 @@
+
 // export interface HomestayPayload {
 //   name: string;
 //   address: string;
@@ -98,13 +99,16 @@ export interface Homestay {
   description?: string;
   amenities?: string[];
   status?: number;
-  created_at?: string;
+  created_at: string;
+  approved_at: string;
 
   // Chủ sở hữu (nếu expand user)
-  host?: {
+  host: {
     id: number;
     name: string;
     email?: string;
+    phone?: string;
+    created_at: string;
   };
 
   // Danh sách ảnh (nếu expand homestay_images)
