@@ -45,6 +45,36 @@ server.get("/homestays", (req, res) => {
   res.jsonp(result);
 });
 
+server.get("/homestays/:id", (req, res) => {
+  const db = router.db;
+  const id = Number(req.params.id);
+
+  // Lấy dữ liệu từ các bảng
+  const homestay = db.get("homestays").find({ id }).value();
+  const users = db.get("users").value();
+  const homestay_images = db.get("homestay_images").value();
+
+  if (!homestay) {
+    return res.status(404).json({ message: "Homestay không tồn tại" });
+  }
+
+  // Gộp dữ liệu
+  const result = {
+    ...homestay,
+    host: users.find((u) => u.id === homestay.user_id) || null,
+    images: homestay_images
+      .filter((img) => img.homestay_id === homestay.id)
+      .map((img) => ({
+        id: img.id,
+        url: img.url,
+        alt: img.alt,
+        is_primary: img.is_primary,
+      })),
+  };
+
+  res.json(result);
+});
+
 server.use(router);
 server.listen(3001, () => {
   console.log("✅ JSON Server mock API running on http://localhost:3001");
