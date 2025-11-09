@@ -1,4 +1,9 @@
-import { useEffect, useState } from "react";
+/* eslint-disable prettier/prettier */
+
+import { useEffect, useMemo, useState } from "react";
+import BookingFilterAdvanced from "@/components/booking/BookingFilterBar";
+import BookingList from "@/components/booking/BookingList";
+import { BookingStatusPayload, Booking } from "@/types/booking";
 import { showAlert } from "@/utils/showAlert";
 
 interface BookingHistoryItem {
@@ -18,31 +23,68 @@ const BookingHistoryPage = () => {
   const loadBookings = async () => {
     setLoading(true);
     try {
-      // TODO: Integrate with booking history API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const mockData: BookingHistoryItem[] = [
+      // await new Promise((r) => setTimeout(r, 400));
+      // setBookings(bookingData as BookingHistoryItem[]);
+
+      // Gọi API từ mock server
+      const res = await fetchBookings();
+
+      // const data = Array.isArray(res)
+      //   ? res // trường hợp mock trả về mảng thuần
+      //   : Array.isArray(res.items)
+      //   ? res.items // trường hợp trả về dạng PaginatedResponse
+      //   : [];
+      const data = [
         {
-          id: 1,
-          homestayName: "Cozy Mountain Retreat",
-          checkIn: "2025-01-15",
-          checkOut: "2025-01-18",
-          status: "checked_out",
-          totalPrice: 2400000,
-          numGuests: 2,
-        },
-        {
-          id: 2,
-          homestayName: "Beachfront Villa",
-          checkIn: "2025-02-10",
-          checkOut: "2025-02-15",
-          status: "paid",
-          totalPrice: 5000000,
-          numGuests: 4,
-        },
+          "id": 3,
+          "user_id": 2,
+          "homestay_id": 3,
+          "check_in": "2025-04-10",
+          "check_out": "2025-04-12",
+          "nights": 2,
+          "total_price": 2400000,
+          "status": "confirmed",
+          "created_at": "2025-03-28T09:30:00",
+          "user": {
+            "id": 2,
+            "role_id": 1,
+            "name": "Trần Văn Dũng",
+            "email": "dung@example.com",
+            "phone": "0987654321",
+            "passwd": "123456",
+            "status": 1,
+            "is_deleted": false,
+            "created_at": "2025-01-02T09:00:00"
+          },
+          "homestay": {
+            "id": 3,
+            "user_id": 4,
+            "approved_by": 3,
+            "name": "Green Garden Homestay",
+            "description": "Không gian xanh giữa lòng thành phố",
+            "address": "Đà Nẵng",
+            "rating": 4.7,
+            "capacity": 5,
+            "num_rooms": 2,
+            "bathroom_count": 1,
+            "base_price": 1200000,
+            "amenities": ["wifi", "garden"],
+            "status": 1,
+            "created_at": "2025-01-10T08:00:00",
+            "approved_at": "2025-01-12T09:00:00",
+            "is_deleted": false
+          }
+        }
       ];
-      setBookings(mockData);
-    } catch (error) {
-      showAlert("Unable to load booking history", "danger");
+
+
+      console.log(data)
+      // Cắt ra số lượng hiển thị ban đầu
+      setBookings(data as Booking[]);
+      setDisplayedBookings((data as Booking[]).slice(0, visibleCount));
+    } catch {
+      showAlert("Không thể tải dữ liệu", "danger");
+      setErrorMsg("Không thể tải dữ liệu JSON.");
     } finally {
       setLoading(false);
     }
@@ -134,7 +176,7 @@ const BookingHistoryPage = () => {
                       )}
                       <a className="btn btn-sm btn-outline-secondary" href={`/bookings/${booking.id}`}>
                         View Details
-                        </a>
+                      </a>
                     </div>
                   </div>
                 </div>
