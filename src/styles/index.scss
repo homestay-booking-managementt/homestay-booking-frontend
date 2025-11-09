@@ -26,6 +26,16 @@ code {
     min-height: 100vh;
 }
 
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+.navbar .dropdown-menu {
+    z-index: 1031;
+}
+
 .navbar .dropdown:hover .dropdown-menu {
     display: block;
     margin-top: 0;
@@ -69,6 +79,10 @@ body.theme-dark .dropdown-menu .dropdown-item:hover {
     background-color: rgba(148, 163, 184, 0.15);
 }
 
+.dropdown-menu .dropdown-item:hover {
+    color: var(--bs-primary) !important;
+}
+
 body.theme-dark .form-control,
 body.theme-dark .form-select,
 body.theme-dark .input-group-text,
@@ -85,16 +99,4 @@ body.theme-dark .btn-outline-primary:hover {
 
 body.theme-dark .text-muted {
     color: var(--app-muted-color) !important;
-}
-
-body.theme-dark a {
-    color: #60a5fa;
-}
-
-body.theme-dark .btn-link {
-    color: #60a5fa;
-}
-
-body.theme-dark .btn-link:hover {
-    color: #93c5fd;
 }
