@@ -1,0 +1,62 @@
+.booking-timeline {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.timeline-step {
+  position: relative;
+}
+
+.timeline-line {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background-color: #dee2e6;
+  z-index: 0;
+}
+
+.timeline-line.completed {
+  background-color: #28a745; /* màu xanh hoàn thành */
+}
+
+.timeline-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
+  z-index: 1;
+  border: 3px solid #ccc;
+  color: #6c757d;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.timeline-circle.completed {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: #fff;
+}
+
+.timeline-circle.active {
+  border-color: #28a745;
+  color: #28a745;
+  background-color: #eaffea;
+}
+
+.timeline-label {
+  font-size: 14px;
+  color: #495057;
+}
+
+.timeline-date {
+  font-size: 12px;
+}
