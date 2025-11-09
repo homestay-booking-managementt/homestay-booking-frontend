@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Booking, STATUS_BADGE, STATUS_LABEL, formatCurrency } from "@/types/booking";
 import { showAlert } from "@/utils/showAlert";
 
@@ -12,6 +12,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
   const handleReviewClick = () => {
     navigate(`/reviews?bookingId=${booking.id}`);
   };
+  
 
   return (
     <div className="col-12 fade-in">
@@ -52,12 +53,12 @@ const BookingCard = ({ booking }: BookingCardProps) => {
               </button>
             )}
 
-            <a
-              href={`/bookings/${booking.id}`}
+            <Link
+              to={`/bookings/${booking.id}`}
               className="btn btn-sm btn-outline-secondary"
             >
               Xem chi tiết
-            </a>
+            </Link>
 
             {booking.status === "checked_out" && (
               <button

@@ -1,56 +1,21 @@
-/* eslint-disable prettier/prettier */
-
-
-
-import { useEffect, useMemo, useState } from "react";
-import BookingFilterAdvanced from "@/components/booking/BookingFilterBar";
-import BookingList from "@/components/booking/BookingList";
-import {  BookingStatusPayload,Booking } from "@/types/booking";
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import type { Booking } from "@/types/booking";
 import { showAlert } from "@/utils/showAlert";
 import { fetchBookings } from "@/api/bookingApi";
+import BookingTimeline from "@/components/booking/BookingTimeLine";
+const BookingDetailPage = () => {
+  const { bookingId } = useParams<{ bookingId: string }>();
+  const navigate = useNavigate();
+  const [booking, setBooking] = useState<Booking | null>(null);
+  const [loading, setLoading] = useState(true);
 
-const BookingHistoryPage = () => {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [displayedBookings, setDisplayedBookings] = useState<Booking[]>([]);
-  const [visibleCount, setVisibleCount] = useState(5);
-  const [fetchingMore, setFetchingMore] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-
-  // Bộ lọc
-  const [q, setQ] = useState("");
-  const [status, setStatus] = useState<"" | BookingStatusPayload["status"]>("");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [onlyUpcoming, setOnlyUpcoming] = useState(false);
-  const [sortBy, setSortBy] = useState<"checkIn_desc" | "checkIn_asc">("checkIn_desc");
-
-  const clearFilters = () => {
-    setQ("");
-    setStatus("");
-    setFrom("");
-    setTo("");
-    setOnlyUpcoming(false);
-    setSortBy("checkIn_desc");
-  };
-
-  const loadBookings = async () => {
-    setLoading(true);
-    setErrorMsg("");
-    try {
-      // await new Promise((r) => setTimeout(r, 400));
-      // setBookings(bookingData as BookingHistoryItem[]);
-
-      // Gọi API từ mock server
-    const res = await fetchBookings();
-    
-    // const data = Array.isArray(res)
-    //   ? res // trường hợp mock trả về mảng thuần
-    //   : Array.isArray(res.items)
-    //   ? res.items // trường hợp trả về dạng PaginatedResponse
-    //   : [];
-    const data = [
-  {
+  useEffect(() => {
+    const loadBooking = async () => {
+      setLoading(true);
+      try {
+        const all = await fetchBookings(); // demo call
+        const data = [{
     "id": 3,
     "user_id": 2,
     "homestay_id": 3,
@@ -451,89 +416,114 @@ const BookingHistoryPage = () => {
     }
   }
 ];
+        const found = data.find((b) => b.id === 5);
+        if (!found) showAlert("Không tìm thấy đặt phòng!", "warning");
+        setBooking(found as Booking ?? null);
+      } catch {
+        showAlert("Lỗi tải dữ liệu!", "danger");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadBooking();
+  }, [bookingId]);
 
-    
-      console.log(data)
-    // Cắt ra số lượng hiển thị ban đầu
-    setBookings(data as Booking[]);
-      setDisplayedBookings((data as Booking[]).slice(0, visibleCount));
-    } catch {
-      showAlert("Không thể tải dữ liệu", "danger");
-      setErrorMsg("Không thể tải dữ liệu JSON.");
-    } finally {
-      setLoading(false);
-    }
+  const getStatusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      pending: "bg-warning text-dark",
+      confirmed: "bg-info text-white",
+      paid: "bg-primary text-white",
+      checked_in: "bg-success text-white",
+      checked_out: "bg-secondary text-white",
+      canceled: "bg-danger text-white",
+      refunded: "bg-dark text-white",
+    };
+    return (
+      <span className={`badge ${map[status] || "bg-light text-dark"} px-3 py-2`}>
+        {status.replace("_", " ")}
+      </span>
+    );
   };
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
-
-  const filtered = useMemo(() => {
-    const now = new Date();
-    let list = [...bookings];
-    if (q) list = list.filter((b) => b.homestay_id);//toLowerCase().includes(q.toLowerCase()));
-    if (status) list = list.filter((b) => b.status === status);
-    if (from) list = list.filter((b) => new Date(b.check_in) >= new Date(from));
-    if (to) list = list.filter((b) => new Date(b.check_out) <= new Date(to));
-    if (onlyUpcoming)
-      list = list.filter((b) => new Date(b.check_in) >= new Date(now.toDateString()));
-    list.sort((a, b) =>
-      sortBy === "checkIn_desc"
-        ? new Date(b.check_in).getTime() - new Date(a.check_in).getTime()
-        : new Date(a.check_in).getTime() - new Date(b.check_in).getTime()
+  if (loading)
+    return (
+      <div className="text-center py-5">
+        <div className="spinner-border text-primary"></div>
+      </div>
     );
-    return list;
-  }, [bookings, q, status, from, to, onlyUpcoming, sortBy]);
 
-  useEffect(() => {
-    setVisibleCount(5);
-    setDisplayedBookings(filtered.slice(0, 5));
-  }, [filtered]);
+  if (!booking)
+    return (
+      <div className="container py-5 text-center text-muted">
+        Không tìm thấy thông tin đặt phòng.
+      </div>
+    );
 
   return (
-    <div className="container py-4">
-      <BookingFilterAdvanced
-        q={q}
-        setQ={setQ}
-        status={status}
-        setStatus={setStatus}
-        from={from}
-        setFrom={setFrom}
-        to={to}
-        setTo={setTo}
-        onlyUpcoming={onlyUpcoming}
-        setOnlyUpcoming={setOnlyUpcoming}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        loading={loading}
-        onClear={clearFilters}
-        onReload={loadBookings}
-      />
+    <div className="container py-5" style={{ maxWidth: 900 }}>
+      {/* --- Header --- */}
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <Link to="/bookings" className="btn btn-light border rounded-pill px-3 shadow-sm">
+          ← Quay lại danh sách
+        </Link>
+        <button
+          className="btn btn-outline-primary rounded-pill px-3 shadow-sm"
+          onClick={() => navigate(`/homestays/${booking.homestay.id}`)}
+        >
+          Xem chi tiết homestay →
+        </button>
+      </div>
 
-      {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status"></div>
+      {/* --- Ảnh homestay & trạng thái --- */}
+      <div className="position-relative mb-5 rounded-4 overflow-hidden shadow-sm border">
+        <div
+          className="bg-light d-flex align-items-center justify-content-center"
+          style={{ height: 320 }}
+        >
+          <span className="text-muted">Ảnh homestay</span>
         </div>
-      ) : errorMsg ? (
-        <div className="alert alert-danger">{errorMsg}</div>
-      ) : displayedBookings.length === 0 ? (
-        <div className="text-center py-5 text-muted">
-          Chưa có đặt phòng nào phù hợp bộ lọc.
+        <div className="position-absolute top-0 end-0 m-3">{getStatusBadge(booking.status)}</div>
+      </div>
+
+      {/* --- Thông tin khách hàng --- */}
+      <section className="mb-5">
+        <h5 className="fw-semibold text-primary mb-3">Thông tin khách hàng</h5>
+        <div className="p-4 bg-white rounded-4 shadow-sm border">
+          <ul className="list-unstyled mb-0 text-secondary small lh-lg">
+            <li><strong>Họ tên:</strong> {booking.user.name}</li>
+            <li><strong>Email:</strong> {booking.user.email}</li>
+            <li><strong>Số điện thoại:</strong> {booking.user.phone}</li>
+          </ul>
         </div>
-      ) : (
-        <BookingList
-          bookings={filtered}
-          displayedBookings={displayedBookings}
-          fetchingMore={fetchingMore}
-          setFetchingMore={setFetchingMore}
-          visibleCount={visibleCount}
-          setVisibleCount={setVisibleCount}
-          setDisplayedBookings={setDisplayedBookings}
+      </section>
+
+      {/* --- Chi tiết đặt phòng --- */}
+      <section className="mb-5">
+        <h5 className="fw-semibold text-primary mb-3">Chi tiết đặt phòng</h5>
+        <div className="my-4">
+        <BookingTimeline
+            status={booking.status}
+            created_at={booking.created_at}
+            check_in={booking.check_in}
+            check_out={booking.check_out}
         />
-      )}
+        </div>
+
+        <div className="p-4 bg-white rounded-4 shadow-sm border">
+          <h4 className="fw-bold mb-1 text-dark">{booking.homestay.name}</h4>
+          <p className="text-muted mb-3">{booking.homestay.address}</p>
+
+          <ul className="list-unstyled small lh-lg text-secondary">
+            <li><strong>Ngày nhận phòng:</strong> {booking.check_in}</li>
+            <li><strong>Ngày trả phòng:</strong> {booking.check_out}</li>
+            <li><strong>Số đêm:</strong> {booking.nights}</li>
+            <li><strong>Tổng tiền:</strong> {booking.total_price.toLocaleString()} VND</li>
+            <li><strong>Ngày đặt:</strong> {new Date(booking.created_at).toLocaleString()}</li>
+          </ul>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default BookingHistoryPage;
+export default BookingDetailPage;

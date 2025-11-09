@@ -462,10 +462,10 @@ const BookingDashboardPage = () => {
     }
 
     const payload: BookingPayload = {
-      homestayId,
-      checkIn: createForm.checkIn,
-      checkOut: createForm.checkOut,
-      numGuests: createForm.numGuests ? Number(createForm.numGuests) : undefined,
+      homestay_id: homestayId,
+      check_in: createForm.checkIn,
+      check_out: createForm.checkOut,
+      num_guest: createForm.numGuests ? Number(createForm) : undefined,
     };
 
     setCreating(true);

@@ -28,6 +28,7 @@ import SupportCenterPage from "@/pages/Support";
 import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
+import BookingDetailPage from "@/pages/Booking/BookingDatailPage";
 
 const PublicRoutes = [
   // Public routes (no authentication required)
@@ -92,6 +93,10 @@ const PrivateRoutes = [
           {
             path: "bookings/history",
             element: <BookingHistoryPage />,
+          },
+          {
+            path: "bookings/:bookingId",
+            element: <BookingDetailPage />,
           },
           {
             path: "payments",
