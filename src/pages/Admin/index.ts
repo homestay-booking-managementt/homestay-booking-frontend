@@ -1,3 +1,13 @@
+export { default as AdminLayout } from "./AdminLayout";
+export { default as AdminMainDashboard } from "./AdminMainDashboard";
+export { default as AdminUsersPage } from "./AdminUsersPage";
+export { default as AdminHomestaysPage } from "./AdminHomestaysPage";
+export { default as AdminHomestayListPage } from "./AdminHomestayListPage";
+export { default as AdminHomestayUpdateRequestsPage } from "./AdminHomestayUpdateRequestsPage";
+export { default as AdminBookingsPage } from "./AdminBookingsPage";
+export { default as AdminRevenuePage } from "./AdminRevenuePage";
+export { default as AdminComplaintsPage } from "./AdminComplaintsPage";
+export { default as AdminSettingsPage } from "./AdminSettingsPage";
 export { default as AdminDashboardPage } from "./AdminDashboardPage";
 export { default as AdminHomestayApprovalPage } from "./AdminHomestayApprovalPage";
 export { default as AdminChatMonitorPage } from "./AdminChatMonitorPage";
