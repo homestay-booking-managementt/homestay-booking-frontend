@@ -1,12 +1,6 @@
 import type { Homestay, HomestayFilters, HomestayPayload } from "@/types/homestay";
 import { sendRequest } from "@/utils/sendRequest";
 
-// export const fetchHomestays = (filters?: HomestayFilters) =>
-//   sendRequest("/homestays", {
-//     method: "GET",
-//     payload: filters,
-//   }) as Promise<Homestay[]>;
-//Test json-server
 export const fetchHomestays = (filters?: HomestayFilters) =>
   sendRequest("/homestays", {
     method: "GET",

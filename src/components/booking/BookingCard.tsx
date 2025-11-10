@@ -54,7 +54,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
 
             <a
               href={`/bookings/${booking.bookingId}`}
-              className="btn btn-sm btn-outline-secondary"
+              className="btn btn-sm btn-secondary"
             >
               Xem chi tiết
             </a>

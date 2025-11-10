@@ -1,5 +1,5 @@
 import React from "react";
-import type { Booking,BookingDetail } from "@/types/booking";
+import type { Booking, BookingDetail } from "@/types/booking";
 import BookingTimeline from "./BookingTimeline";
 
 interface Props {
@@ -20,8 +20,8 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
     </div>
 
     <div className="p-4 bg-white rounded-4 shadow-sm border">
-      <h4 className="fw-bold mb-1 text-dark">{booking.homestay.name}</h4>
-      <p className="text-muted mb-3">{booking.homestay.address}</p>
+      <div className="fw-bold mb-1 fs-2">{booking.homestay.name}</div>
+      <div className="text-muted mb-3">{booking.homestay.address}</div>
 
       <ul className="list-unstyled small lh-lg text-secondary">
         <li><strong>Ngày nhận phòng:</strong> {booking.checkIn}</li>
