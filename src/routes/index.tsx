@@ -5,12 +5,16 @@ import BookingHistoryPage from "@/pages/BookingHistory";
 import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
-import {
-    AdminDashboardPage,
-    AdminHomestayApprovalPage,
-    AdminChatMonitorPage,
-    AdminSystemStatsPage,
-} from "@/pages/Admin";
+import AdminLayout from "@/pages/Admin/AdminLayout";
+import AdminMainDashboard from "@/pages/Admin/AdminMainDashboard";
+import AdminUsersPage from "@/pages/Admin/AdminUsersPage";
+import AdminHomestaysPage from "@/pages/Admin/AdminHomestaysPage";
+import AdminHomestayListPage from "@/pages/Admin/AdminHomestayListPage";
+import AdminHomestayUpdateRequestsPage from "@/pages/Admin/AdminHomestayUpdateRequestsPage";
+import AdminBookingsPage from "@/pages/Admin/AdminBookingsPage";
+import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
+import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
+import AdminSettingsPage from "@/pages/Admin/AdminSettingsPage";
 import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
 import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
 import PaymentPortalPage from "@/pages/Payment";
@@ -113,21 +117,47 @@ const PrivateRoutes = [
                         path: "host/chat",
                         element: <HostChatPage />,
                     },
+                ],
+            },
+            {
+                path: "/admin",
+                element: <AdminLayout />,
+                children: [
                     {
-                        path: "admin",
-                        element: <AdminDashboardPage />,
+                        index: true,
+                        element: <AdminMainDashboard />,
                     },
                     {
-                        path: "admin/homestays",
-                        element: <AdminHomestayApprovalPage />,
+                        path: "users",
+                        element: <AdminUsersPage />,
                     },
                     {
-                        path: "admin/chat-monitor",
-                        element: <AdminChatMonitorPage />,
+                        path: "homestays",
+                        element: <AdminHomestayListPage />,
                     },
                     {
-                        path: "admin/statistics",
-                        element: <AdminSystemStatsPage />,
+                        path: "homestays/pending",
+                        element: <AdminHomestaysPage />,
+                    },
+                    {
+                        path: "homestays/update-requests",
+                        element: <AdminHomestayUpdateRequestsPage />,
+                    },
+                    {
+                        path: "bookings",
+                        element: <AdminBookingsPage />,
+                    },
+                    {
+                        path: "revenue",
+                        element: <AdminRevenuePage />,
+                    },
+                    {
+                        path: "complaints",
+                        element: <AdminComplaintsPage />,
+                    },
+                    {
+                        path: "settings",
+                        element: <AdminSettingsPage />,
                     },
                 ],
             },
