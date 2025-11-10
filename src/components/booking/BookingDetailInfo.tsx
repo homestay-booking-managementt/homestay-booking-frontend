@@ -1,9 +1,9 @@
 import React from "react";
-import type { Booking } from "@/types/booking";
-import BookingTimeline from "./BookingTimeLine";
+import type { Booking,BookingDetail } from "@/types/booking";
+import BookingTimeline from "./BookingTimeline";
 
 interface Props {
-  booking: Booking;
+  booking: BookingDetail;
 }
 
 const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
@@ -13,9 +13,9 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
     <div className="my-4">
       <BookingTimeline
         status={booking.status}
-        created_at={booking.created_at}
-        check_in={booking.check_in}
-        check_out={booking.check_out}
+        created_at={booking.createdAt}
+        check_in={booking.checkIn}
+        check_out={booking.checkOut}
       />
     </div>
 
@@ -24,11 +24,11 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
       <p className="text-muted mb-3">{booking.homestay.address}</p>
 
       <ul className="list-unstyled small lh-lg text-secondary">
-        <li><strong>Ngày nhận phòng:</strong> {booking.check_in}</li>
-        <li><strong>Ngày trả phòng:</strong> {booking.check_out}</li>
+        <li><strong>Ngày nhận phòng:</strong> {booking.checkIn}</li>
+        <li><strong>Ngày trả phòng:</strong> {booking.checkOut}</li>
         <li><strong>Số đêm:</strong> {booking.nights}</li>
-        <li><strong>Tổng tiền:</strong> {booking.total_price.toLocaleString()} VND</li>
-        <li><strong>Ngày đặt:</strong> {new Date(booking.created_at).toLocaleString()}</li>
+        <li><strong>Tổng tiền:</strong> {booking.totalPrice.toLocaleString()} VND</li>
+        <li><strong>Ngày đặt:</strong> {new Date(booking.createdAt).toLocaleString()}</li>
       </ul>
     </div>
   </section>

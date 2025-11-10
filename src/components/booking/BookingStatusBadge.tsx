@@ -11,6 +11,7 @@ const BookingStatusBadge: React.FC<Props> = ({ status }) => {
     paid: "bg-primary text-white",
     checked_in: "bg-success text-white",
     checked_out: "bg-secondary text-white",
+    completed: "bg-gradient bg-success text-light fw-semibold",
     canceled: "bg-danger text-white",
     refunded: "bg-dark text-white",
   };

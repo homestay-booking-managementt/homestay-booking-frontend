@@ -1,10 +1,10 @@
-import { BookingStatus, STATUS_LABEL } from "./types";
+import { BookingStatusPayload, STATUS_LABEL } from "@/types/booking";
 
 interface BookingFilterAdvancedProps {
   q: string;
   setQ: (value: string) => void;
-  status: "" | BookingStatus;
-  setStatus: (value: "" | BookingStatus) => void;
+  status: "" | BookingStatusPayload['status'];
+  setStatus: (value: "" | BookingStatusPayload['status']) => void;
   from: string;
   setFrom: (value: string) => void;
   to: string;
@@ -18,7 +18,7 @@ interface BookingFilterAdvancedProps {
   onReload: () => void;
 }
 
-const ALL_STATUSES: BookingStatus[] = [
+const ALL_STATUSES: BookingStatusPayload['status'][] = [
   "pending",
   "confirmed",
   "paid",
@@ -26,6 +26,7 @@ const ALL_STATUSES: BookingStatus[] = [
   "checked_out",
   "canceled",
   "refunded",
+  "completed",
 ];
 
 const BookingFilterAdvanced = ({
@@ -94,7 +95,7 @@ const BookingFilterAdvanced = ({
               <select
                 className="form-select"
                 value={status}
-                onChange={(e) => setStatus(e.target.value as BookingStatus | "")}
+                onChange={(e) => setStatus(e.target.value as BookingStatusPayload['status'] | "")}
               >
                 <option value="">Tất cả</option>
                 {ALL_STATUSES.map((s) => (

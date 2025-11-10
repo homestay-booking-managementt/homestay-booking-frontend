@@ -26,7 +26,7 @@ const BookingTimeline: React.FC<BookingTimelineProps> = ({
 
   // 💡 Xác định các bước nào hoàn thành dựa theo trạng thái booking
   const getStepStatus = (key: string): { isDone: boolean; isActive: boolean } => {
-    const order = ["pending", "confirmed", "paid", "checked_in", "checked_out", "review"];
+    const order = ["pending", "confirmed", "paid", "checked_in", "checked_out","completed", "review"];
     const currentIndex = order.indexOf(status);
     const stepIndex = order.indexOf(key);
     return {
@@ -41,6 +41,7 @@ const BookingTimeline: React.FC<BookingTimelineProps> = ({
     { key: "confirmed", label: "Đã Xác Nhận", ...getStepStatus("confirmed") },
     { key: "checked_in", label: "Đã Nhận Phòng", date: check_in, ...getStepStatus("checked_in") },
     { key: "checked_out", label: "Đã Trả Phòng", date: check_out, ...getStepStatus("checked_out") },
+    { key: "completed", label: "Hoàn tất", ...getStepStatus("completed") },
     { key: "review", label: "Đánh Giá", ...getStepStatus("review") },
   ];
 

@@ -10,7 +10,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
   const navigate = useNavigate();
 
   const handleReviewClick = () => {
-    navigate(`/reviews?bookingId=${booking.id}`);
+    navigate(`/reviews?bookingId=${booking.bookingId}`);
   };
 
   return (
@@ -27,10 +27,10 @@ const BookingCard = ({ booking }: BookingCardProps) => {
 
             <div className="text-muted mb-2">
               <div>
-                <strong>Check-in:</strong> {booking.check_in}
+                <strong>Check-in:</strong> {booking.checkIn}
               </div>
               <div>
-                <strong>Check-out:</strong> {booking.check_out}
+                <strong>Check-out:</strong> {booking.checkOut}
               </div>
               <div>
                 <strong>Số đêm:</strong> {booking.nights}
@@ -38,7 +38,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
             </div>
 
             <div className="fw-semibold text-primary">
-              Tổng: {formatCurrency(booking.total_price)}
+              Tổng: {formatCurrency(booking.totalPrice)}
             </div>
           </div>
 
@@ -53,7 +53,7 @@ const BookingCard = ({ booking }: BookingCardProps) => {
             )}
 
             <a
-              href={`/bookings/${booking.id}`}
+              href={`/bookings/${booking.bookingId}`}
               className="btn btn-sm btn-outline-secondary"
             >
               Xem chi tiết

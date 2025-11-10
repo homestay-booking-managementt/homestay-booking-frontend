@@ -1,8 +1,8 @@
 import React from "react";
-import type { Booking } from "@/types/booking";
+import type { BookingUser } from "@/types/booking";
 
 interface Props {
-  user: Booking["user"];
+  user: BookingUser;
 }
 
 const BookingCustomerInfo: React.FC<Props> = ({ user }) => (
