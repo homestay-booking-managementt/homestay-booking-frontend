@@ -61,30 +61,6 @@ export interface HomestayPayload {
   images?: string[];
 }
 
-// --------------------
-// Bộ lọc homestay
-// --------------------
-export interface HomestayFilters {
-  city?: string;
-  capacity?: number;
-  checkIn?: string;
-  checkOut?: string;
-}
-
-// --------------------
-// Bảng ảnh homestay
-// --------------------
-export interface HomestayImage {
-  id: number;
-  homestay_id: number;
-  url: string;
-  alt?: string;
-  is_primary?: boolean;
-}
-
-// --------------------
-// Bảng homestay chính
-// --------------------
 export interface Homestay {
   id: number;
   name: string;
@@ -109,4 +85,22 @@ export interface Homestay {
 
   // Danh sách ảnh (nếu expand homestay_images)
   images?: HomestayImage[];
+}
+
+export interface HomestayFilters {
+  city?: string;
+  capacity?: number;
+  checkIn?: string;
+  checkOut?: string;
+}
+
+// --------------------
+// Bảng ảnh homestay
+// --------------------
+export interface HomestayImage {
+  id: number;
+  homestay_id: number;
+  url: string;
+  alt?: string;
+  is_primary?: boolean;
 }

@@ -5,14 +5,27 @@ import BookingHistoryPage from "@/pages/BookingHistory";
 import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
-import {
-  AdminDashboardPage,
-  AdminHomestayApprovalPage,
-  AdminChatMonitorPage,
-  AdminSystemStatsPage,
-} from "@/pages/Admin";
+import AdminLayout from "@/pages/Admin/AdminLayout";
+import AdminMainDashboard from "@/pages/Admin/AdminMainDashboard";
+import AdminUsersPage from "@/pages/Admin/AdminUsersPage";
+import AdminHomestayListPage from "@/pages/Admin/AdminHomestayListPage";
+import AdminHomestaysPage from "@/pages/Admin/AdminHomestaysPage";
+import AdminHomestayUpdateRequestsPage from "@/pages/Admin/AdminHomestayUpdateRequestsPage";
+import AdminBookingsPage from "@/pages/Admin/AdminBookingsPage";
+import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
+import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
+import AdminSettingsPage from "@/pages/Admin/AdminSettingsPage";
 import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
-import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
+import {
+  HostChatPage,
+  HostLayout,
+  HostDashboardPage,
+  HostHomestayListPage,
+  HostBookingRequestsPage,
+  HostPaymentTransfersPage,
+  HostRevenueStatsPage,
+  HostSettingsPage
+} from "@/pages/Host";
 import PaymentPortalPage from "@/pages/Payment";
 import ProfilePage from "@/pages/Profile";
 import ReviewCenterPage from "@/pages/Reviews";
@@ -96,10 +109,6 @@ const PrivateRoutes = [
             element: <ReviewCenterPage />,
           },
           {
-            path: "reviews/:bookingId",
-            element: <ReviewHomestayPage />,
-          },
-          {
             path: "complaints",
             element: <ComplaintCenterPage />,
           },
@@ -111,37 +120,59 @@ const PrivateRoutes = [
             path: "profile",
             element: <ProfilePage />,
           },
-          // {
-          //   path: "me",
-          //   element: <Me />,
-          // },
           {
             path: "host/bookings",
-            element: <HostBookingManagementPage />,
+            element: <HostBookingRequestsPage />,
           },
           {
             path: "host/revenue",
-            element: <HostRevenueReportPage />,
+            element: <HostRevenueStatsPage />,
           },
           {
             path: "host/chat",
             element: <HostChatPage />,
           },
+        ],
+      },
+      {
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
           {
-            path: "admin",
-            element: <AdminDashboardPage />,
+            index: true,
+            element: <AdminMainDashboard />,
           },
           {
-            path: "admin/homestays",
-            element: <AdminHomestayApprovalPage />,
+            path: "users",
+            element: <AdminUsersPage />,
           },
           {
-            path: "admin/chat-monitor",
-            element: <AdminChatMonitorPage />,
+            path: "homestays",
+            element: <AdminHomestayListPage />,
           },
           {
-            path: "admin/statistics",
-            element: <AdminSystemStatsPage />,
+            path: "homestays/pending",
+            element: <AdminHomestaysPage />,
+          },
+          {
+            path: "homestays/update-requests",
+            element: <AdminHomestayUpdateRequestsPage />,
+          },
+          {
+            path: "bookings",
+            element: <AdminBookingsPage />,
+          },
+          {
+            path: "revenue",
+            element: <AdminRevenuePage />,
+          },
+          {
+            path: "complaints",
+            element: <AdminComplaintsPage />,
+          },
+          {
+            path: "settings",
+            element: <AdminSettingsPage />,
           },
         ],
       },
