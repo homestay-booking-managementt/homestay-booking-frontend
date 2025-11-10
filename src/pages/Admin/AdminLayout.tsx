@@ -19,6 +19,7 @@ import {
   FaClock,
   FaEdit
 } from "react-icons/fa";
+import "./AdminGlobalStyles.css";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -177,16 +178,21 @@ const AdminLayout = () => {
 
         /* Sidebar */
         .admin-sidebar {
-          width: 280px;
-          background: #fff;
-          box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+          width: 260px;
+          background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 50%, #e0f7fa 100%);
+          border-right: 1px solid rgba(99, 179, 237, 0.15);
           display: flex;
           flex-direction: column;
-          padding: 0;
+          height: 100vh;
+          position: sticky;
+          top: 0;
+          overflow-y: auto;
+          box-shadow: 2px 0 15px rgba(99, 179, 237, 0.08);
         }
 
         .dark .admin-sidebar {
-          background: #16213e;
+          background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #1e3a5f 100%);
+          border-right-color: rgba(99, 179, 237, 0.1);
         }
 
         .admin-logo {
@@ -194,12 +200,12 @@ const AdminLayout = () => {
           align-items: center;
           gap: 12px;
           padding: 12px 20px;
-          border-bottom: 1px solid #e8ecef;
+          border-bottom: 1px solid rgba(99, 179, 237, 0.15);
           height: 50px;
         }
 
         .dark .admin-logo {
-          border-bottom-color: #2d3a52;
+          border-bottom-color: rgba(99, 179, 237, 0.2);
         }
 
         .logo-circle {
@@ -213,29 +219,35 @@ const AdminLayout = () => {
           color: white;
           font-weight: 700;
           font-size: 16px;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .logo-text h1 {
           margin: 0;
           font-size: 16px;
           font-weight: 700;
-          color: #2d3748;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
           line-height: 1.2;
         }
 
         .dark .logo-text h1 {
           color: #fff;
+          background: none;
+          -webkit-text-fill-color: #fff;
         }
 
         .logo-text p {
           margin: 0;
           font-size: 11px;
-          color: #718096;
+          color: #64748b;
           line-height: 1.2;
         }
 
         .dark .logo-text p {
-          color: #a0aec0;
+          color: #94a3b8;
         }
 
         .admin-nav {
@@ -249,10 +261,10 @@ const AdminLayout = () => {
           gap: 12px;
           padding: 12px 20px;
           margin: 4px 12px;
-          border-radius: 8px;
-          color: #4a5568;
+          border-radius: 10px;
+          color: #475569;
           text-decoration: none;
-          transition: all 0.2s;
+          transition: all 0.3s;
           font-size: 14px;
         }
 
@@ -261,37 +273,58 @@ const AdminLayout = () => {
         }
 
         .nav-item:hover {
-          background: #f7fafc;
-          color: #667eea;
+          background: rgba(99, 179, 237, 0.1);
+          color: #0ea5e9;
+          transform: translateX(4px);
         }
 
         .dark .nav-item:hover {
-          background: #1e2a47;
+          background: rgba(99, 179, 237, 0.15);
         }
 
         .nav-item.active {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
+          background: linear-gradient(135deg, rgba(99, 179, 237, 0.15) 0%, rgba(125, 211, 252, 0.15) 100%);
+          color: #0284c7;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(99, 179, 237, 0.2);
+          border-left: 3px solid #0ea5e9;
+        }
+
+        .dark .nav-item.active {
+          color: #7dd3fc;
+          border-left-color: #38bdf8;
         }
 
         .nav-icon {
           font-size: 18px;
-          color: #6b7280;
+          color: #64748b;
+        }
+
+        .nav-item:hover .nav-icon {
+          color: #0ea5e9;
         }
 
         .nav-item.active .nav-icon {
-          color: white;
+          color: #0284c7;
+        }
+
+        .dark .nav-item.active .nav-icon {
+          color: #7dd3fc;
         }
 
         .nav-chevron {
           display: flex;
           align-items: center;
-          color: #6b7280;
+          color: #64748b;
           transition: transform 0.2s;
         }
 
         .nav-item.active .nav-chevron {
-          color: white;
+          color: #0284c7;
+        }
+
+        .dark .nav-item.active .nav-chevron {
+          color: #7dd3fc;
         }
 
         .nav-submenu {
@@ -306,33 +339,35 @@ const AdminLayout = () => {
           padding: 10px 20px 10px 32px;
           margin: 2px 12px;
           border-radius: 8px;
-          color: #4a5568;
+          color: #64748b;
           text-decoration: none;
           transition: all 0.2s;
           font-size: 13px;
         }
 
         .dark .nav-subitem {
-          color: #cbd5e0;
+          color: #94a3b8;
         }
 
         .nav-subitem:hover {
-          background: #f7fafc;
-          color: #667eea;
+          background: rgba(99, 179, 237, 0.08);
+          color: #0ea5e9;
+          transform: translateX(2px);
         }
 
         .dark .nav-subitem:hover {
-          background: #1e2a47;
+          background: rgba(99, 179, 237, 0.1);
         }
 
         .nav-subitem.active {
-          background: #eef2ff;
-          color: #667eea;
+          background: rgba(99, 179, 237, 0.12);
+          color: #0284c7;
           font-weight: 500;
         }
 
         .dark .nav-subitem.active {
-          background: #1e2a47;
+          background: rgba(99, 179, 237, 0.15);
+          color: #7dd3fc;
         }
 
         .nav-subitem .nav-icon {
@@ -349,29 +384,37 @@ const AdminLayout = () => {
 
         /* Header */
         .admin-header {
-          background: #fff;
+          background: #ffffff;
           padding: 8px 32px;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          box-shadow: 0 1px 3px rgba(99, 179, 237, 0.08);
           display: flex;
           justify-content: space-between;
           align-items: center;
           height: 50px;
+          border-bottom: 1px solid rgba(99, 179, 237, 0.1);
         }
 
         .dark .admin-header {
-          background: #16213e;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          background: #0f172a;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          border-bottom-color: rgba(99, 179, 237, 0.2);
         }
 
         .header-left h2 {
           margin: 0;
           font-size: 20px;
           font-weight: 600;
-          color: #2d3748;
+          background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .dark .header-left h2 {
-          color: #fff;
+          background: linear-gradient(135deg, #38bdf8 0%, #22d3ee 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .header-right {
@@ -490,6 +533,26 @@ const AdminLayout = () => {
           flex: 1;
           overflow-y: auto;
           padding: 24px 32px;
+          background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 50%, #f8fafc 100%);
+          position: relative;
+        }
+
+        .admin-content::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: 
+            radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.02) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(6, 182, 212, 0.02) 0%, transparent 50%);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .dark .admin-content {
+          background: #0a1929;
         }
 
         /* Responsive */
