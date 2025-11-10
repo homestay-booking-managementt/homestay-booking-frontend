@@ -106,10 +106,10 @@ const PrivateRoutes = [
             path: "profile",
             element: <ProfilePage />,
           },
-          {
-            path: "me",
-            element: <Me />,
-          },
+          // {
+          //   path: "me",
+          //   element: <Me />,
+          // },
           {
             path: "host/bookings",
             element: <HostBookingManagementPage />,
