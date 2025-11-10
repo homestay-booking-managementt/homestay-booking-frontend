@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 // import { cancelBooking, createBooking, fetchBookings, updateBookingStatus } from "@/api/bookingApi";
 // import type { BookingPayload, BookingStatusPayload } from "@/types/booking";
 // import { showAlert } from "@/utils/showAlert";

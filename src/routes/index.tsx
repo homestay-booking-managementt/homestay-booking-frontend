@@ -20,7 +20,7 @@ import SupportCenterPage from "@/pages/Support";
 import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
-import BookingDetailPage from "@/pages/Booking/BookingDatailPage";
+import BookingDetailPage from "@/pages/Booking/BookingDetailPage";
 
 const PublicRoutes = [
   // Public routes (no authentication required)

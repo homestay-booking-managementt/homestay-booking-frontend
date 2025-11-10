@@ -13,6 +13,14 @@ export const createBooking = (payload: BookingPayload) =>
     payload,
   });
 
+export const fetchBookingsByUser = async (userId: number): Promise<Booking[]> => {
+  const data = await sendRequest("/bookings", {
+    method: "GET",
+    payload: { userId },
+  });
+
+  return data as Booking[];
+};
 export const cancelBooking = (bookingId: number) =>
   sendRequest(`${BOOKINGS_ENDPOINT}/${bookingId}/cancel`, {
     method: "POST",
