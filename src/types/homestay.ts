@@ -15,6 +15,7 @@ export interface Homestay extends HomestayPayload {
   id: number;
   ownerId?: number;
   status?: string;
+  isUpdate?: boolean; // true if pending update, false if pending create
   createdAt?: string;
   updatedAt?: string;
 }

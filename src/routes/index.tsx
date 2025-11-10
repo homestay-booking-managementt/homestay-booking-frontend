@@ -16,7 +16,16 @@ import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
 import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
 import AdminSettingsPage from "@/pages/Admin/AdminSettingsPage";
 import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
-import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
+import { 
+  HostChatPage,
+  HostLayout,
+  HostDashboardPage,
+  HostHomestayListPage,
+  HostBookingRequestsPage,
+  HostPaymentTransfersPage,
+  HostRevenueStatsPage,
+  HostSettingsPage
+} from "@/pages/Host";
 import PaymentPortalPage from "@/pages/Payment";
 import ProfilePage from "@/pages/Profile";
 import ReviewCenterPage from "@/pages/Reviews";
@@ -105,18 +114,6 @@ const PrivateRoutes = [
                         path: "profile",
                         element: <ProfilePage />,
                     },
-                    {
-                        path: "host/bookings",
-                        element: <HostBookingManagementPage />,
-                    },
-                    {
-                        path: "host/revenue",
-                        element: <HostRevenueReportPage />,
-                    },
-                    {
-                        path: "host/chat",
-                        element: <HostChatPage />,
-                    },
                 ],
             },
             {
@@ -158,6 +155,44 @@ const PrivateRoutes = [
                     {
                         path: "settings",
                         element: <AdminSettingsPage />,
+                    },
+                ],
+            },
+            {
+                path: "/host",
+                element: <HostLayout />,
+                children: [
+                    {
+                        index: true,
+                        element: <HostDashboardPage />,
+                    },
+                    {
+                        path: "dashboard",
+                        element: <HostDashboardPage />,
+                    },
+                    {
+                        path: "homestays",
+                        element: <HostHomestayListPage />,
+                    },
+                    {
+                        path: "booking-requests",
+                        element: <HostBookingRequestsPage />,
+                    },
+                    {
+                        path: "revenue",
+                        element: <HostRevenueStatsPage />,
+                    },
+                    {
+                        path: "payments",
+                        element: <HostPaymentTransfersPage />,
+                    },
+                    {
+                        path: "chat",
+                        element: <HostChatPage />,
+                    },
+                    {
+                        path: "settings",
+                        element: <HostSettingsPage />,
                     },
                 ],
             },
