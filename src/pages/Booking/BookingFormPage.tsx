@@ -1,27 +1,68 @@
+/* eslint-disable prettier/prettier */
 import BookingCustomerInfo from "@/components/booking/BookingCustomInfo";
+import BookingPaymentModal from "@/components/booking/BookingPaymentModal";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 
 const BookingFormPage = () => {
-  const bookingInfo = {
-    bookingId: 3,
-    checkIn: "2025-11-20",
-    checkOut: "2025-11-25",
-    nights: 5,
-    totalPrice: 6000000,
-    status: "pending",
-    createdAt: "2025-10-22T14:00:00",
-    homestay: {
-      id: 3,
-      name: "Căn Hộ Phố Cổ Hà Nội",
-      description: "Căn hộ hiện đại ngay trung tâm phố cổ Hà Nội",
-      address: "78 Hàng Bạc, Hoàn Kiếm",
-      city: "Hà Nội",
-      images: [
-        { url: "https://motogo.vn/wp-content/uploads/2023/03/homestay-pho-co-ha-noi-17.jpg", isPrimary: true },
-      ],
-    },
-  };
+  const localtion = useLocation();
+  const { homestayId, checkIn, checkOut } = {
+  homestayId: 1,
+  checkIn: "2025-12-10",
+  checkOut: "2025-12-12",
+};//localtion.state || {};
+  const nights =
+    (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+    (1000 * 60 * 60 * 24);
+  const data = {
+        "id": 1,
+        "userId": 1,
+        "name": "Villa Biển Đà Nẵng",
+        "description": "Villa sang trọng view biển, gần bãi tắm Mỹ Khê",
+        "address": "123 Võ Nguyên Giáp, Sơn Trà",
+        "city": "Đà Nẵng",
+        "lat": 16.0471,
+        "longitude": 108.2376,
+        "capacity": 8,
+        "numRooms": 3,
+        "bathroomCount": 2,
+        "basePrice": 2500000.00,
+        "amenities": "{\"wifi\": true, \"pool\": true, \"parking\": true, \"ac\": true, \"kitchen\": true}",
+        "status": 2,
+        "createdAt": "2025-01-10 08:30:00",
+        "updatedAt": "2025-01-15 10:00:00",
+        "images": [
+            {
+                "id": 1,
+                "url": "https://chefjob.vn/wp-content/uploads/2020/07/biet-thu-vinpearl-da-nang-resort-villas.jpg",
+                "alt": "Villa Biển Đà Nẵng - Mặt tiền",
+                "isPrimary": true,
+                "createdAt": "2025-10-26 22:41:57"
+            },
+            {
+                "id": 2,
+                "url": "https://example.com/images/villa-danang-2.jpg",
+                "alt": "Villa Biển Đà Nẵng - Hồ bơi",
+                "isPrimary": false,
+                "createdAt": "2025-10-26 22:41:57"
+            },
+            {
+                "id": 8,
+                "url": "/images/homestay1a.jpg",
+                "alt": "Phòng khách Bình An",
+                "isPrimary": false,
+                "createdAt": "2025-10-27 17:45:27"
+            },
+            {
+                "id": 9,
+                "url": "/images/homestay1b.jpg",
+                "alt": "Phòng ngủ Bình An",
+                "isPrimary": false,
+                "createdAt": "2025-10-27 17:45:27"
+            }
+        ]
+    }
 
   // form state
   const [form, setForm] = useState({
@@ -44,7 +85,7 @@ const BookingFormPage = () => {
 
     // Tạo JSON đầy đủ
     const payload = {
-      bookingInfo,
+      
       userInfo: {
         name: `${form.lastName} ${form.firstName}`.trim(),
         email: form.email,
@@ -59,7 +100,6 @@ const BookingFormPage = () => {
     };
 
     console.log("📦 Dữ liệu gửi API:", payload);
-    alert("Đã tạo JSON booking! Xem console log để kiểm tra.");
   };
   const user = {
         "userId": 1,
@@ -67,6 +107,25 @@ const BookingFormPage = () => {
         "email": "nguyenvana@example.com",
         "phone": "0901234567"
     };
+    const [showModal, setShowModal] = useState(false);
+
+  const bookingInfo = {
+    homestayName: "Villa Biển Đà Nẵng",
+    totalPrice: 5000000,
+    checkIn: "2025-12-10",
+    checkOut: "2025-12-12",
+    nights: 2,
+  };
+
+  const handleConfirm = (data: { code: string; method: string }) => {
+    console.log("Xác nhận thanh toán:", data);
+    alert("Thanh toán thành công!");
+    setShowModal(false);
+  };
+  const fmtDate = (iso: string) => {
+  const d = new Date(iso);
+  return d.toLocaleDateString("vi-VN"); 
+};
   return (
     <div className="container my-4">
       <div className="row g-4">
@@ -75,77 +134,6 @@ const BookingFormPage = () => {
             <BookingCustomerInfo user={user } />
           <div className="card shadow-sm">
             <div className="card-body">
-                
-              {/* <form onSubmit={handleSubmit}>
-                <h5>Yêu cầu đặc biệt</h5>
-                <div className="mb-2">
-                  <label className="form-label">Quy định hút thuốc:</label>
-                  <div>
-                    <div className="form-check form-check-inline">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="smokingPreference"
-                        value="non_smoking"
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label">Không hút thuốc</label>
-                    </div>
-                    <div className="form-check form-check-inline">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="smokingPreference"
-                        value="smoking"
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label">Có hút thuốc</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Loại giường:</label>
-                  <div>
-                    <div className="form-check form-check-inline">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="bedPreference"
-                        value="double_bed"
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label">Giường đôi</label>
-                    </div>
-                    <div className="form-check form-check-inline">
-                      <input
-                        type="radio"
-                        className="form-check-input"
-                        name="bedPreference"
-                        value="twin_beds"
-                        onChange={handleChange}
-                      />
-                      <label className="form-check-label">Hai giường đơn</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-3">
-                  <label className="form-label">Ghi chú khác (nếu có):</label>
-                  <textarea
-                    name="notes"
-                    value={form.notes}
-                    onChange={handleChange}
-                    className="form-control"
-                    rows={3}
-                    placeholder="Ví dụ: Cần tầng cao, gần cửa sổ view phố..."
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary w-100 mt-3">
-                  Kế tiếp: Bước cuối cùng
-                </button>
-              </form> */}
               {/* FORM YÊU CẦU ĐẶC BIỆT */}
             <section className="mb-4">
             <h5 className="mb-3">Yêu cầu đặc biệt</h5>
@@ -223,10 +211,16 @@ const BookingFormPage = () => {
                     </div>
 
                     {/* Nút gửi */}
-                    <button type="submit" className="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
+                    <button type="submit" onClick={()=>setShowModal(true)} className="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
                     Kế tiếp: Bước cuối cùng
                     </button>
                 </form>
+                <BookingPaymentModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        bookingInfo={bookingInfo}
+        onConfirm={handleConfirm}
+      />
                 </div>
             </div>
             </section>
@@ -239,25 +233,30 @@ const BookingFormPage = () => {
         <div className="col-md-4">
           <div className="card shadow-sm">
             <img
-              src={bookingInfo.homestay.images[0].url}
-              alt={bookingInfo.homestay.name}
+              src={data.images[0].url}
+              alt={data.images[0].alt}
               className="card-img-top"
               style={{ height: "200px", objectFit: "cover" }}
             />
             <div className="card-body">
-              <h5>{bookingInfo.homestay.name}</h5>
-              <p className="text-muted">{bookingInfo.homestay.address}</p>
+              <h5>{data.name}</h5>
+              <p className="text-muted">{data.address}</p>
               <hr />
               <p>
-                <strong>Nhận phòng:</strong> {bookingInfo.checkIn}
+                <strong>Nhận phòng:</strong> {fmtDate(checkIn)}
                 <br />
-                <strong>Trả phòng:</strong> {bookingInfo.checkOut}
+                <strong>Trả phòng:</strong> {fmtDate(checkOut)}
                 <br />
-                <strong>Số đêm:</strong> {bookingInfo.nights}
+                <strong>Số đêm:</strong> {nights}
               </p>
               <p className="fw-bold text-success">
-                Tổng tiền: {bookingInfo.totalPrice.toLocaleString()} VND
+                Tổng tiền:{" "}
+                {new Intl.NumberFormat("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                }).format(data.basePrice * nights)}
               </p>
+
               <ul className="small list-unstyled">
                 <li>✔ Wifi miễn phí</li>
                 <li>✔ Điều hòa</li>

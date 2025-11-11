@@ -25,7 +25,7 @@ export interface Booking {
   nights: number;
   totalPrice: number;
   status: BookingStatusPayload["status"];
-  createdAt: string | null;
+  createdAt: string ;
   homestay: {
     id: number;
     name: string;

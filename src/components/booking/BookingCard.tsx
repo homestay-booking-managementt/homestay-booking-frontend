@@ -1,77 +1,87 @@
-import { useNavigate } from "react-router-dom";
-import { Booking, STATUS_BADGE, STATUS_LABEL, formatCurrency } from "@/types/booking";
-import { showAlert } from "@/utils/showAlert";
+/* eslint-disable prettier/prettier */
+import { Booking } from "@/types/booking";
+import { Link } from "react-router-dom";
 
-interface BookingCardProps {
-  booking: Booking;
-}
-
-const BookingCard = ({ booking }: BookingCardProps) => {
-  const navigate = useNavigate();
-
-  const handleReviewClick = () => {
-    navigate(`/reviews?bookingId=${booking.bookingId}`);
+const fmtDate = (iso: string) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+};
+const toVND = (n: number) =>
+  new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
+    n
+  );
+// ======================
+// Booking Badge theo trạng thái
+// ======================
+const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
+  const map: Record<Booking["status"], string> = {
+    pending: "warning",
+    confirmed: "primary",
+    paid: "info",
+    checked_in: "info",
+    checked_out: "secondary",
+    canceled: "danger",
+    refunded: "dark",
+    completed: "success",
   };
-
+  const labelMap: Record<Booking["status"], string> = {
+    pending: "Chờ xử lý",
+    confirmed: "Đã xác nhận",
+    paid: "Đã thanh toán",
+    checked_in: "Đã nhận phòng",
+    checked_out: "Đã trả phòng",
+    canceled: "Đã hủy",
+    refunded: "Đã hoàn tiền",
+    completed: "Hoàn tất",
+  };
   return (
-    <div className="col-12 fade-in">
-      <div className="card shadow-sm">
-        <div className="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-start gap-3">
-          <div className="flex-grow-1">
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <h5 className="card-title mb-0">{booking.homestay?.name}</h5>
-              <span className={`badge text-uppercase ${STATUS_BADGE[booking.status]}`}>
-                {STATUS_LABEL[booking.status]}
-              </span>
-            </div>
-
-            <div className="text-muted mb-2">
-              <div>
-                <strong>Check-in:</strong> {booking.checkIn}
-              </div>
-              <div>
-                <strong>Check-out:</strong> {booking.checkOut}
-              </div>
-              <div>
-                <strong>Số đêm:</strong> {booking.nights}
-              </div>
-            </div>
-
-            <div className="fw-semibold text-primary">
-              Tổng: {formatCurrency(booking.totalPrice)}
-            </div>
-          </div>
-
-          <div className="d-flex flex-column gap-2">
-            {(booking.status === "confirmed" || booking.status === "paid") && (
-              <button
-                className="btn btn-sm btn-outline-danger"
-                onClick={() => showAlert("Yêu cầu hủy đã được gửi.", "info")}
-              >
-                Yêu cầu hủy
-              </button>
-            )}
-
-            <a
-              href={`/bookings/${booking.bookingId}`}
-              className="btn btn-sm btn-secondary"
-            >
-              Xem chi tiết
-            </a>
-
-            {booking.status === "checked_out" && (
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={handleReviewClick}
-              >
-                Đánh giá
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+    <span className={`badge badge-status bg-${map[status]}`}>{labelMap[status]}</span>
   );
 };
 
-export default BookingCard;
+export const BookingCard: React.FC<{ b: Booking }> = ({ b }) => {
+  return (
+    
+    <Link to={`/bookings/${b.bookingId}`} className="text-decoration-none text-reset">
+  <div className="booking-card h-100">
+      {b.homestay.primaryImageUrl && (
+        <div className="ratio ratio-16x9">
+          <img
+            src={b.homestay.primaryImageUrl}
+            alt={b.homestay.name}
+            className="w-100 h-100"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+      )}
+
+      <div className="p-3">
+        <div className="d-flex align-items-start justify-content-between gap-2 mb-2">
+          <h5 className="mb-0">{b.homestay.name}</h5>
+          <StatusBadge status={b.status} />
+        </div>
+        <div className="text-muted mb-2">{b.homestay.city}</div>
+
+        <div className="small mb-2">
+          <i className="bi bi-calendar3 me-1" />
+          <strong>{fmtDate(b.checkIn)}</strong> → <strong>{fmtDate(b.checkOut)}</strong>
+          <span className="ms-2">({b.nights} đêm)</span>
+        </div>
+
+        <div className="fw-semibold mb-2">
+          <i className="bi bi-cash-coin me-1" />
+          {toVND(b.totalPrice)}
+        </div>
+
+        <div className="text-secondary small">
+          Tạo lúc: {fmtDate(b.createdAt)}
+        </div>
+      </div>
+    </div>
+    </Link>
+  );
+};

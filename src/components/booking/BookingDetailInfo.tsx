@@ -12,6 +12,7 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
 
     <div className="my-4">
       <BookingTimeline
+        bookingId={booking.bookingId}
         status={booking.status}
         created_at={booking.createdAt}
         check_in={booking.checkIn}
@@ -23,7 +24,7 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
       <div className="fw-bold mb-1 fs-2">{booking.homestay.name}</div>
       <div className="text-muted mb-3">{booking.homestay.address}</div>
 
-      <ul className="list-unstyled small lh-lg text-secondary">
+      <ul className="list-unstyled lh-lg text-secondary">
         <li><strong>Ngày nhận phòng:</strong> {booking.checkIn}</li>
         <li><strong>Ngày trả phòng:</strong> {booking.checkOut}</li>
         <li><strong>Số đêm:</strong> {booking.nights}</li>

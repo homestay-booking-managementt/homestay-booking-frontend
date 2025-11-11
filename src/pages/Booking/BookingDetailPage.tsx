@@ -155,4 +155,4 @@ const BookingDetailPage = () => {
 };
 
 export default BookingDetailPage;
-
+  

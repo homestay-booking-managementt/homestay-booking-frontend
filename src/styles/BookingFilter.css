@@ -1,0 +1,41 @@
+.text-purple {
+  color: #6f42c1;
+}
+
+.bg-purple {
+  background-color: #6f42c1;
+}
+
+.border-purple {
+  border-color: #6f42c1;
+}
+
+.border-purple-focus {
+  border-color: #5a32a3 !important;
+}
+
+.btn-purple {
+  background-color: #6f42c1;
+  color: white;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.btn-purple:hover {
+  background-color: #5a32a3;
+}
+
+.btn-outline-purple {
+  border-color: #6f42c1;
+  color: #6f42c1;
+  transition: all 0.3s;
+}
+
+.btn-outline-purple:hover {
+  background-color: #6f42c1;
+  color: white;
+}
+.dark-mode .form-control::placeholder {
+  color: white !important;  /* chữ sáng hơn */
+  opacity: 1;
+}

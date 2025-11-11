@@ -1,1 +1,1 @@
-export { default } from "./ReviewCenterPage";
+export { default } from "./ReviewHomestayPage";

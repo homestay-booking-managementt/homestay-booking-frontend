@@ -60,3 +60,18 @@
 .timeline-date {
   font-size: 12px;
 }
+.timeline-circle.clickable {
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-circle.clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(40, 167, 69, 0.5);
+}
+
+.review-link:hover {
+  color: #218838;
+  text-decoration: underline;
+}

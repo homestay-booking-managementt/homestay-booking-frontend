@@ -21,6 +21,7 @@ import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
 import BookingDetailPage from "@/pages/Booking/BookingDetailPage";
+import ReviewHomestayPage from "@/pages/Reviews";
 
 const PublicRoutes = [
   // Public routes (no authentication required)
@@ -93,6 +94,10 @@ const PrivateRoutes = [
           {
             path: "reviews",
             element: <ReviewCenterPage />,
+          },
+          {
+            path: "reviews/:bookingId",
+            element: <ReviewHomestayPage />,
           },
           {
             path: "complaints",
