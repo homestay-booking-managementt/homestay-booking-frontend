@@ -19,7 +19,8 @@ const Header = () => {
 
   useEffect(() => {
     if (typeof document !== "undefined") {
-      document.body.classList.toggle("theme-dark", isDarkMode);
+      const htmlElement = document.documentElement;
+      htmlElement.setAttribute("data-bs-theme", isDarkMode ? "dark" : "light");
     }
     if (typeof window !== "undefined") {
       localStorage.setItem("theme", isDarkMode ? "dark" : "light");
@@ -36,12 +37,15 @@ const Header = () => {
   const navDropdownToggleClass = ({ isActive }: { isActive: boolean }) =>
     `nav-link dropdown-toggle${isActive ? " active" : ""}`;
 
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-secondary sticky-top">
+    <nav className="navbar navbar-expand-lg bg-white border-bottom">
       <div className="container-fluid">
-        <NavLink className="navbar-brand text-decoration-none" to="/" title="Go to home page">
-          Project
+        <NavLink
+          className="navbar-brand fw-bold text-primary text-decoration-none"
+          to="/"
+          title="Go to home page"
+        >
+          🏠 Homestay Booking
         </NavLink>
         <button
           className="navbar-toggler"
@@ -56,10 +60,10 @@ const Header = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav ms-auto align-items-lg-center">
             <li className="nav-item dropdown">
               <a
-                className="nav-link dropdown-toggle"
+                className="nav-link dropdown-toggle fw-medium"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -70,29 +74,51 @@ const Header = () => {
               </a>
               <ul className="dropdown-menu dropdown-menu-end">
                 <li>
-                  <NavLink className="dropdown-item bg-transparent" to="/homestays" end title="Browse all available homestays">
-                    All Homestays
+                  <NavLink
+                    className="dropdown-item"
+                    to="/homestays"
+                    end
+                    title="Browse all available homestays"
+                  >
+                    <i className="bi bi-grid me-2"></i>All Homestays
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink className="dropdown-item bg-transparent" to="/homestays/mine" title="View homestays you own">
-                    My Homestays
+                  <NavLink
+                    className="dropdown-item"
+                    to="/homestays/mine"
+                    title="View homestays you own"
+                  >
+                    <i className="bi bi-house-heart me-2"></i>My Homestays
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink className="dropdown-item bg-transparent" to="/homestays/new" title="List a new homestay">
-                    Add Homestay
+                  <NavLink
+                    className="dropdown-item"
+                    to="/homestays/new"
+                    title="List a new homestay"
+                  >
+                    <i className="bi bi-plus-circle me-2"></i>Add Homestay
                   </NavLink>
                 </li>
               </ul>
             </li>
             <li className="nav-item">
-              <NavLink className={navLinkClass} to="/bookings" end title="Manage your current bookings">
+              <NavLink
+                className={navLinkClass}
+                to="/bookings"
+                end
+                title="Manage your current bookings"
+              >
                 Bookings
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className={navLinkClass} to="/bookings/history" title="View your booking history">
+              <NavLink
+                className={navLinkClass}
+                to="/bookings/history"
+                title="View your booking history"
+              >
                 History
               </NavLink>
             </li>
@@ -107,7 +133,11 @@ const Header = () => {
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className={navLinkClass} to="/complaints" title="Submit and track complaints">
+              <NavLink
+                className={navLinkClass}
+                to="/complaints"
+                title="Submit and track complaints"
+              >
                 Complaints
               </NavLink>
             </li>
@@ -123,7 +153,7 @@ const Header = () => {
             </li>
             <li className="nav-item dropdown">
               <a
-                className="nav-link dropdown-toggle"
+                className="nav-link dropdown-toggle fw-medium"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -134,25 +164,33 @@ const Header = () => {
               </a>
               <ul className="dropdown-menu dropdown-menu-end">
                 <li>
-                  <NavLink to="/host/bookings" title="Manage guest bookings for your homestays">
-                    Manage Bookings
+                  <NavLink
+                    className="dropdown-item"
+                    to="/host/bookings"
+                    title="Manage guest bookings for your homestays"
+                  >
+                    <i className="bi bi-calendar-check me-2"></i>Manage Bookings
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/host/revenue" title="View your revenue and earnings">
-                    Revenue Report
+                  <NavLink
+                    className="dropdown-item"
+                    to="/host/revenue"
+                    title="View your revenue and earnings"
+                  >
+                    <i className="bi bi-graph-up me-2"></i>Revenue Report
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/host/chat" title="Chat with your guests">
-                    Guest Messages
+                  <NavLink className="dropdown-item" to="/host/chat" title="Chat with your guests">
+                    <i className="bi bi-chat-dots me-2"></i>Guest Messages
                   </NavLink>
                 </li>
               </ul>
             </li>
             <li className="nav-item dropdown">
               <a
-                className="nav-link dropdown-toggle"
+                className="nav-link dropdown-toggle fw-medium"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
@@ -163,48 +201,92 @@ const Header = () => {
               </a>
               <ul className="dropdown-menu dropdown-menu-end">
                 <li>
-                  <NavLink to="/admin" end title="View admin dashboard and overview">
-                    Dashboard
+                  <NavLink
+                    className="dropdown-item"
+                    to="/admin"
+                    end
+                    title="View admin dashboard and overview"
+                  >
+                    <i className="bi bi-speedometer2 me-2"></i>Dashboard
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/admin/homestays" title="Approve or reject homestay listings">
-                    Homestay Approval
+                  <NavLink
+                    className="dropdown-item"
+                    to="/admin/homestays"
+                    title="Approve or reject homestay listings"
+                  >
+                    <i className="bi bi-check-circle me-2"></i>Homestay Approval
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/admin/chat-monitor" title="Monitor chat conversations">
-                    Chat Monitor
+                  <NavLink
+                    className="dropdown-item"
+                    to="/admin/chat-monitor"
+                    title="Monitor chat conversations"
+                  >
+                    <i className="bi bi-eye me-2"></i>Chat Monitor
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/admin/statistics" title="View system usage statistics">
-                    System Statistics
+                  <NavLink
+                    className="dropdown-item"
+                    to="/admin/statistics"
+                    title="View system usage statistics"
+                  >
+                    <i className="bi bi-bar-chart me-2"></i>System Statistics
                   </NavLink>
                 </li>
               </ul>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn btn-link" onClick={handleLogout} type="button" title="Sign out of your account">
+              <button
+                className="nav-link btn btn-link text-danger fw-medium"
+                onClick={handleLogout}
+                type="button"
+                title="Sign out of your account"
+              >
                 Logout
               </button>
             </li>
-            <li className="nav-item d-flex align-items-center ms-lg-3 mt-2 mt-lg-0">
+            <li className="nav-item ms-lg-2">
               <button
-                className="btn btn-sm btn-outline-light border-0"
+                className="btn btn-outline-secondary btn-sm rounded-pill"
                 onClick={handleToggleTheme}
                 type="button"
+                title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {isDarkMode ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <g fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="4" strokeLinejoin="round"/>
-                      <path strokeLinecap="round" d="M20 12h1M3 12h1m8 8v1m0-18v1m5.657 13.657l.707.707M5.636 5.636l.707.707m0 11.314l-.707.707M18.364 5.636l-.707.707"/>
-                    </g>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="4" strokeLinejoin="round" />
+                    <path
+                      strokeLinecap="round"
+                      d="M20 12h1M3 12h1m8 8v1m0-18v1m5.657 13.657l.707.707M5.636 5.636l.707.707m0 11.314l-.707.707M18.364 5.636l-.707.707"
+                    />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                    <path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 21a9 9 0 0 0 8.997-9.252a7 7 0 0 1-10.371-8.643A9 9 0 0 0 12 21"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 21a9 9 0 0 0 8.997-9.252a7 7 0 0 1-10.371-8.643A9 9 0 0 0 12 21"
+                    />
                   </svg>
                 )}
               </button>
