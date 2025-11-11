@@ -1,109 +1,132 @@
+// src/axiosConfig.ts
 import type { InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 import { trackPromise } from "react-promise-tracker";
-import { removeTokens } from "./utils/removeTokens";
-import { mockRefreshToken } from "./utils/mockAuth";
+import { removeTokens } from "./utils/removeTokens"; // kiểm tra đúng path: utils
+import { mockRefreshToken } from "./utils/mockAuth";  // kiểm tra đúng path: utils
 
-type RefreshTokenRequestFunction = () => Promise<void | { idToken: string; refreshToken: string }>;
-let refreshTokenRequest: Promise<void | { idToken: string; refreshToken: string }> | null = null;
+type RefreshTokenResult = { idToken: string; refreshToken: string };
+type RefreshTokenRequestFunction = () => Promise<void | RefreshTokenResult>;
 
-// Inject id_token for authorization
+let refreshTokenRequest: Promise<void | RefreshTokenResult> | null = null;
+
+/** BẬT khi chỉ test FE (mock API) -> không auto-refresh/redirect 401 */
+const USE_MOCK = false;
+
+/** Nhận diện route auth: /auth/* hoặc /api/auth/* */
+const isAuthRoute = (url?: string) => {
+  if (!url) return false;
+  try {
+    const u = new URL(url, axios.defaults.baseURL || window.location.origin);
+    return /^\/(api\/)?auth\//.test(u.pathname);
+  } catch {
+    return /^\/(api\/)?auth\//.test(url);
+  }
+};
+
+/** Request interceptor: gắn Authorization cho route thường, bỏ cho /auth/* (trừ /auth/refresh) */
 const handleAxiosRequest = async (config: InternalAxiosRequestConfig) => {
-    if (config.url === "/auth/refresh") {
-        // Refresh token
-        const refresh_token = localStorage.getItem("refresh_token");
-        config.headers.set("Authorization", "Bearer " + refresh_token);
-    } else {
-        const urlArray = config.url?.split("/");
-        const id_token = localStorage.getItem("id_token");
-        if (urlArray && urlArray[urlArray.length - 1] !== "auth") {
-            config.headers.set("Authorization", "Bearer " + id_token);
-        }
-    }
+  const url = config.url ?? "";
 
-    // Set the timeout from the config if provided
-    if (config.timeout) {
-        axios.defaults.timeout = config.timeout;
-    }
-
+  // Không gắn token cho /auth/* (login/register/...) ngoại trừ refresh
+  if (isAuthRoute(url) && !/\/auth\/refresh/.test(url)) {
     return config;
+  }
+
+  if (/\/auth\/refresh/.test(url)) {
+    const refresh_token = localStorage.getItem("refresh_token");
+    if (refresh_token) {
+      config.headers.set?.("Authorization", "Bearer " + refresh_token);
+    }
+  } else {
+    const id_token = localStorage.getItem("id_token");
+    if (id_token) {
+      config.headers.set?.("Authorization", "Bearer " + id_token);
+    }
+  }
+
+  return config;
 };
 
-/** Handle axios response errors and refresh token if needed */
+/** Response interceptor: refresh token khi 401 (trừ /auth/*) */
 export const handleAxiosResponseError = async (error: unknown) => {
-    const errorObj = error as {
-        config?: InternalAxiosRequestConfig;
-        response?: { status: number };
-    };
-    const originalRequest = errorObj.config;
+  const err = error as {
+    config?: InternalAxiosRequestConfig;
+    response?: { status: number };
+  };
+  const originalRequest = err.config;
+  const status = err.response?.status;
 
-    if (
-        errorObj.response &&
-        errorObj.response.status === axios.HttpStatusCode.Unauthorized &&
-        originalRequest &&
-        !originalRequest.url?.includes("auth")
-    ) {
-        refreshTokenRequest = refreshTokenRequest ? refreshTokenRequest : refreshToken();
-        const res = await refreshTokenRequest;
-
-        if (res?.refreshToken && res?.idToken) {
-            refreshTokenRequest = null;
-            axios.defaults.headers.common["Authorization"] = `Bearer ${res?.idToken}`;
-            originalRequest.headers["Authorization"] = `Bearer ${res?.idToken}`;
-            return trackPromise(axios(originalRequest));
-        } else {
-            return;
-        }
-    }
-
-    return Promise.reject(error);
-};
-
-export const refreshToken: RefreshTokenRequestFunction = async () => {
+  // Chỉ xử lý refresh nếu: 401 + có request gốc + không phải auth route + KHÔNG ở mock mode
+  if (!USE_MOCK && status === axios.HttpStatusCode.Unauthorized && originalRequest && !isAuthRoute(originalRequest.url)) {
     try {
-        // MOCK MODE: Use mock refresh token
-        // Comment out the mockRefreshToken line and uncomment axios call to use real API
-        const response = await mockRefreshToken();
-        if (response?.idToken && response?.refreshToken) {
-            refreshTokenRequest = null;
-            localStorage.setItem("id_token", response.idToken);
-            localStorage.setItem("refresh_token", response.refreshToken);
-            return {
-                idToken: response.idToken,
-                refreshToken: response.refreshToken,
-            };
-        }
+      refreshTokenRequest = refreshTokenRequest ?? refreshToken();
+      const res = await refreshTokenRequest;
 
-        // REAL API MODE: Uncomment this to use your actual backend
-        // return trackPromise(
-        //     axios({ method: "POST", url: url }).then((response) => {
-        //         if (response?.data?.idToken && response?.data?.refreshToken) {
-        //             refreshTokenRequest = null;
-        //             localStorage.setItem('id_token', response.data.idToken);
-        //             localStorage.setItem('refresh_token', response.data.refreshToken);
-        //             return {
-        //                 idToken: response.data.idToken,
-        //                 refreshToken: response.data.refreshToken,
-        //             };
-        //         }
-        //     }).catch(async error => {
-        //         removeTokens();
-        //     })
-        // );
-    } catch (error) {
-        removeTokens();
+      if (res?.idToken && res?.refreshToken) {
+        refreshTokenRequest = null;
+
+        // cập nhật header mặc định & request gốc
+        axios.defaults.headers.common["Authorization"] = `Bearer ${res.idToken}`;
+        (originalRequest.headers as any)["Authorization"] = `Bearer ${res.idToken}`;
+
+        // gọi lại request gốc
+        return trackPromise(axios(originalRequest));
+      } else {
+        // refresh fail
+        removeTokens?.();
+        if (typeof window !== "undefined") window.location.replace("/401");
+        return Promise.reject(error);
+      }
+    } catch {
+      refreshTokenRequest = null;
+      removeTokens?.();
+      if (typeof window !== "undefined") window.location.replace("/401");
+      return Promise.reject(error);
     }
-    return;
+  }
+
+  // 401 cho auth route (login/register/profile fail) -> để caller xử lý (navigate /401)
+  return Promise.reject(error);
 };
 
-// Set backend url
-axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL;
+/** Hàm refresh token: mock hoặc gọi API thật */
+export const refreshToken: RefreshTokenRequestFunction = async () => {
+  try {
+    // MOCK MODE
+    const response = await mockRefreshToken();
+    if (response?.idToken && response?.refreshToken) {
+      refreshTokenRequest = null;
+      localStorage.setItem("id_token", response.idToken);
+      localStorage.setItem("refresh_token", response.refreshToken);
+      return { idToken: response.idToken, refreshToken: response.refreshToken };
+    }
 
-// Set default request timeout
-axios.defaults.timeout = 30000; // ms
+    // REAL API MODE (bật khi có backend)
+    // const res = await axios.post("/auth/refresh");
+    // if (res.data?.idToken && res.data?.refreshToken) {
+    //   refreshTokenRequest = null;
+    //   localStorage.setItem("id_token", res.data.idToken);
+    //   localStorage.setItem("refresh_token", res.data.refreshToken);
+    //   return { idToken: res.data.idToken, refreshToken: res.data.refreshToken };
+    // }
+  } catch {
+    removeTokens?.();
+  }
+  return;
+};
 
-// Inject id_token for authorization
+// ====== Cấu hình mặc định ======
+
+// Dev FE (proxy Vite) / Mock -> để rỗng để tránh gọi thẳng ra domain khác
+axios.defaults.baseURL = import.meta.env.VITE_APP_BASE_URL || "";
+
+// Timeout
+axios.defaults.timeout = 30000;
+
+// Interceptors
 axios.interceptors.request.use(handleAxiosRequest, (error) => Promise.reject(error));
-
-// Refresh token if id token is expired
 axios.interceptors.response.use((res) => res, handleAxiosResponseError);
+
+export default axios;
+

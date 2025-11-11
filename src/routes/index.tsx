@@ -1,4 +1,7 @@
 import Login from "@/auth/Login";
+import Register from "@/auth/Register";
+import Me from "@/pages/Profile/Me";
+
 import PrivateRoute from "@/auth/PrivateRoute";
 import BookingDashboardPage from "@/pages/Booking";
 import BookingHistoryPage from "@/pages/BookingHistory";
@@ -6,13 +9,33 @@ import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
 import {
-  AdminDashboardPage,
-  AdminHomestayApprovalPage,
-  AdminChatMonitorPage,
-  AdminSystemStatsPage,
-} from "@/pages/Admin";
-import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
+  HomestayDetailPage,
+  HomestayFormPage,
+  HomestayListPage,
+  MyHomestaysPage,
+} from "@/pages/Homestay";
+import AdminLayout from "@/pages/Admin/AdminLayout";
+import AdminMainDashboard from "@/pages/Admin/AdminMainDashboard";
+import AdminUsersPage from "@/pages/Admin/AdminUsersPage";
+import AdminHomestaysPage from "@/pages/Admin/AdminHomestaysPage";
+import AdminHomestayListPage from "@/pages/Admin/AdminHomestayListPage";
+import AdminHomestayUpdateRequestsPage from "@/pages/Admin/AdminHomestayUpdateRequestsPage";
+import AdminBookingsPage from "@/pages/Admin/AdminBookingsPage";
+import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
+import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
+import AdminSettingsPage from "@/pages/Admin/AdminSettingsPage";
+import {
+  HostLayout,
+  HostDashboardPage,
+  HostHomestayListPage,
+  HostBookingRequestsPage,
+  HostPaymentTransfersPage,
+  HostRevenueStatsPage,
+  HostSettingsPage,
+  HostChatPage,
+} from "@/pages/Host";
 import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
+import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
 import PaymentPortalPage from "@/pages/Payment";
 import ProfilePage from "@/pages/Profile";
 import ReviewCenterPage from "@/pages/Reviews";
@@ -28,6 +51,10 @@ const PublicRoutes = [
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/register",
+    element: <Register />,
   },
   {
     path: "/403",
@@ -111,37 +138,89 @@ const PrivateRoutes = [
             path: "profile",
             element: <ProfilePage />,
           },
-          // {
-          //   path: "me",
-          //   element: <Me />,
-          // },
           {
-            path: "host/bookings",
-            element: <HostBookingManagementPage />,
+            path: "me",
+            element: <Me />,
+          },
+        ],
+      },
+      {
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
+          {
+            index: true,
+            element: <AdminMainDashboard />,
           },
           {
-            path: "host/revenue",
-            element: <HostRevenueReportPage />,
+            path: "users",
+            element: <AdminUsersPage />,
           },
           {
-            path: "host/chat",
+            path: "homestays",
+            element: <AdminHomestayListPage />,
+          },
+          {
+            path: "homestays/pending",
+            element: <AdminHomestaysPage />,
+          },
+          {
+            path: "homestays/update-requests",
+            element: <AdminHomestayUpdateRequestsPage />,
+          },
+          {
+            path: "bookings",
+            element: <AdminBookingsPage />,
+          },
+          {
+            path: "revenue",
+            element: <AdminRevenuePage />,
+          },
+          {
+            path: "complaints",
+            element: <AdminComplaintsPage />,
+          },
+          {
+            path: "settings",
+            element: <AdminSettingsPage />,
+          },
+        ],
+      },
+      {
+        path: "/host",
+        element: <HostLayout />,
+        children: [
+          {
+            index: true,
+            element: <HostDashboardPage />,
+          },
+          {
+            path: "dashboard",
+            element: <HostDashboardPage />,
+          },
+          {
+            path: "homestays",
+            element: <HostHomestayListPage />,
+          },
+          {
+            path: "booking-requests",
+            element: <HostBookingRequestsPage />,
+          },
+          {
+            path: "revenue",
+            element: <HostRevenueStatsPage />,
+          },
+          {
+            path: "payments",
+            element: <HostPaymentTransfersPage />,
+          },
+          {
+            path: "chat",
             element: <HostChatPage />,
           },
           {
-            path: "admin",
-            element: <AdminDashboardPage />,
-          },
-          {
-            path: "admin/homestays",
-            element: <AdminHomestayApprovalPage />,
-          },
-          {
-            path: "admin/chat-monitor",
-            element: <AdminChatMonitorPage />,
-          },
-          {
-            path: "admin/statistics",
-            element: <AdminSystemStatsPage />,
+            path: "settings",
+            element: <HostSettingsPage />,
           },
         ],
       },

@@ -26,11 +26,13 @@ Please help me [YOUR SPECIFIC TASK]
 ## Common Tasks to Ask For
 
 ### 1. Setting Up the Project
+
 ```
 Install the dependencies and start the development server
 ```
 
 ### 2. Adding a New Feature
+
 ```
 Create a user management page with:
 - A table showing users
@@ -40,6 +42,7 @@ Create a user management page with:
 ```
 
 ### 3. Creating API Services
+
 ```
 Create an API service for managing products with CRUD operations:
 - GET /api/products
@@ -51,6 +54,7 @@ Use the existing sendRequest utility and follow the pattern in exampleApi.ts
 ```
 
 ### 4. Adding New Pages/Routes
+
 ```
 Add a new "Settings" page with:
 - User profile editing
@@ -60,6 +64,7 @@ Add a new "Settings" page with:
 ```
 
 ### 5. Creating Components
+
 ```
 Create a reusable DataTable component with:
 - Sorting
@@ -69,6 +74,7 @@ Create a reusable DataTable component with:
 ```
 
 ### 6. Adding Redux Slices
+
 ```
 Create a Redux slice for notifications with:
 - Actions to add/remove notifications
@@ -77,12 +83,14 @@ Create a Redux slice for notifications with:
 ```
 
 ### 7. Styling/UI
+
 ```
 Update the login page to match this design [description]
 Use Bootstrap 5 classes and custom SCSS if needed
 ```
 
 ### 8. Backend Integration
+
 ```
 My backend API runs at http://localhost:8000
 Update the configuration and test the login flow
@@ -93,17 +101,21 @@ And returns: { idToken, refreshToken }
 ## Pro Tips for Working with AI
 
 ### Be Specific
+
 ❌ **Bad:** "Add a form"
 ✅ **Good:** "Create a user registration form with fields: email, password, confirm password, and name. Add validation and integrate with POST /api/users endpoint"
 
 ### Reference Existing Patterns
+
 ✅ "Create a products API service following the same pattern as exampleApi.ts"
 ✅ "Add a new Redux slice similar to authSlice but for managing app settings"
 
 ### Provide Context
+
 ✅ "The backend API uses snake_case for field names but our frontend uses camelCase. Create a utility to transform the data"
 
 ### Ask for Complete Solutions
+
 ✅ "Create a complete todo feature including: API service, Redux slice, list page, add/edit modal, and routes"
 
 ## Quick Start Template
@@ -133,32 +145,38 @@ Please help me set this up step by step.
 You can reference these existing features when asking for help:
 
 ### Utilities
+
 - ✅ `sendRequest()` - Wrapper for API calls with error handling
 - ✅ `showAlert()` - Toast notifications (success, error, warning, info)
 - ✅ `removeTokens()` - Clean up authentication tokens
 
 ### Redux
+
 - ✅ `useAppDispatch()` - Type-safe dispatch hook
 - ✅ `useAppSelector()` - Type-safe selector hook
 - ✅ `authSlice` - Authentication state management
 
 ### Custom Hooks
+
 - ✅ `useDebounce` - Debounce values (e.g., search input)
 - ✅ `useLocalStorage` - Persist state to localStorage
 - ✅ `useClickAway` - Detect clicks outside an element
 
 ### Components
+
 - ✅ `Header` - Navigation header with logout
 - ✅ `PrivateRoute` - Protected route wrapper
 - ✅ `ErrorPage` - Error pages (404, 403, 401)
 
 ### Authentication
+
 - ✅ JWT token management with auto-refresh
 - ✅ Token injection via Axios interceptors
 - ✅ Login page and flow
 - ✅ Protected routes
 
 ### Configuration
+
 - ✅ TypeScript with strict mode
 - ✅ Path aliases (`@/*` points to `src/*`)
 - ✅ Bootstrap 5 integrated
@@ -168,6 +186,7 @@ You can reference these existing features when asking for help:
 ## Example Requests
 
 ### Creating a New Feature
+
 ```
 Create a complete blog post management feature:
 
@@ -205,6 +224,7 @@ Use the existing patterns and utilities. The API returns data in this format:
 ```
 
 ### Integrating with Existing Backend
+
 ```
 I need to integrate with my existing backend:
 - Base URL: http://api.myapp.com
@@ -220,6 +240,7 @@ Update the authentication flow to work with this API:
 ```
 
 ### Adding Complex Components
+
 ```
 Create a reusable Modal component with:
 - Props: isOpen, onClose, title, children, footer
@@ -234,6 +255,7 @@ Also create a useModal hook to manage modal state easily.
 ```
 
 ### Improving Existing Code
+
 ```
 The current login page is very basic. Improve it with:
 - Better styling and layout
@@ -269,34 +291,34 @@ src/
 ## Common Patterns to Follow
 
 ### API Service Pattern
+
 ```typescript
 // src/api/resourceApi.ts
-import { sendRequest } from '@/utils/sendRequest';
+import { sendRequest } from "@/utils/sendRequest";
 
 export const resourceApi = {
-  getAll: () => sendRequest('/resources', { method: 'GET' }),
-  getById: (id: number) => sendRequest(`/resources/${id}`, { method: 'GET' }),
-  create: (data: Resource) => sendRequest('/resources', { method: 'POST', payload: data }),
-  update: (id: number, data: Resource) => sendRequest(`/resources/${id}`, { method: 'PUT', payload: data }),
-  delete: (id: number) => sendRequest(`/resources/${id}`, { method: 'DELETE' }),
+  getAll: () => sendRequest("/resources", { method: "GET" }),
+  getById: (id: number) => sendRequest(`/resources/${id}`, { method: "GET" }),
+  create: (data: Resource) => sendRequest("/resources", { method: "POST", payload: data }),
+  update: (id: number, data: Resource) =>
+    sendRequest(`/resources/${id}`, { method: "PUT", payload: data }),
+  delete: (id: number) => sendRequest(`/resources/${id}`, { method: "DELETE" }),
 };
 ```
 
 ### Redux Slice Pattern
+
 ```typescript
 // src/features/resource/resourceSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { resourceApi } from '@/api/resourceApi';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { resourceApi } from "@/api/resourceApi";
 
-export const fetchResources = createAsyncThunk(
-  'resource/fetchAll',
-  async (_, thunkApi) => {
-    return resourceApi.getAll();
-  }
-);
+export const fetchResources = createAsyncThunk("resource/fetchAll", async (_, thunkApi) => {
+  return resourceApi.getAll();
+});
 
 export const resourceSlice = createSlice({
-  name: 'resource',
+  name: "resource",
   initialState: { items: [], loading: false, error: null },
   reducers: {},
   extraReducers: (builder) => {
@@ -317,6 +339,7 @@ export const resourceSlice = createSlice({
 ```
 
 ### Component Pattern
+
 ```typescript
 // src/components/MyComponent/MyComponent.tsx
 interface MyComponentProps {
@@ -339,12 +362,14 @@ export default MyComponent;
 ## Troubleshooting with AI
 
 ### TypeScript Errors
+
 ```
 I'm getting TypeScript errors in [file]. The error says: [error message]
 Please help me fix it.
 ```
 
 ### API Integration Issues
+
 ```
 The API call to [endpoint] is failing with [error].
 My backend expects [format] but I'm sending [format].
@@ -352,12 +377,14 @@ Help me debug this.
 ```
 
 ### State Management Issues
+
 ```
 I need to share [data] between [Component A] and [Component B].
 Should I use Redux or props? Help me implement the best solution.
 ```
 
 ### Routing Issues
+
 ```
 I need to protect the /admin routes so only users with isAdmin=true can access them.
 Update the PrivateRoute component to support role-based access.
