@@ -261,14 +261,17 @@ const AdminUsersPage = () => {
           </button>
         </div>
 
-        <div className="search-box">
-          <FaSearch className="search-icon" />
+        <div className="search-container">
           <input
             type="text"
+            className="search-input"
             placeholder="Tìm kiếm theo tên, username hoặc ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          <button className="search-btn" type="button">
+            <FaSearch />
+          </button>
         </div>
       </div>
 
@@ -900,37 +903,102 @@ const AdminUsersPage = () => {
           background: rgba(255, 255, 255, 0.3);
         }
 
-        .search-box {
+        .search-container {
+          display: flex;
           position: relative;
+          max-width: 400px;
         }
 
-        .search-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #94a3b8;
-        }
-
-        .search-box input {
+        .search-input {
           width: 100%;
-          padding: 10px 12px 10px 40px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
+          padding: 12px 50px 12px 16px;
+          border: 2px solid #e2e8f0;
+          border-radius: 12px;
           font-size: 14px;
           outline: none;
-          transition: all 0.2s;
+          transition: all 0.3s ease;
+          background: white;
+          color: #1f2937;
+          font-weight: 500;
         }
 
-        .search-box input:focus {
+        .search-input::placeholder {
+          color: #94a3b8;
+          font-weight: 400;
+        }
+
+        .search-input:hover {
+          border-color: #cbd5e1;
+          background: #f8fafc;
+        }
+
+        .search-input:focus {
           border-color: #0ea5e9;
-          box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+          background: white;
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
         }
 
-        .dark .search-box input {
+        .search-btn {
+          position: absolute;
+          right: 4px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: transparent;
+          border: none;
+          border-radius: 8px;
+          color: #64748b;
+          font-size: 16px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+          background: rgba(14, 165, 233, 0.1);
+          color: #0ea5e9;
+        }
+
+        .search-btn:active {
+          background: rgba(14, 165, 233, 0.2);
+          transform: translateY(-50%) scale(0.95);
+        }
+
+        .dark .search-input {
           background: #0f172a;
           border-color: #334155;
           color: #f1f5f9;
+        }
+
+        .dark .search-input::placeholder {
+          color: #64748b;
+        }
+
+        .dark .search-input:hover {
+          border-color: #475569;
+          background: #1e293b;
+        }
+
+        .dark .search-input:focus {
+          border-color: #0ea5e9;
+          background: #0f172a;
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.15);
+        }
+
+        .dark .search-btn {
+          color: #64748b;
+        }
+
+        .dark .search-btn:hover {
+          background: rgba(14, 165, 233, 0.15);
+          color: #38bdf8;
+        }
+
+        .dark .search-btn:active {
+          background: rgba(14, 165, 233, 0.25);
         }
 
         /* Users List */
