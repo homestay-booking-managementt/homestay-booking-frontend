@@ -90,7 +90,10 @@ const MyHomestaysPage = () => {
                     style={{ objectFit: "cover" }}
                   />
                 ) : (
-                  <div className="card-img-top bg-light d-flex align-items-center justify-content-center" style={{ height: 200 }}>
+                  <div
+                    className="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style={{ height: 200 }}
+                  >
                     <span className="text-muted">No image available</span>
                   </div>
                 )}

@@ -12,8 +12,7 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: var(--app-bg-color);
-    color: var(--app-text-color);
+    background-color: #f8f9fa;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -26,14 +25,20 @@ code {
     min-height: 100vh;
 }
 
+/* Navbar enhancements */
 .navbar {
     position: sticky;
     top: 0;
     z-index: 1030;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
 }
 
 .navbar .dropdown-menu {
     z-index: 1031;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
 }
 
 .navbar .dropdown:hover .dropdown-menu {
@@ -41,62 +46,112 @@ code {
     margin-top: 0;
 }
 
-body.theme-dark {
-    --app-bg-color: #0f172a;
-    --app-surface-color: #1e293b;
-    --app-text-color: #f8fafc;
-    --app-muted-color: #94a3b8;
+.navbar .dropdown-item {
+    padding: 0.625rem 1.25rem;
+    transition: all 0.2s ease;
 }
 
-body.theme-dark .navbar {
-    background-color: #0b1f41;
+.navbar .dropdown-item:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+    transform: translateX(4px);
 }
 
-body.theme-dark .navbar .btn-outline-light {
-    color: #e2e8f0;
-    border-color: #e2e8f0;
+/* Card enhancements */
+.card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
 }
 
-body.theme-dark .card,
-body.theme-dark .dropdown-menu,
-body.theme-dark .list-group-item,
-body.theme-dark .modal-content {
-    background-color: var(--app-surface-color);
-    color: var(--app-text-color);
+.card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
 }
 
-body.theme-dark .bg-light,
-body.theme-dark .bg-white {
-    background-color: var(--app-surface-color) !important;
-    color: var(--app-text-color) !important;
+/* Form enhancements */
+.form-control,
+.form-select {
+    border: 1px solid #dee2e6;
+    padding: 0.625rem 0.875rem;
+    transition: all 0.2s ease;
 }
 
-body.theme-dark .dropdown-menu .dropdown-item {
-    color: var(--app-text-color);
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
 }
 
-body.theme-dark .dropdown-menu .dropdown-item:hover {
-    background-color: rgba(148, 163, 184, 0.15);
+/* Button enhancements */
+.btn {
+    padding: 0.625rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.dropdown-menu .dropdown-item:hover {
-    color: var(--bs-primary) !important;
+.btn-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    border: none;
 }
 
-body.theme-dark .form-control,
-body.theme-dark .form-select,
-body.theme-dark .input-group-text,
-body.theme-dark .btn-outline-primary {
-    background-color: var(--app-surface-color);
-    color: var(--app-text-color);
-    border-color: rgba(148, 163, 184, 0.5);
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
 }
 
-body.theme-dark .btn-outline-primary:hover {
-    background-color: #1d4ed8;
-    color: #fff;
+/* Badge enhancements */
+.badge {
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
 }
 
-body.theme-dark .text-muted {
-    color: var(--app-muted-color) !important;
+/* Alert enhancements */
+.alert {
+    border: none;
+    border-radius: 0.5rem;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] body {
+    background-color: #0d1117;
+}
+
+[data-bs-theme="dark"] .navbar {
+    background-color: #161b22 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: #161b22;
+    color: #e6edf3;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #0d1117;
+    border-color: #30363d;
+    color: #e6edf3;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #0d1117;
+    border-color: #58a6ff;
+    color: #e6edf3;
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: #161b22;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+    color: #e6edf3;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: rgba(88, 166, 255, 0.15);
+    color: #58a6ff;
 }
