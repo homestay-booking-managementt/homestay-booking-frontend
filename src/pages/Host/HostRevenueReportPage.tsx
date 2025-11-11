@@ -89,7 +89,9 @@ const HostRevenueReportPage = () => {
               <div className="card shadow-sm border-0">
                 <div className="card-body">
                   <div className="text-muted small mb-1">Total Revenue</div>
-                  <div className="h3 fw-bold text-success mb-0">{stats.totalRevenue.toLocaleString()}₫</div>
+                  <div className="h3 fw-bold text-success mb-0">
+                    {stats.totalRevenue.toLocaleString()}₫
+                  </div>
                   <div className="text-muted small mt-1">+12% vs last period</div>
                 </div>
               </div>
@@ -107,7 +109,9 @@ const HostRevenueReportPage = () => {
               <div className="card shadow-sm border-0">
                 <div className="card-body">
                   <div className="text-muted small mb-1">Average Booking Value</div>
-                  <div className="h3 fw-bold text-info mb-0">{stats.averageBookingValue.toLocaleString()}₫</div>
+                  <div className="h3 fw-bold text-info mb-0">
+                    {stats.averageBookingValue.toLocaleString()}₫
+                  </div>
                   <div className="text-muted small mt-1">Per reservation</div>
                 </div>
               </div>
@@ -172,11 +176,12 @@ const HostRevenueReportPage = () => {
                   <div>
                     <h6 className="mb-2">How payments work</h6>
                     <p className="mb-2">
-                      Revenue is automatically transferred to your registered account after guests successfully check
-                      in. The process typically takes 1-3 business days.
+                      Revenue is automatically transferred to your registered account after guests
+                      successfully check in. The process typically takes 1-3 business days.
                     </p>
                     <p className="mb-0">
-                      <strong>Payment schedule:</strong> Funds are released after guest check-in is confirmed.
+                      <strong>Payment schedule:</strong> Funds are released after guest check-in is
+                      confirmed.
                     </p>
                   </div>
                 </div>

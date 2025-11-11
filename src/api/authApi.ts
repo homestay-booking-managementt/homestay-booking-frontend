@@ -1,49 +1,71 @@
-import type {
-  ChangePasswordPayload,
-  LoginPayload,
-  LoginResponse,
-  ProfileUpdatePayload,
-  RegisterPayload,
-} from "../types/auth";
-import { sendRequest } from "../utils/sendRequest";
+import axios from "@/axiosConfig";
 
-export const register = (payload: RegisterPayload) =>
-  sendRequest("/auth/register", {
-    method: "POST",
-    payload,
-  }) as Promise<LoginResponse>;
-
-export const login = (payload: LoginPayload) =>
-  sendRequest("/auth/login", {
-    method: "POST",
-    payload,
-  }) as Promise<LoginResponse>;
-
-export const changePassword = (payload: ChangePasswordPayload) =>
-  sendRequest("/auth/change-password", {
-    method: "POST",
-    payload,
+// ===========================
+// 🔹 REAL API - REGISTER
+// ===========================
+export const registerSimple = async (data: {
+  name: string;
+  email: string;
+  phone?: string;
+  password: string;
+  roleType: "customer" | "host";
+}) => {
+  const response = await axios.post("/auth/v1/register", {
+    name: data.name,
+    email: data.email,
+    phone: data.phone,
+    password: data.password,
+    roleType: data.roleType,
   });
 
-export const updateProfile = (payload: ProfileUpdatePayload) => {
-  const formData = new FormData();
-  if (payload.name) formData.append("name", payload.name);
-  if (payload.email) formData.append("email", payload.email);
-  if (payload.phone) formData.append("phone", payload.phone);
-  if (payload.avatar) formData.append("avatar", payload.avatar);
-
-  return sendRequest("/auth/profile", {
-    method: "PUT",
-    payload: formData,
-  });
+  return {
+    status: response.status,
+    data: {
+      message: data.roleType === "host" 
+        ? "Đăng ký thành công! Tài khoản Host đang chờ admin phê duyệt." 
+        : "Đăng ký thành công!",
+      user: response.data,
+    },
+  };
 };
 
-export const deactivateAccount = () =>
-  sendRequest("/auth/deactivate", {
-    method: "POST",
+// ===========================
+// 🔹 REAL API - LOGIN
+// ===========================
+export const loginSimple = async (data: {
+  identifier: string; // email
+  password: string;
+}) => {
+  const response = await axios.post("/auth/v1/login", {
+    email: data.identifier,
+    password: data.password,
   });
 
-export const getProfile = () =>
-  sendRequest("/auth/profile", {
-    method: "GET",
-  });
+  const { accessToken, refreshToken, user } = response.data;
+
+  // Lưu token vào localStorage
+  localStorage.setItem("id_token", accessToken);
+  localStorage.setItem("refresh_token", refreshToken);
+
+  return {
+    data: {
+      idToken: accessToken,
+      refreshToken: refreshToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        roles: user.roles,
+        status: user.status,
+      },
+    },
+  };
+};
+
+// ===========================
+// 🔹 REAL API - GET PROFILE
+// ===========================
+export const getProfileSimple = async () => {
+  const response = await axios.get("/auth/v1/me");
+  return { data: response.data };
+};

@@ -9,7 +9,7 @@ export interface HostBookingRequest {
   checkOut: string;
   numGuests: number;
   totalPrice: number;
-  status: "pending" | "confirmed" | "rejected";
+  status: "pending" | "confirmed" | "rejected" | "completed" | "cancelled";
   createdAt: string;
 }
 
