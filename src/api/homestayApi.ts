@@ -5,7 +5,7 @@ export const fetchHomestays = (filters?: HomestayFilters) =>
   sendRequest("/homestays", {
     method: "GET",
     payload: filters,
-  }) as Promise<Homestay[]>;
+  });
 
 export const fetchHomestayById = (homestayId: number) =>
   sendRequest(`/homestays/${homestayId}`, {

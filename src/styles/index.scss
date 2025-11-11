@@ -155,3 +155,20 @@ code {
     background-color: rgba(88, 166, 255, 0.15);
     color: #58a6ff;
 }
+/* Hiệu ứng fade-in mượt cho từng card mới xuất hiện */
+.fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

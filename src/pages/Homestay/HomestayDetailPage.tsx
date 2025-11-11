@@ -3,6 +3,12 @@ import type { Homestay } from "@/types/homestay";
 import { showAlert } from "@/utils/showAlert";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import "@/styles/HomestayDetailPage.css";
+
+import HomestayHeader from "@/components/homestay/HomestayHeader";
+import HomestayImageCarousel from "@/components/homestay/HomestayImageCarousel";
+import HomestayInfoCard from "@/components/homestay/HomestayInfoCard";
+import HostInfoCard from "@/components/homestay/HostInfoCard";
 
 const HomestayDetailPage = () => {
   const navigate = useNavigate();
@@ -16,8 +22,8 @@ const HomestayDetailPage = () => {
     try {
       const data = await fetchHomestayById(id);
       setHomestay(data);
-    } catch (error) {
-      showAlert("Unable to load homestay details", "danger");
+    } catch {
+      showAlert("Không thể tải chi tiết homestay", "danger");
     } finally {
       setLoading(false);
     }
@@ -27,73 +33,62 @@ const HomestayDetailPage = () => {
     if (homestayId) {
       const id = Number(homestayId);
       if (Number.isNaN(id)) {
-        showAlert("Invalid homestay ID", "warning");
+        showAlert("ID homestay không hợp lệ", "warning");
         navigate("/homestays");
         return;
       }
-
       loadHomestay(id);
     }
   }, [homestayId, navigate]);
 
   const handleDelete = async () => {
-    if (!homestayId) {
-      return;
-    }
-
+    if (!homestayId) return;
     const id = Number(homestayId);
     if (Number.isNaN(id)) {
-      showAlert("Invalid homestay ID", "warning");
+      showAlert("ID homestay không hợp lệ", "warning");
       return;
     }
-
-    const confirmed = window.confirm("Are you sure you want to delete this homestay?");
-    if (!confirmed) {
-      return;
-    }
+    const confirmed = window.confirm("Xác nhận xóa homestay này?");
+    if (!confirmed) return;
 
     setDeleting(true);
     try {
       await deleteHomestay(id);
-      showAlert("Homestay deleted", "success");
+      showAlert("Đã xóa homestay thành công", "success");
       navigate("/homestays");
-    } catch (error) {
-      showAlert("Failed to delete homestay", "danger");
+    } catch {
+      showAlert("Xóa homestay thất bại", "danger");
     } finally {
       setDeleting(false);
     }
   };
 
-  const formatCurrency = (value: number | undefined) => {
-    if (value === undefined || Number.isNaN(value)) {
-      return "--";
-    }
+  const formatCurrency = (value: number | undefined) =>
+    value
+      ? new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+        maximumFractionDigits: 0,
+      }).format(value)
+      : "--";
 
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
-
-  if (loading) {
+  if (loading)
     return (
-      <div className="container">
-        <div className="text-center py-5">Loading homestay details...</div>
+      <div className="container py-5 text-center">
+        <div className="spinner-border text-primary mb-3" role="status"></div>
+        <p className="text-muted">Đang tải thông tin homestay...</p>
       </div>
     );
-  }
 
-  if (!homestay) {
+  if (!homestay)
     return (
-      <div className="container">
-        <div className="alert alert-warning mt-4">Homestay information not found.</div>
+      <div className="container py-5 text-center">
+        <div className="alert alert-warning mt-4">Không tìm thấy thông tin homestay.</div>
         <Link className="btn btn-outline-primary mt-3" to="/homestays">
-          Back to list
+          ← Quay lại danh sách
         </Link>
       </div>
     );
-  }
 
   return (
     <div className="container">
@@ -101,14 +96,19 @@ const HomestayDetailPage = () => {
         <div>
           <h1 className="h3 mb-1">{homestay.name}</h1>
           <p className="text-muted mb-0">
-            {homestay.address}, {homestay.city}
+            {homestay.address}
           </p>
         </div>
         <div className="d-flex gap-2 mt-3 mt-md-0">
           <Link className="btn btn-outline-primary" to={`/homestays/${homestay.id}/edit`}>
             Edit
           </Link>
-          <button className="btn btn-danger" disabled={deleting} onClick={handleDelete} type="button">
+          <button
+            className="btn btn-danger"
+            disabled={deleting}
+            onClick={handleDelete}
+            type="button"
+          >
             {deleting ? "Deleting..." : "Delete"}
           </button>
         </div>
@@ -116,15 +116,21 @@ const HomestayDetailPage = () => {
 
       {homestay.images && homestay.images.length > 0 && (
         <div className="row g-3 mb-4">
-          {homestay.images.map((imageUrl, index) => (
-            <div className="col-12 col-md-6 col-xl-4" key={`${imageUrl}-${index}`}>
+          {homestay.images.map((img) => (
+            <div className="col-12 col-md-6 col-xl-4" key={img.id}>
               <div className="ratio ratio-16x9">
-                <img alt={`Image ${index + 1}`} className="rounded shadow-sm" src={imageUrl} style={{ objectFit: "cover" }} />
+                <img
+                  alt={img.alt || `Image ${img.id}`}
+                  className="rounded shadow-sm"
+                  src={img.url}
+                  style={{ objectFit: "cover" }}
+                />
               </div>
             </div>
           ))}
         </div>
       )}
+
 
       <div className="card shadow-sm">
         <div className="card-body">
@@ -134,19 +140,19 @@ const HomestayDetailPage = () => {
               <ul className="list-group list-group-flush">
                 <li className="list-group-item px-0 d-flex justify-content-between">
                   <span>Price per night</span>
-                  <strong>{formatCurrency(homestay.pricePerNight)}</strong>
+                  <strong>{formatCurrency(homestay.base_price)}</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
                   <span>Capacity</span>
                   <strong>{homestay.capacity} guests</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
-                  <span>Bedrooms</span>
-                  <strong>{homestay.numBedrooms ?? "--"}</strong>
+                  <span>Bathroom</span>
+                  <strong>{homestay.bathroom_count ?? "--"}</strong>
                 </li>
                 <li className="list-group-item px-0 d-flex justify-content-between">
-                  <span>Bathrooms</span>
-                  <strong>{homestay.numBathrooms ?? "--"}</strong>
+                  <span>Numroom</span>
+                  <strong>{homestay.num_rooms ?? "--"}</strong>
                 </li>
                 {homestay.status && (
                   <li className="list-group-item px-0 d-flex justify-content-between">
@@ -180,10 +186,6 @@ const HomestayDetailPage = () => {
           )}
         </div>
       </div>
-
-      <Link className="btn btn-link mt-4" to="/homestays">
-        &larr; Back to list
-      </Link>
     </div>
   );
 };

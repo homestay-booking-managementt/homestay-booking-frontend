@@ -6,10 +6,10 @@ import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
 import {
-    AdminDashboardPage,
-    AdminHomestayApprovalPage,
-    AdminChatMonitorPage,
-    AdminSystemStatsPage,
+  AdminDashboardPage,
+  AdminHomestayApprovalPage,
+  AdminChatMonitorPage,
+  AdminSystemStatsPage,
 } from "@/pages/Admin";
 import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
 import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
@@ -20,125 +20,139 @@ import SupportCenterPage from "@/pages/Support";
 import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
+import BookingDetailPage from "@/pages/Booking/BookingDetailPage";
+import ReviewHomestayPage from "@/pages/Reviews";
 
 const PublicRoutes = [
-    // Public routes (no authentication required)
-    {
-        path: "/login",
-        element: <Login />,
-    },
-    {
-        path: "/403",
-        element: <ErrorPage errorType={ErrorType.PermissionDenied} />,
-    },
-    {
-        path: "/401",
-        element: <ErrorPage errorType={ErrorType.NotAuthorized} />,
-    },
-    {
-        path: "*",
-        element: <ErrorPage errorType={ErrorType.NotFound} />,
-    },
+  // Public routes (no authentication required)
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/403",
+    element: <ErrorPage errorType={ErrorType.PermissionDenied} />,
+  },
+  {
+    path: "/401",
+    element: <ErrorPage errorType={ErrorType.NotAuthorized} />,
+  },
+  {
+    path: "*",
+    element: <ErrorPage errorType={ErrorType.NotFound} />,
+  },
 ];
 
 const PrivateRoutes = [
-    {
-        element: <PrivateRoute />,
+  {
+    element: <PrivateRoute />,
+    children: [
+      {
+        path: "/",
+        element: <DashboardPage />,
         children: [
-            {
-                path: "/",
-                element: <DashboardPage />,
-                children: [
-                    {
-                        index: true,
-                        element: <DashboardHome />,
-                    },
-                    {
-                        path: "homestays",
-                        element: <HomestayListPage />,
-                    },
-                    {
-                        path: "homestays/new",
-                        element: <HomestayFormPage />,
-                    },
-                    {
-                        path: "homestays/mine",
-                        element: <MyHomestaysPage />,
-                    },
-                    {
-                        path: "homestays/:homestayId",
-                        element: <HomestayDetailPage />,
-                    },
-                    {
-                        path: "homestays/:homestayId/edit",
-                        element: <HomestayFormPage />,
-                    },
-                    {
-                        path: "bookings",
-                        element: <BookingDashboardPage />,
-                    },
-                    {
-                        path: "bookings/history",
-                        element: <BookingHistoryPage />,
-                    },
-                    {
-                        path: "payments",
-                        element: <PaymentPortalPage />,
-                    },
-                    {
-                        path: "reviews",
-                        element: <ReviewCenterPage />,
-                    },
-                    {
-                        path: "complaints",
-                        element: <ComplaintCenterPage />,
-                    },
-                    {
-                        path: "support",
-                        element: <SupportCenterPage />,
-                    },
-                    {
-                        path: "profile",
-                        element: <ProfilePage />,
-                    },
-                    {
-                        path: "host/bookings",
-                        element: <HostBookingManagementPage />,
-                    },
-                    {
-                        path: "host/revenue",
-                        element: <HostRevenueReportPage />,
-                    },
-                    {
-                        path: "host/chat",
-                        element: <HostChatPage />,
-                    },
-                    {
-                        path: "admin",
-                        element: <AdminDashboardPage />,
-                    },
-                    {
-                        path: "admin/homestays",
-                        element: <AdminHomestayApprovalPage />,
-                    },
-                    {
-                        path: "admin/chat-monitor",
-                        element: <AdminChatMonitorPage />,
-                    },
-                    {
-                        path: "admin/statistics",
-                        element: <AdminSystemStatsPage />,
-                    },
-                ],
-            },
+          {
+            index: true,
+            element: <DashboardHome />,
+          },
+          {
+            path: "homestays",
+            element: <HomestayListPage />,
+          },
+          {
+            path: "homestays/new",
+            element: <HomestayFormPage />,
+          },
+          {
+            path: "homestays/mine",
+            element: <MyHomestaysPage />,
+          },
+          {
+            path: "homestays/:homestayId",
+            element: <HomestayDetailPage />,
+          },
+          {
+            path: "homestays/:homestayId/edit",
+            element: <HomestayFormPage />,
+          },
+          {
+            path: "bookings",
+            element: <BookingDashboardPage />,
+          },
+          {
+            path: "bookings/history",
+            element: <BookingHistoryPage />,
+          },
+          {
+            path: "bookings/:bookingId",
+            element: <BookingDetailPage />,
+          },
+          {
+            path: "payments",
+            element: <PaymentPortalPage />,
+          },
+          {
+            path: "reviews",
+            element: <ReviewCenterPage />,
+          },
+          {
+            path: "reviews/:bookingId",
+            element: <ReviewHomestayPage />,
+          },
+          {
+            path: "complaints",
+            element: <ComplaintCenterPage />,
+          },
+          {
+            path: "support",
+            element: <SupportCenterPage />,
+          },
+          {
+            path: "profile",
+            element: <ProfilePage />,
+          },
+          // {
+          //   path: "me",
+          //   element: <Me />,
+          // },
+          {
+            path: "host/bookings",
+            element: <HostBookingManagementPage />,
+          },
+          {
+            path: "host/revenue",
+            element: <HostRevenueReportPage />,
+          },
+          {
+            path: "host/chat",
+            element: <HostChatPage />,
+          },
+          {
+            path: "admin",
+            element: <AdminDashboardPage />,
+          },
+          {
+            path: "admin/homestays",
+            element: <AdminHomestayApprovalPage />,
+          },
+          {
+            path: "admin/chat-monitor",
+            element: <AdminChatMonitorPage />,
+          },
+          {
+            path: "admin/statistics",
+            element: <AdminSystemStatsPage />,
+          },
         ],
-    },
+      },
+    ],
+  },
 ];
 
 const Router = () => {
-    const element = useRoutes([...PublicRoutes, ...PrivateRoutes]);
+  const element = useRoutes([...PublicRoutes, ...PrivateRoutes]);
 
-    return element;
+  return element;
 };
 
 export default Router;
