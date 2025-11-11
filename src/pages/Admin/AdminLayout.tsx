@@ -31,6 +31,16 @@ const AdminLayout = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showHomestayMenu, setShowHomestayMenu] = useState(false);
 
+  // Function to get initials from name
+  const getInitials = (name?: string | null) => {
+    if (!name) return "AD";
+    const words = name.trim().split(" ");
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
+
   const menuItems = [
     { path: "/admin", label: "Dashboard", icon: <FaChartLine /> },
     { path: "/admin/users", label: "Người dùng", icon: <FaUsers /> },
@@ -138,16 +148,20 @@ const AdminLayout = () => {
 
             <div className="user-menu">
               <button className="user-button" onClick={() => setShowUserMenu(!showUserMenu)}>
-                <div className="user-avatar">AD</div>
+                <div className="user-avatar">{getInitials(currentUser?.userName)}</div>
                 <span className="user-name">{currentUser?.userName || "Admin"}</span>
                 <span className="dropdown-arrow">▼</span>
               </button>
 
               {showUserMenu && (
                 <div className="user-dropdown">
-                  <div className="dropdown-item" onClick={() => navigate("/profile")}>
-                    <FaUsers style={{ marginRight: "8px" }} /> Hồ sơ
+                  <div className="dropdown-item" onClick={() => {
+                    navigate("/admin/settings");
+                    setShowUserMenu(false);
+                  }}>
+                    <FaCog style={{ marginRight: "8px" }} /> Cài đặt
                   </div>
+                  <div className="dropdown-divider" />
                   <div className="dropdown-item" onClick={handleLogout}>
                     <FaSignOutAlt style={{ marginRight: "8px" }} /> Đăng xuất
                   </div>
@@ -526,6 +540,16 @@ const AdminLayout = () => {
 
         .dark .dropdown-item:hover {
           background: #1e2a47;
+        }
+
+        .dropdown-divider {
+          height: 1px;
+          background: #e2e8f0;
+          margin: 4px 0;
+        }
+
+        .dark .dropdown-divider {
+          background: #2d3748;
         }
 
         /* Content */
