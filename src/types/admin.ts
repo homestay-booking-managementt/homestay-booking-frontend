@@ -2,7 +2,10 @@ export interface AdminUser {
   id: number;
   name: string;
   email: string;
+  username?: string;
   phone?: string;
+  address?: string;
+  dateOfBirth?: string;
   role?: "CUSTOMER" | "HOST" | "ADMIN"; // Single role for backward compatibility
   roles?: string[]; // Array of roles from Backend
   status: number; // Backend có thể trả về 1, 2, 3 không chỉ 0 | 1

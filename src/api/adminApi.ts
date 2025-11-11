@@ -14,15 +14,15 @@ import { sendRequest } from "@/utils/sendRequest";
 
 export const fetchUsers = async (role?: string): Promise<AdminUser[]> => {
   console.log("🔵 [fetchUsers] Calling API with URL: /api/admin/users");
-  const response = await sendRequest("/api/admin/users", {
+  const response = (await sendRequest("/api/admin/users", {
     method: "GET",
     payload: role ? { role } : undefined,
-  }) as any;
-  
+  })) as any;
+
   console.log("🔵 [fetchUsers] Raw response:", response);
   console.log("🔵 [fetchUsers] response.data:", response?.data);
   console.log("🔵 [fetchUsers] Is response.data array?", Array.isArray(response?.data));
-  
+
   // Backend trả về format: { success, message, data, total }
   const result = Array.isArray(response?.data) ? response.data : [];
   console.log("🔵 [fetchUsers] Returning:", result, "Length:", result.length);
@@ -36,10 +36,10 @@ export const updateUserStatus = (userId: number, payload: UpdateUserStatusPayloa
   });
 
 export const fetchUserStatusHistory = async (userId: number) => {
-  const response = await sendRequest(`/api/admin/users/${userId}/status-history`, {
+  const response = (await sendRequest(`/api/admin/users/${userId}/status-history`, {
     method: "GET",
-  }) as any;
-  
+  })) as any;
+
   // Backend trả về format: { success, message, data }
   return Array.isArray(response?.data) ? response.data : [];
 };

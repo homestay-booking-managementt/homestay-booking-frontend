@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, updateUserStatus } from "@/api/adminApi";
-import type { AdminUser } from "@/types/admin";
+import { fetchUsers, updateUserStatus, fetchUserStatusHistory } from "@/api/adminApi";
+import type { AdminUser, UserStatusHistory } from "@/types/admin";
 import { showAlert } from "@/utils/showAlert";
 import {
   FaUsers,
@@ -12,6 +12,8 @@ import {
   FaUserCheck,
   FaUserClock,
   FaUserSlash,
+  FaHistory,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 const AdminUsersPage = () => {
@@ -23,6 +25,10 @@ const AdminUsersPage = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [actionType, setActionType] = useState<"activate" | "suspend" | "ban">("activate");
   const [actionReason, setActionReason] = useState("");
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [statusHistory, setStatusHistory] = useState<UserStatusHistory[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -70,6 +76,37 @@ const AdminUsersPage = () => {
     } catch (error) {
       showAlert("Không thể cập nhật trạng thái", "danger");
     }
+  };
+
+  const handleViewHistory = async (user: AdminUser) => {
+    setSelectedUser(user);
+    setShowHistoryModal(true);
+    setHistoryLoading(true);
+    try {
+      const history = await fetchUserStatusHistory(user.id);
+      setStatusHistory(history);
+    } catch (error) {
+      showAlert("Không thể tải lịch sử trạng thái", "danger");
+      setStatusHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const handleViewDetail = (user: AdminUser) => {
+    setSelectedUser(user);
+    setShowDetailModal(true);
+  };
+
+  const closeHistoryModal = () => {
+    setShowHistoryModal(false);
+    setSelectedUser(null);
+    setStatusHistory([]);
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedUser(null);
   };
 
   // Lọc bỏ Admin khỏi danh sách
@@ -317,6 +354,25 @@ const AdminUsersPage = () => {
                       <FaUserSlash />
                     </button>
                   </div>
+                  <div className="divider-vertical"></div>
+                  <div className="action-buttons-group">
+                    <button
+                      className="action-icon-btn history-btn"
+                      onClick={() => handleViewHistory(user)}
+                      title="Lịch sử trạng thái"
+                    >
+                      <FaHistory />
+                      <span className="btn-tooltip">Lịch sử</span>
+                    </button>
+                    <button
+                      className="action-icon-btn detail-btn"
+                      onClick={() => handleViewDetail(user)}
+                      title="Thông tin chi tiết"
+                    >
+                      <FaInfoCircle />
+                      <span className="btn-tooltip">Chi tiết</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -423,6 +479,207 @@ const AdminUsersPage = () => {
                 disabled={!actionReason.trim()}
               >
                 {actionType === "activate" ? "Xác nhận kích hoạt" : "Xác nhận vô hiệu hóa"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modal */}
+      {showHistoryModal && selectedUser && (
+        <div className="modal-overlay" onClick={closeHistoryModal}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                <FaHistory /> Lịch sử trạng thái
+              </h2>
+              <button className="close-btn" onClick={closeHistoryModal}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="user-summary">
+                <div className="user-avatar-large">{selectedUser.name.charAt(0).toUpperCase()}</div>
+                <div>
+                  <h3>{selectedUser.name}</h3>
+                  <p className="user-email">{selectedUser.email}</p>
+                  <span className="user-id">ID: {selectedUser.id}</span>
+                </div>
+              </div>
+
+              {historyLoading ? (
+                <div className="loading-state-inline">
+                  <div className="spinner-small" />
+                  <p>Đang tải lịch sử...</p>
+                </div>
+              ) : statusHistory.length === 0 ? (
+                <div className="empty-state-inline">
+                  <FaHistory className="empty-icon-small" />
+                  <p>Chưa có lịch sử thay đổi trạng thái</p>
+                </div>
+              ) : (
+                <div className="history-timeline">
+                  {statusHistory.map((item, index) => (
+                    <div key={index} className="timeline-item">
+                      <div className="timeline-marker" />
+                      <div className="timeline-content">
+                        <div className="timeline-header">
+                          <span
+                            className={`status-badge-small status-${
+                              item.newStatus === 1
+                                ? "active"
+                                : item.newStatus === 2
+                                  ? "suspended"
+                                  : "banned"
+                            }`}
+                          >
+                            {item.newStatus === 1
+                              ? "Hoạt động"
+                              : item.newStatus === 2
+                                ? "Tạm khóa"
+                                : "Bị chặn"}
+                          </span>
+                          <span className="timeline-date">
+                            {new Date(item.changedAt).toLocaleString("vi-VN")}
+                          </span>
+                        </div>
+                        {item.reason && (
+                          <p className="timeline-reason">
+                            <strong>Lý do:</strong> {item.reason}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeHistoryModal}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedUser && (
+        <div className="modal-overlay" onClick={closeDetailModal}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>
+                <FaInfoCircle /> Thông tin chi tiết
+              </h2>
+              <button className="close-btn" onClick={closeDetailModal}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="user-summary-card">
+                <div className="user-avatar-large">{selectedUser.name.charAt(0).toUpperCase()}</div>
+                <div className="user-summary-info">
+                  <h3>{selectedUser.name}</h3>
+                  <p className="user-email">{selectedUser.email}</p>
+                  <div className="user-meta">
+                    <span className="user-id">ID: {selectedUser.id}</span>
+                    <span className="user-id-divider">•</span>
+                    <span
+                      className={`status-badge-inline status-${
+                        selectedUser.status === 1
+                          ? "active"
+                          : selectedUser.status === 2
+                            ? "suspended"
+                            : "banned"
+                      }`}
+                    >
+                      {selectedUser.status === 1
+                        ? "Hoạt động"
+                        : selectedUser.status === 2
+                          ? "Tạm khóa"
+                          : "Bị chặn"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="detail-sections-grid">
+                <div className="detail-card">
+                  <h4>📋 Thông tin cơ bản</h4>
+                  <div className="detail-list">
+                    <div className="detail-row">
+                      <span className="detail-label">Tên đăng nhập</span>
+                      <span className="detail-value">{selectedUser.username || "N/A"}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Email</span>
+                      <span className="detail-value">{selectedUser.email}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Số điện thoại</span>
+                      <span className="detail-value">{selectedUser.phone || "Chưa cập nhật"}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Vai trò</span>
+                      <span
+                        className={`role-badge role-${(selectedUser.roles?.[0] || selectedUser.role || "CUSTOMER").toLowerCase()}`}
+                      >
+                        {selectedUser.roles?.[0] || selectedUser.role || "CUSTOMER"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-card">
+                  <h4>📅 Thời gian</h4>
+                  <div className="detail-list">
+                    <div className="detail-row">
+                      <span className="detail-label">Ngày tạo</span>
+                      <span className="detail-value">
+                        {selectedUser.createdAt
+                          ? new Date(selectedUser.createdAt).toLocaleString("vi-VN")
+                          : "N/A"}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Cập nhật lần cuối</span>
+                      <span className="detail-value">
+                        {selectedUser.updatedAt
+                          ? new Date(selectedUser.updatedAt).toLocaleString("vi-VN")
+                          : "N/A"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="detail-card detail-card-full">
+                  <h4>👤 Thông tin bổ sung</h4>
+                  <div className="detail-list">
+                    <div className="detail-row">
+                      <span className="detail-label">Địa chỉ</span>
+                      <span className="detail-value">
+                        {selectedUser.address || "Chưa cập nhật"}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Ngày sinh</span>
+                      <span className="detail-value">
+                        {selectedUser.dateOfBirth
+                          ? new Date(selectedUser.dateOfBirth).toLocaleDateString("vi-VN")
+                          : "Chưa cập nhật"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeDetailModal}>
+                Đóng
               </button>
             </div>
           </div>
@@ -877,9 +1134,18 @@ const AdminUsersPage = () => {
 
         .user-actions {
           display: flex;
-          gap: 12px;
+          gap: 10px;
           align-items: center;
           position: relative;
+          padding: 4px;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          border-radius: 14px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .dark .user-actions {
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          border-color: #334155;
         }
 
         /* Status Switch Container */
@@ -983,6 +1249,42 @@ const AdminUsersPage = () => {
           max-height: 90vh;
           overflow-y: auto;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .modal-content::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+          background: transparent;
+          margin: 16px 0;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 10px;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+          border: 2px solid transparent;
+          background-clip: padding-box;
+        }
+
+        .dark .modal-content::-webkit-scrollbar-thumb {
+          background: #475569;
+        }
+
+        .dark .modal-content::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+
+        .dark .modal-content {
+          scrollbar-color: #475569 transparent;
         }
 
         .modal-small {
@@ -1296,6 +1598,546 @@ const AdminUsersPage = () => {
           color: #f1f5f9;
         }
 
+        /* Divider Vertical */
+        .divider-vertical {
+          width: 1px;
+          height: 32px;
+          background: linear-gradient(180deg, transparent 0%, #e2e8f0 20%, #e2e8f0 80%, transparent 100%);
+          margin: 0 8px;
+        }
+
+        .dark .divider-vertical {
+          background: linear-gradient(180deg, transparent 0%, #334155 20%, #334155 80%, transparent 100%);
+        }
+
+        /* Action Icon Buttons */
+        .action-buttons-group {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
+
+        .action-icon-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #64748b;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 15px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .action-icon-btn::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 100%);
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+
+        .action-icon-btn:hover::before {
+          opacity: 1;
+        }
+
+        .dark .action-icon-btn {
+          background: #0f172a;
+          border-color: #334155;
+          color: #94a3b8;
+        }
+
+        .action-icon-btn:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-icon-btn:active {
+          transform: translateY(0) scale(0.98);
+          transition: all 0.1s;
+        }
+
+        .history-btn {
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          color: #0369a1;
+          border-color: #bae6fd;
+        }
+
+        .history-btn:hover {
+          background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+          color: white;
+          border-color: #0ea5e9;
+          box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+        }
+
+        .detail-btn {
+          background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+          color: #7c3aed;
+          border-color: #e9d5ff;
+        }
+
+        .detail-btn:hover {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+          color: white;
+          border-color: #8b5cf6;
+          box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .dark .history-btn {
+          background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(14, 165, 233, 0.1) 100%);
+          color: #38bdf8;
+          border-color: rgba(14, 165, 233, 0.3);
+        }
+
+        .dark .history-btn:hover {
+          background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+          color: white;
+          border-color: #0ea5e9;
+        }
+
+        .dark .detail-btn {
+          background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+          color: #a78bfa;
+          border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .dark .detail-btn:hover {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+          color: white;
+          border-color: #8b5cf6;
+        }
+
+        /* Button Tooltip */
+        .btn-tooltip {
+          position: absolute;
+          bottom: -32px;
+          left: 50%;
+          transform: translateX(-50%) translateY(4px);
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          padding: 6px 12px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 10;
+          letter-spacing: 0.3px;
+        }
+
+        .btn-tooltip::before {
+          content: "";
+          position: absolute;
+          top: -4px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
+          border-bottom: 5px solid rgba(0, 0, 0, 0.9);
+        }
+
+        .action-icon-btn:hover .btn-tooltip {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+
+        .dark .btn-tooltip {
+          background: rgba(15, 23, 42, 0.95);
+          border: 1px solid rgba(51, 65, 85, 0.8);
+        }
+
+        .dark .btn-tooltip::before {
+          border-bottom-color: rgba(15, 23, 42, 0.95);
+        }
+
+        /* Modal Large */
+        .modal-large {
+          max-width: 900px;
+        }
+
+        /* User Summary Card in Modal */
+        .user-summary-card {
+          display: flex;
+          gap: 20px;
+          align-items: center;
+          padding: 24px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 16px;
+          margin-bottom: 24px;
+          box-shadow: 0 8px 24px rgba(102, 126, 234, 0.25);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .user-summary-card::before {
+          content: "";
+          position: absolute;
+          top: -50%;
+          right: -10%;
+          width: 200px;
+          height: 200px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 50%;
+          filter: blur(40px);
+        }
+
+        .dark .user-summary-card {
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .user-avatar-large {
+          width: 80px;
+          height: 80px;
+          border-radius: 50%;
+          background: white;
+          color: #667eea;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 32px;
+          flex-shrink: 0;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          position: relative;
+          z-index: 1;
+        }
+
+        .dark .user-avatar-large {
+          background: #0f172a;
+          color: #a78bfa;
+          border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        .user-summary-info {
+          flex: 1;
+          position: relative;
+          z-index: 1;
+        }
+
+        .user-summary-card h3 {
+          margin: 0 0 6px 0;
+          font-size: 22px;
+          font-weight: 700;
+          color: white;
+        }
+
+        .user-summary-card .user-email {
+          margin: 0 0 8px 0;
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.85);
+        }
+
+        .user-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .user-summary-card .user-id {
+          font-size: 12px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.75);
+        }
+
+        .user-id-divider {
+          color: rgba(255, 255, 255, 0.5);
+          font-weight: 700;
+        }
+
+        .status-badge-inline {
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .status-badge-inline.status-active {
+          background: rgba(16, 185, 129, 0.2);
+          color: #6ee7b7;
+          border: 1px solid rgba(110, 231, 183, 0.5);
+        }
+
+        .status-badge-inline.status-suspended {
+          background: rgba(251, 191, 36, 0.2);
+          color: #fcd34d;
+          border: 1px solid rgba(252, 211, 77, 0.5);
+        }
+
+        .status-badge-inline.status-banned {
+          background: rgba(239, 68, 68, 0.2);
+          color: #fca5a5;
+          border: 1px solid rgba(252, 165, 165, 0.5);
+        }
+
+        /* History Timeline */
+        .history-timeline {
+          position: relative;
+          padding-left: 32px;
+          margin-top: 24px;
+        }
+
+        .history-timeline::before {
+          content: "";
+          position: absolute;
+          left: 11px;
+          top: 12px;
+          bottom: 12px;
+          width: 2px;
+          background: linear-gradient(180deg, #e2e8f0 0%, transparent 100%);
+        }
+
+        .dark .history-timeline::before {
+          background: linear-gradient(180deg, #334155 0%, transparent 100%);
+        }
+
+        .timeline-item {
+          position: relative;
+          margin-bottom: 24px;
+        }
+
+        .timeline-item:last-child {
+          margin-bottom: 0;
+        }
+
+        .timeline-marker {
+          position: absolute;
+          left: -26px;
+          top: 8px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: #0ea5e9;
+          border: 3px solid #ffffff;
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+        }
+
+        .dark .timeline-marker {
+          border-color: #1e293b;
+          box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.2);
+        }
+
+        .timeline-content {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px;
+        }
+
+        .dark .timeline-content {
+          background: #0f172a;
+          border-color: #334155;
+        }
+
+        .timeline-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .timeline-date {
+          font-size: 12px;
+          color: #94a3b8;
+        }
+
+        .timeline-reason,
+        .timeline-admin {
+          margin: 8px 0 0 0;
+          font-size: 13px;
+          color: #64748b;
+        }
+
+        .dark .timeline-reason,
+        .dark .timeline-admin {
+          color: #94a3b8;
+        }
+
+        .status-badge-small {
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+
+        .status-badge-small.status-active {
+          background: #dcfce7;
+          color: #15803d;
+        }
+
+        .status-badge-small.status-suspended {
+          background: #fef3c7;
+          color: #a16207;
+        }
+
+        .status-badge-small.status-banned {
+          background: #ffe4e6;
+          color: #be123c;
+        }
+
+        .dark .status-badge-small.status-active {
+          background: rgba(34, 197, 94, 0.2);
+          color: #86efac;
+        }
+
+        .dark .status-badge-small.status-suspended {
+          background: rgba(251, 191, 36, 0.2);
+          color: #fcd34d;
+        }
+
+        .dark .status-badge-small.status-banned {
+          background: rgba(244, 63, 94, 0.2);
+          color: #fda4af;
+        }
+
+        /* Loading & Empty State Inline */
+        .loading-state-inline,
+        .empty-state-inline {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 20px;
+          margin-top: 24px;
+        }
+
+        .spinner-small {
+          width: 32px;
+          height: 32px;
+          border: 3px solid #e2e8f0;
+          border-top-color: #0ea5e9;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+
+        .loading-state-inline p,
+        .empty-state-inline p {
+          margin: 12px 0 0 0;
+          color: #64748b;
+          font-size: 14px;
+        }
+
+        .empty-icon-small {
+          font-size: 48px;
+          color: #cbd5e1;
+          margin-bottom: 12px;
+        }
+
+        /* Detail Sections Grid */
+        .detail-sections-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+
+        .detail-card {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 20px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+          transform: translateY(-2px);
+        }
+
+        .dark .detail-card {
+          background: #0f172a;
+          border-color: #334155;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .detail-card:hover {
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .detail-card-full {
+          grid-column: 1 / -1;
+        }
+
+        .detail-card h4 {
+          margin: 0 0 16px 0;
+          font-size: 15px;
+          font-weight: 700;
+          color: #1f2937;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #f1f5f9;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .dark .detail-card h4 {
+          color: #f1f5f9;
+          border-bottom-color: #334155;
+        }
+
+        .detail-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #f1f5f9;
+          gap: 16px;
+        }
+
+        .detail-row:last-child {
+          border-bottom: none;
+        }
+
+        .dark .detail-row {
+          border-bottom-color: #1e293b;
+        }
+
+        .detail-label {
+          font-size: 13px;
+          font-weight: 600;
+          color: #64748b;
+          flex-shrink: 0;
+        }
+
+        .dark .detail-label {
+          color: #94a3b8;
+        }
+
+        .detail-value {
+          font-size: 14px;
+          color: #1f2937;
+          font-weight: 600;
+          text-align: right;
+        }
+
+        .dark .detail-value {
+          color: #f1f5f9;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
           .user-card {
@@ -1317,6 +2159,14 @@ const AdminUsersPage = () => {
             margin-top: 12px;
             justify-self: start;
           }
+
+          .detail-sections-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .detail-card-full {
+            grid-column: 1;
+          }
         }
 
         @media (max-width: 768px) {
@@ -1330,6 +2180,35 @@ const AdminUsersPage = () => {
 
           .tab {
             justify-content: space-between;
+          }
+
+          .modal-large {
+            max-width: calc(100vw - 32px);
+            margin: 16px;
+          }
+
+          .user-summary-card {
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+          }
+
+          .user-summary-info {
+            width: 100%;
+          }
+
+          .user-meta {
+            justify-content: center;
+          }
+
+          .detail-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+          }
+
+          .detail-value {
+            text-align: left;
           }
         }
       `}</style>

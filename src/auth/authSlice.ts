@@ -24,18 +24,20 @@ if (idToken) {
     if (tokenDecode) {
       // Thử các field khác nhau cho userId
       userId = (tokenDecode["user_id"] || tokenDecode["id"] || tokenDecode["sub"]) as number | null;
-      userName = (tokenDecode["user_name"] || tokenDecode["name"] || tokenDecode["username"]) as string | null;
-      roleId = (tokenDecode["role_id"]) as number | null;
-      
+      userName = (tokenDecode["user_name"] || tokenDecode["name"] || tokenDecode["username"]) as
+        | string
+        | null;
+      roleId = tokenDecode["role_id"] as number | null;
+
       // Check admin role từ nhiều nguồn
-      isAdmin = (tokenDecode["is_admin"] as boolean) || 
-                (Array.isArray(tokenDecode["roles"]) && (tokenDecode["roles"] as string[]).includes("ADMIN")) ||
-                false;
-      
-      isActive = (tokenDecode["is_active"] as boolean) || 
-                 (tokenDecode["status"] === 1) || 
-                 true; // Mặc định active nếu không có field này
-      
+      isAdmin =
+        (tokenDecode["is_admin"] as boolean) ||
+        (Array.isArray(tokenDecode["roles"]) &&
+          (tokenDecode["roles"] as string[]).includes("ADMIN")) ||
+        false;
+
+      isActive = (tokenDecode["is_active"] as boolean) || tokenDecode["status"] === 1 || true; // Mặc định active nếu không có field này
+
       // Không set areTokensValid = false nếu thiếu field, vì token vẫn có thể hợp lệ
       // Chỉ kiểm tra token expired
       if (Object.prototype.hasOwnProperty.call(tokenDecode, "exp")) {
@@ -130,7 +132,6 @@ export const loginRequest = createAsyncThunk<
   }
 });
 
-
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -177,12 +178,12 @@ export const authSlice = createSlice({
         if (action.payload.user) {
           state.currentUser.userId = action.payload.user.id ?? null;
           state.currentUser.userName = action.payload.user.name ?? null;
-          
+
           // Xác định role từ roles array
           const roles = action.payload.user.roles || [];
           state.currentUser.isAdmin = roles.includes("ADMIN");
           state.currentUser.isActive = action.payload.user.status === 1;
-          
+
           // Lưu roleId nếu cần (có thể dùng để phân biệt)
           if (roles.includes("ADMIN")) {
             state.currentUser.roleId = 1;
