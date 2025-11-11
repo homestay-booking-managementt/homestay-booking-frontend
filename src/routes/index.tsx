@@ -34,17 +34,14 @@ import {
   HostSettingsPage,
   HostChatPage,
 } from "@/pages/Host";
-import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
-import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
 import PaymentPortalPage from "@/pages/Payment";
 import ProfilePage from "@/pages/Profile";
-import ReviewCenterPage from "@/pages/Reviews";
+import ReviewHomestayPage from "@/pages/Reviews";
 import SupportCenterPage from "@/pages/Support";
 import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
 import BookingDetailPage from "@/pages/Booking/BookingDetailPage";
-import ReviewHomestayPage from "@/pages/Reviews";
 
 const PublicRoutes = [
   // Public routes (no authentication required)
@@ -120,7 +117,7 @@ const PrivateRoutes = [
           },
           {
             path: "reviews",
-            element: <ReviewCenterPage />,
+            element: <ReviewHomestayPage />,
           },
           {
             path: "reviews/:bookingId",
