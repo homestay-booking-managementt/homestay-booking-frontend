@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
-import { fetchUsers, fetchRevenueReport, fetchAdminBookings, fetchPendingHomestayRequests } from "@/api/adminApi";
-import type { AdminUser, AdminRevenueReport, AdminBookingSummary, AdminHomestayRequest } from "@/types/admin";
+import {
+  fetchUsers,
+  fetchRevenueReport,
+  fetchAdminBookings,
+  fetchPendingHomestayRequests,
+  fetchAllHomestaysForAdmin,
+} from "@/api/adminApi";
+import type {
+  AdminUser,
+  AdminRevenueReport,
+  AdminBookingSummary,
+  AdminHomestayRequest,
+} from "@/types/admin";
+import type { Homestay } from "@/types/homestay";
 import { showAlert } from "@/utils/showAlert";
 import { FaUsers, FaCalendarAlt, FaHome, FaDollarSign } from "react-icons/fa";
 
@@ -9,7 +21,50 @@ const AdminMainDashboard = () => {
   const [revenue, setRevenue] = useState<AdminRevenueReport | null>(null);
   const [bookings, setBookings] = useState<AdminBookingSummary[]>([]);
   const [homestayRequests, setHomestayRequests] = useState<AdminHomestayRequest[]>([]);
+  const [homestays, setHomestays] = useState<Homestay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dataSource, setDataSource] = useState<'api' | 'mock'>('mock');
+
+  // Helper function: Tính toán doanh thu theo homestay từ bookings
+  const calculateRevenueByHomestay = (
+    revenueData: AdminRevenueReport | null,
+    bookings: AdminBookingSummary[],
+    homestays: Homestay[]
+  ): AdminRevenueReport => {
+    // Tính toán revenue per homestay từ completed bookings
+    const homestayRevenueMap = new Map<number, { name: string; revenue: number }>();
+
+    bookings
+      .filter((b) => b.status === "COMPLETED" || b.status === "completed")
+      .forEach((booking) => {
+        const homestayId = booking.homestayId;
+        const homestayName = booking.homestayName || "Unknown";
+        const revenue = booking.totalPrice || 0;
+
+        if (homestayId) {
+          const existing = homestayRevenueMap.get(homestayId);
+          if (existing) {
+            existing.revenue += revenue;
+          } else {
+            homestayRevenueMap.set(homestayId, { name: homestayName, revenue });
+          }
+        }
+      });
+
+    // Convert map to items array
+    const items = Array.from(homestayRevenueMap.entries()).map(([homestayId, data]) => ({
+      homestayId,
+      homestayName: data.name,
+      totalRevenue: data.revenue,
+    }));
+
+    console.log("📊 [calculateRevenueByHomestay] Calculated items:", items);
+
+    return {
+      ...revenueData,
+      items,
+    };
+  };
 
   // Load data
   useEffect(() => {
@@ -18,25 +73,89 @@ const AdminMainDashboard = () => {
 
   const loadData = async () => {
     setLoading(true);
+    let isApiSuccess = true;
+    
     try {
-      const [usersData, revenueData, bookingsData, requestsData] = await Promise.all([
-        fetchUsers().catch(() => getMockUsers()),
-        fetchRevenueReport().catch(() => getMockRevenue()),
-        fetchAdminBookings().catch(() => getMockBookings()),
-        fetchPendingHomestayRequests().catch(() => getMockHomestayRequests()),
-      ]);
+      console.log("📊 Đang tải dữ liệu Admin Dashboard từ Backend API...");
+      
+      const [usersData, revenueData, bookingsData, requestsData, homestaysData] =
+        await Promise.all([
+          fetchUsers().catch((err: Error) => {
+            console.error("❌ Lỗi tải users:", err);
+            isApiSuccess = false;
+            return [];
+          }),
+          fetchRevenueReport().catch((err: Error) => {
+            console.error("❌ Lỗi tải revenue:", err);
+            isApiSuccess = false;
+            return null;
+          }),
+          fetchAdminBookings().catch((err: Error) => {
+            console.error("❌ Lỗi tải bookings:", err);
+            isApiSuccess = false;
+            return [];
+          }),
+          fetchPendingHomestayRequests().catch((err: Error) => {
+            console.error("❌ Lỗi tải homestay requests:", err);
+            isApiSuccess = false;
+            return [];
+          }),
+          fetchAllHomestaysForAdmin().catch((err: Error) => {
+            console.error("❌ Lỗi tải homestays:", err);
+            isApiSuccess = false;
+            return [];
+          }),
+        ]);
 
-      setUsers(Array.isArray(usersData) ? usersData : getMockUsers());
-      setRevenue(revenueData || getMockRevenue());
-      setBookings(Array.isArray(bookingsData) ? bookingsData : getMockBookings());
-      setHomestayRequests(Array.isArray(requestsData) ? requestsData : getMockHomestayRequests());
+      // Debug: Xem data nhận được
+      console.log("🔍 [DEBUG] usersData:", usersData);
+      console.log("🔍 [DEBUG] usersData type:", typeof usersData, "isArray:", Array.isArray(usersData));
+      console.log("🔍 [DEBUG] usersData length:", usersData?.length);
+      console.log("🔍 [DEBUG] isApiSuccess:", isApiSuccess);
+      console.log("🔍 [DEBUG] revenueData:", revenueData);
+      console.log("🔍 [DEBUG] revenueData.items:", revenueData?.items, "length:", revenueData?.items?.length);
+      console.log("🔍 [DEBUG] bookingsData:", bookingsData);
+      console.log("🔍 [DEBUG] requestsData:", requestsData);
+      console.log("🔍 [DEBUG] homestaysData:", homestaysData, "length:", homestaysData?.length);
+
+      // Nếu có data từ API thì dùng, không thì dùng mock
+      const hasApiData = Array.isArray(usersData) && usersData.length > 0;
+      console.log("🔍 [DEBUG] hasApiData:", hasApiData);
+      
+      if (hasApiData && isApiSuccess) {
+        console.log("✅ Đã tải dữ liệu thực từ Backend API");
+        setUsers(usersData);
+        
+        // Tính toán top homestays từ bookings data
+        const revenueWithItems = calculateRevenueByHomestay(
+          revenueData, 
+          Array.isArray(bookingsData) ? bookingsData : [],
+          Array.isArray(homestaysData) ? homestaysData : []
+        );
+        setRevenue(revenueWithItems);
+        
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+        setHomestayRequests(Array.isArray(requestsData) ? requestsData : []);
+        setHomestays(Array.isArray(homestaysData) ? homestaysData : []);
+        setDataSource("api");
+      } else {
+        console.log("⚠️ Sử dụng dữ liệu mẫu (Mock Data)");
+        setUsers(getMockUsers());
+        setRevenue(getMockRevenue());
+        setBookings(getMockBookings());
+        setHomestayRequests(getMockHomestayRequests());
+        setDataSource('mock');
+        showAlert("Đang sử dụng dữ liệu mẫu. Vui lòng kiểm tra kết nối Backend.", "warning");
+      }
     } catch (error) {
+      console.error("❌ Lỗi nghiêm trọng khi tải dashboard:", error);
       showAlert("Không thể tải dữ liệu dashboard", "danger");
       // Use mock data on error
       setUsers(getMockUsers());
       setRevenue(getMockRevenue());
       setBookings(getMockBookings());
       setHomestayRequests(getMockHomestayRequests());
+      setDataSource('mock');
     } finally {
       setLoading(false);
     }
@@ -88,26 +207,30 @@ const AdminMainDashboard = () => {
     generatedAt: new Date().toISOString(),
   });
 
-  // Calculate statistics
+  // Calculate statistics - ưu tiên dùng data từ revenue report nếu có
   const totalUsers = users.length;
   const activeUsers = users.filter((u) => u.status === 1).length;
-  const totalBookings = bookings.length;
-  const totalHomestays = homestayRequests.length;
+  
+  // Sử dụng data từ revenue report nếu có, không thì tính từ bookings array
+  const totalBookings = revenue?.totalBookings || bookings.length;
+  const completedBookings = revenue?.completedBookings || bookings.filter((b) => b.status === "COMPLETED" || b.status === "completed").length;
+  const pendingBookings = revenue?.pendingBookings || bookings.filter((b) => b.status === "PENDING" || b.status === "pending").length;
+  const cancelledBookings = revenue?.cancelledBookings || bookings.filter((b) => b.status === "CANCELLED" || b.status === "cancelled").length;
+  const confirmedBookings = bookings.filter((b) => b.status === "CONFIRMED" || b.status === "confirmed").length;
+  
+  // Tổng homestays: Ưu tiên từ API homestays, không thì từ revenue report
+  const totalHomestays = homestays.length || revenue?.totalHomestays || 0;
+  const approvedHomestays = homestays.filter((h) => h.status === "approved" || h.status === "2").length;
   const pendingRequests = homestayRequests.filter((r) => r.type === "CREATE").length;
 
-  const totalRevenue =
+  // Lấy doanh thu từ revenue report (ưu tiên totalRevenue từ BE)
+  const totalRevenue = revenue?.totalRevenue || 
     revenue?.items?.reduce((sum, item) => sum + (item.totalRevenue || 0), 0) || 0;
 
-  // Group users by role
-  const customerCount = users.filter((u) => u.role === "CUSTOMER").length;
-  const hostCount = users.filter((u) => u.role === "HOST").length;
-  const adminCount = users.filter((u) => u.role === "ADMIN").length;
-
-  // Group bookings by status
-  const pendingBookings = bookings.filter((b) => b.status === "PENDING").length;
-  const confirmedBookings = bookings.filter((b) => b.status === "CONFIRMED").length;
-  const completedBookings = bookings.filter((b) => b.status === "COMPLETED").length;
-  const cancelledBookings = bookings.filter((b) => b.status === "CANCELLED").length;
+  // Group users by role (exclude Admin from chart - Admin is unique account)
+  const customerCount = users.filter((u) => u.role === "CUSTOMER" || (u.roles && u.roles.includes("CUSTOMER"))).length;
+  const hostCount = users.filter((u) => u.role === "HOST" || (u.roles && u.roles.includes("HOST"))).length;
+  const nonAdminUsers = customerCount + hostCount; // Total users excluding Admin
 
   if (loading) {
     return (
@@ -122,6 +245,15 @@ const AdminMainDashboard = () => {
 
   return (
     <div className="admin-dashboard">
+      {/* Data Source Badge */}
+      {dataSource === 'mock' && (
+        <div className="data-source-badge">
+          <span className="badge-icon">⚠️</span>
+          <span className="badge-text">Đang sử dụng dữ liệu mẫu</span>
+          <span className="badge-hint">Vui lòng kiểm tra kết nối Backend API</span>
+        </div>
+      )}
+      
       {/* Quick Stats */}
       <div className="stats-grid">
         <div
@@ -197,13 +329,12 @@ const AdminMainDashboard = () => {
             <div className="pie-chart">
               <div className="pie-segment customer" style={{ 
                 background: `conic-gradient(
-                  #3b82f6 0% ${(customerCount / totalUsers) * 100}%,
-                  #ec4899 ${(customerCount / totalUsers) * 100}% ${((customerCount + hostCount) / totalUsers) * 100}%,
-                  #8b5cf6 ${((customerCount + hostCount) / totalUsers) * 100}% 100%
+                  #3b82f6 0% ${(customerCount / (customerCount + hostCount)) * 100}%,
+                  #ec4899 ${(customerCount / (customerCount + hostCount)) * 100}% 100%
                 )`
               }}>
                 <div className="pie-center">
-                  <div className="pie-total">{totalUsers}</div>
+                  <div className="pie-total">{customerCount + hostCount}</div>
                   <div className="pie-label">Tổng</div>
                 </div>
               </div>
@@ -218,11 +349,6 @@ const AdminMainDashboard = () => {
                 <span className="legend-dot" style={{ background: "#ec4899" }} />
                 <span>Chủ nhà</span>
                 <strong>{hostCount}</strong>
-              </div>
-              <div className="legend-item">
-                <span className="legend-dot" style={{ background: "#8b5cf6" }} />
-                <span>Admin</span>
-                <strong>{adminCount}</strong>
               </div>
             </div>
           </div>
@@ -239,7 +365,7 @@ const AdminMainDashboard = () => {
               <div className="bar-item">
                 <div className="bar-label">Chờ xử lý</div>
                 <div className="bar-wrapper">
-                  <div 
+                  <div
                     className="bar-fill pending"
                     style={{ width: `${totalBookings > 0 ? (pendingBookings / totalBookings) * 100 : 0}%` }}
                   >
@@ -292,24 +418,63 @@ const AdminMainDashboard = () => {
           <p className="card-subtitle">Homestay có doanh thu cao nhất</p>
         </div>
         <div className="chart-container">
-          <div className="horizontal-bar-chart">
-            {(revenue?.items || []).slice(0, 10).map((item, index) => {
-              const maxRevenue = Math.max(...(revenue?.items || []).map((i) => i.totalRevenue));
-              const percentage = maxRevenue > 0 ? (item.totalRevenue / maxRevenue) * 100 : 0;
-              return (
-                <div key={index} className="h-bar-item">
-                  <div className="h-bar-label">{item.homestayName}</div>
-                  <div className="h-bar-wrapper">
-                    <div 
-                      className="h-bar-fill"
-                      style={{ width: `${percentage}%` }}
-                    />
-                    <span className="h-bar-value">{item.totalRevenue.toLocaleString("vi-VN")} ₫</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          {loading ? (
+            <div className="chart-loading">
+              <div className="spinner" />
+              <p>Đang tải dữ liệu doanh thu...</p>
+            </div>
+          ) : (revenue?.items && revenue.items.length > 0) ? (
+            <div className="horizontal-bar-chart">
+              {revenue.items
+                .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                .slice(0, 10)
+                .map((item, index) => {
+                  const maxRevenue = Math.max(...(revenue.items || []).map((i) => i.totalRevenue));
+                  const percentage = maxRevenue > 0 ? (item.totalRevenue / maxRevenue) * 100 : 0;
+                  
+                  // Gradient colors based on ranking (top 3 get special colors)
+                  const getGradient = (rank: number) => {
+                    if (rank === 0) return "linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)"; // Gold
+                    if (rank === 1) return "linear-gradient(90deg, #94a3b8 0%, #64748b 100%)"; // Silver
+                    if (rank === 2) return "linear-gradient(90deg, #ea580c 0%, #c2410c 100%)"; // Bronze
+                    return "linear-gradient(90deg, #667eea 0%, #764ba2 33%, #f093fb 66%, #4facfe 100%)"; // Default
+                  };
+                  
+                  return (
+                    <div key={item.homestayId || index} className="h-bar-item">
+                      <div className="h-bar-rank" style={{ 
+                        color: index === 0 ? "#f59e0b" : index === 1 ? "#64748b" : index === 2 ? "#ea580c" : undefined 
+                      }}>
+                        #{index + 1}
+                      </div>
+                      <div className="h-bar-label" title={item.homestayName}>
+                        {item.homestayName}
+                      </div>
+                      <div className="h-bar-wrapper">
+                        <div
+                          className="h-bar-fill"
+                          style={{ 
+                            width: `${percentage}%`,
+                            background: getGradient(index)
+                          }}
+                        />
+                        <span className="h-bar-value">
+                          {item.totalRevenue.toLocaleString("vi-VN")} ₫
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className="chart-empty">
+              <div className="empty-icon">📊</div>
+              <p className="empty-title">Chưa có dữ liệu doanh thu</p>
+              <p className="empty-subtitle">
+                Dữ liệu doanh thu sẽ được hiển thị khi có booking hoàn thành
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -502,18 +667,36 @@ const AdminMainDashboard = () => {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          max-height: 500px;
-          overflow-y: auto;
+          overflow-x: hidden;
         }
 
         .h-bar-item {
           display: flex;
           gap: 12px;
           align-items: center;
+          padding: 4px 0;
+          transition: all 0.2s ease;
+        }
+
+        .h-bar-item:hover {
+          transform: translateX(4px);
+        }
+
+        .h-bar-rank {
+          min-width: 35px;
+          font-size: 14px;
+          font-weight: 700;
+          color: #0ea5e9;
+          text-align: center;
+        }
+
+        .dark .h-bar-rank {
+          color: #38bdf8;
         }
 
         .h-bar-label {
           min-width: 180px;
+          max-width: 180px;
           font-size: 13px;
           font-weight: 500;
           color: #4b5563;
@@ -728,6 +911,64 @@ const AdminMainDashboard = () => {
           justify-content: center;
           min-height: 400px;
           gap: 16px;
+        }
+
+        .chart-loading {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 300px;
+          gap: 12px;
+        }
+
+        .chart-loading p {
+          margin: 0;
+          color: #64748b;
+          font-size: 14px;
+        }
+
+        .dark .chart-loading p {
+          color: #94a3b8;
+        }
+
+        .chart-empty {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          min-height: 300px;
+          gap: 12px;
+          padding: 40px 20px;
+        }
+
+        .empty-icon {
+          font-size: 64px;
+          opacity: 0.5;
+          margin-bottom: 8px;
+        }
+
+        .empty-title {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .dark .empty-title {
+          color: #f1f5f9;
+        }
+
+        .empty-subtitle {
+          margin: 0;
+          font-size: 14px;
+          color: #64748b;
+          text-align: center;
+          max-width: 400px;
+        }
+
+        .dark .empty-subtitle {
+          color: #94a3b8;
         }
 
         .spinner {
@@ -1029,6 +1270,58 @@ const AdminMainDashboard = () => {
           background: #451a03;
           color: #fcd34d;
           border-color: #78350f;
+        }
+
+        /* Data Source Badge */
+        .data-source-badge {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px 20px;
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          border: 2px solid #fbbf24;
+          border-radius: 12px;
+          margin-bottom: 24px;
+          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.2);
+        }
+
+        .dark .data-source-badge {
+          background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+          border-color: #f59e0b;
+        }
+
+        .badge-icon {
+          font-size: 24px;
+          animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
+
+        .badge-text {
+          font-size: 15px;
+          font-weight: 600;
+          color: #92400e;
+        }
+
+        .dark .badge-text {
+          color: #fbbf24;
+        }
+
+        .badge-hint {
+          font-size: 13px;
+          color: #78350f;
+          margin-left: auto;
+        }
+
+        .dark .badge-hint {
+          color: #fcd34d;
         }
 
         /* Responsive */
