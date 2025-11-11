@@ -406,7 +406,12 @@ const HomestayFormPage = () => {
                 <div className="col-12 col-md-6 col-xl-4" key={`${image}-${index}`}>
                   <div className="card h-100 border">
                     <div className="ratio ratio-16x9">
-                      <img alt={`Image ${index + 1}`} className="card-img-top" src={image} style={{ objectFit: "cover" }} />
+                      <img
+                        alt={`Image ${index + 1}`}
+                        className="card-img-top"
+                        src={image}
+                        style={{ objectFit: "cover" }}
+                      />
                     </div>
                     <div className="card-body d-flex justify-content-between align-items-center">
                       <span className="text-truncate" title={image}>

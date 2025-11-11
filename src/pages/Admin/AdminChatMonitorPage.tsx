@@ -101,7 +101,9 @@ const AdminChatMonitorPage = () => {
     try {
       // TODO: Integrate with flag message API
       await new Promise((resolve) => setTimeout(resolve, 500));
-      setMessages((prev) => prev.map((msg) => (msg.id === messageId ? { ...msg, flagged: !msg.flagged } : msg)));
+      setMessages((prev) =>
+        prev.map((msg) => (msg.id === messageId ? { ...msg, flagged: !msg.flagged } : msg))
+      );
       showAlert("Message flagged for review", "success");
     } catch (error) {
       showAlert("Failed to flag message", "danger");
@@ -130,7 +132,9 @@ const AdminChatMonitorPage = () => {
   const handleLockAccount = async (userId: number, userName: string) => {
     if (
       typeof window !== "undefined" &&
-      !window.confirm(`Lock account for ${userName}? This will prevent them from accessing the system.`)
+      !window.confirm(
+        `Lock account for ${userName}? This will prevent them from accessing the system.`
+      )
     ) {
       return;
     }
@@ -155,7 +159,9 @@ const AdminChatMonitorPage = () => {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
         <div>
           <h1 className="h3 mb-2">Chat Monitoring</h1>
-          <p className="text-muted mb-0">Monitor conversations between guests and hosts for policy compliance.</p>
+          <p className="text-muted mb-0">
+            Monitor conversations between guests and hosts for policy compliance.
+          </p>
         </div>
         <div className="text-end">
           <div className="fw-semibold">Flagged conversations</div>
@@ -197,7 +203,8 @@ const AdminChatMonitorPage = () => {
                     Guest: {session.guestName} ↔ Host: {session.hostName}
                   </div>
                   <div className="text-muted small">
-                    {session.messageCount} messages • {new Date(session.lastMessageAt).toLocaleDateString()}
+                    {session.messageCount} messages •{" "}
+                    {new Date(session.lastMessageAt).toLocaleDateString()}
                   </div>
                 </div>
               ))
@@ -225,7 +232,9 @@ const AdminChatMonitorPage = () => {
               <div className="flex-grow-1 overflow-auto p-3" style={{ height: 0 }}>
                 {messages.map((msg) => (
                   <div key={msg.id} className="mb-3">
-                    <div className={`p-3 rounded ${msg.flagged ? "border border-danger" : "bg-light"}`}>
+                    <div
+                      className={`p-3 rounded ${msg.flagged ? "border border-danger" : "bg-light"}`}
+                    >
                       <div className="d-flex justify-content-between align-items-start mb-2">
                         <div>
                           <span className="fw-semibold">{msg.senderName}</span>
@@ -243,7 +252,9 @@ const AdminChatMonitorPage = () => {
                         </button>
                       </div>
                       <div>{msg.message}</div>
-                      <div className="text-muted small mt-2">{new Date(msg.timestamp).toLocaleString()}</div>
+                      <div className="text-muted small mt-2">
+                        {new Date(msg.timestamp).toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -268,7 +279,12 @@ const AdminChatMonitorPage = () => {
                   <button
                     className="btn btn-sm btn-outline-danger"
                     disabled={actionLoading}
-                    onClick={() => handleLockAccount(selectedSessionData?.id || 0, selectedSessionData?.guestName || "")}
+                    onClick={() =>
+                      handleLockAccount(
+                        selectedSessionData?.id || 0,
+                        selectedSessionData?.guestName || ""
+                      )
+                    }
                     type="button"
                   >
                     Lock Guest Account
@@ -276,7 +292,12 @@ const AdminChatMonitorPage = () => {
                   <button
                     className="btn btn-sm btn-outline-danger"
                     disabled={actionLoading}
-                    onClick={() => handleLockAccount(selectedSessionData?.id || 0, selectedSessionData?.hostName || "")}
+                    onClick={() =>
+                      handleLockAccount(
+                        selectedSessionData?.id || 0,
+                        selectedSessionData?.hostName || ""
+                      )
+                    }
                     type="button"
                   >
                     Lock Host Account

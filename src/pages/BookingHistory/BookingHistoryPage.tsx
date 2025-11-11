@@ -72,7 +72,12 @@ const BookingHistoryPage = () => {
           <h1 className="h3 mb-2">Booking History</h1>
           <p className="text-muted mb-0">Review your past and upcoming homestay reservations.</p>
         </div>
-        <button className="btn btn-outline-primary" disabled={loading} onClick={loadBookings} type="button">
+        <button
+          className="btn btn-outline-primary"
+          disabled={loading}
+          onClick={loadBookings}
+          type="button"
+        >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
@@ -102,7 +107,9 @@ const BookingHistoryPage = () => {
                     <div className="flex-grow-1">
                       <div className="d-flex align-items-center gap-2 mb-2">
                         <h5 className="card-title mb-0">{booking.homestayName}</h5>
-                        <span className={`badge ${getStatusBadgeClass(booking.status)} text-uppercase`}>
+                        <span
+                          className={`badge ${getStatusBadgeClass(booking.status)} text-uppercase`}
+                        >
                           {booking.status.replace("_", " ")}
                         </span>
                       </div>
@@ -123,7 +130,10 @@ const BookingHistoryPage = () => {
                     </div>
                     <div className="d-flex flex-column gap-2">
                       {booking.status === "checked_out" && (
-                        <a className="btn btn-sm btn-outline-primary" href={`/reviews?bookingId=${booking.id}`}>
+                        <a
+                          className="btn btn-sm btn-outline-primary"
+                          href={`/reviews?bookingId=${booking.id}`}
+                        >
                           Write Review
                         </a>
                       )}
@@ -132,9 +142,12 @@ const BookingHistoryPage = () => {
                           Request Cancellation
                         </button>
                       )}
-                      <a className="btn btn-sm btn-outline-secondary" href={`/bookings/${booking.id}`}>
+                      <a
+                        className="btn btn-sm btn-outline-secondary"
+                        href={`/bookings/${booking.id}`}
+                      >
                         View Details
-                        </a>
+                      </a>
                     </div>
                   </div>
                 </div>

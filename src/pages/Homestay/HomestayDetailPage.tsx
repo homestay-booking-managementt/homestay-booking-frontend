@@ -108,7 +108,12 @@ const HomestayDetailPage = () => {
           <Link className="btn btn-outline-primary" to={`/homestays/${homestay.id}/edit`}>
             Edit
           </Link>
-          <button className="btn btn-danger" disabled={deleting} onClick={handleDelete} type="button">
+          <button
+            className="btn btn-danger"
+            disabled={deleting}
+            onClick={handleDelete}
+            type="button"
+          >
             {deleting ? "Deleting..." : "Delete"}
           </button>
         </div>
@@ -119,7 +124,12 @@ const HomestayDetailPage = () => {
           {homestay.images.map((imageUrl, index) => (
             <div className="col-12 col-md-6 col-xl-4" key={`${imageUrl}-${index}`}>
               <div className="ratio ratio-16x9">
-                <img alt={`Image ${index + 1}`} className="rounded shadow-sm" src={imageUrl} style={{ objectFit: "cover" }} />
+                <img
+                  alt={`Image ${index + 1}`}
+                  className="rounded shadow-sm"
+                  src={imageUrl}
+                  style={{ objectFit: "cover" }}
+                />
               </div>
             </div>
           ))}

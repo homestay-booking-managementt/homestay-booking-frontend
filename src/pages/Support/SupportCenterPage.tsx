@@ -1,9 +1,4 @@
-import {
-  fetchFaqs,
-  sendChatFeedback,
-  sendChatMessage,
-  startChatSession,
-} from "@/api/chatApi";
+import { fetchFaqs, sendChatFeedback, sendChatMessage, startChatSession } from "@/api/chatApi";
 import type { ChatFeedbackPayload, ChatMessageResponse, FaqItem } from "@/types/chat";
 import { showAlert } from "@/utils/showAlert";
 import { useEffect, useState } from "react";
@@ -125,7 +120,12 @@ const SupportCenterPage = () => {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="card-title mb-0">Frequently asked questions</h5>
-                <button className="btn btn-sm btn-outline-secondary" disabled={loadingFaqs} onClick={loadFaqs} type="button">
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  disabled={loadingFaqs}
+                  onClick={loadFaqs}
+                  type="button"
+                >
                   {loadingFaqs ? "Refreshing..." : "Refresh"}
                 </button>
               </div>
@@ -169,11 +169,18 @@ const SupportCenterPage = () => {
             <div className="card-body d-flex flex-column">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="card-title mb-0">Live support</h5>
-                <button className="btn btn-sm btn-outline-primary" onClick={handleStartSession} type="button">
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={handleStartSession}
+                  type="button"
+                >
                   {sessionId ? "Restart session" : "Start session"}
                 </button>
               </div>
-              <div className="border rounded p-3 flex-grow-1 mb-3 overflow-auto" style={{ maxHeight: 320 }}>
+              <div
+                className="border rounded p-3 flex-grow-1 mb-3 overflow-auto"
+                style={{ maxHeight: 320 }}
+              >
                 {sessionId === null ? (
                   <div className="text-muted">Start a session to begin messaging support.</div>
                 ) : messages.length === 0 ? (
@@ -225,7 +232,9 @@ const SupportCenterPage = () => {
                 type="number"
                 min={1}
                 value={feedbackForm.messageId}
-                onChange={(event) => setFeedbackForm((prev) => ({ ...prev, messageId: event.target.value }))}
+                onChange={(event) =>
+                  setFeedbackForm((prev) => ({ ...prev, messageId: event.target.value }))
+                }
                 required
               />
             </div>
@@ -238,7 +247,9 @@ const SupportCenterPage = () => {
                 id="feedback-rating"
                 name="rating"
                 value={feedbackForm.rating}
-                onChange={(event) => setFeedbackForm((prev) => ({ ...prev, rating: event.target.value }))}
+                onChange={(event) =>
+                  setFeedbackForm((prev) => ({ ...prev, rating: event.target.value }))
+                }
               >
                 {[5, 4, 3, 2, 1].map((value) => (
                   <option key={value} value={value}>
@@ -256,7 +267,9 @@ const SupportCenterPage = () => {
                 id="feedback-comment"
                 name="comment"
                 value={feedbackForm.comment}
-                onChange={(event) => setFeedbackForm((prev) => ({ ...prev, comment: event.target.value }))}
+                onChange={(event) =>
+                  setFeedbackForm((prev) => ({ ...prev, comment: event.target.value }))
+                }
                 placeholder="Optional"
               />
             </div>
