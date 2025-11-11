@@ -7,50 +7,46 @@ export default function Register() {
     name: "",
     email: "",
     phone: "",
-    passwd: "",
-    role_name: "customer" as "customer" | "host",
+    password: "",
+    roleType: "customer" as "customer" | "host",
   });
   const [confirmPass, setConfirmPass] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
     // validate đơn giản
-    if (!form.name || !form.email || !form.passwd) {
+    if (!form.name || !form.email || !form.password) {
       setError("Vui lòng nhập đầy đủ Họ tên, Email và Mật khẩu.");
       return;
     }
-    if (form.passwd.length < 6) {
+    if (form.password.length < 6) {
       setError("Mật khẩu phải từ 6 ký tự trở lên.");
       return;
     }
-    if (confirmPass !== form.passwd) {
+    if (confirmPass !== form.password) {
       setError("Xác nhận mật khẩu không khớp.");
       return;
     }
 
     setLoading(true);
     try {
-      // Cách 1: gửi role_name (khuyên dùng nếu BE nhận tên role)
       const res = await registerSimple(form);
 
-      // Cách 2 (nếu BE bắt role_id): dùng biến môi trường để map
-      // const CUSTOMER_ID = Number(import.meta.env.VITE_ROLE_CUSTOMER_ID || 1);
-      // const HOST_ID = Number(import.meta.env.VITE_ROLE_HOST_ID || 2);
-      // const res = await registerWithRoleId({
-      //   name: form.name,
-      //   email: form.email,
-      //   phone: form.phone || undefined,
-      //   passwd: form.passwd,
-      //   role_id: form.role_name === "customer" ? CUSTOMER_ID : HOST_ID,
-      // });
-
       if (res.status === 200 || res.status === 201) {
-        navigate("/login");
+        if (form.roleType === "host") {
+          setSuccess("Đăng ký thành công! Tài khoản Host đang chờ admin phê duyệt. Bạn sẽ nhận được thông báo qua email.");
+          setTimeout(() => navigate("/login"), 3000);
+        } else {
+          setSuccess("Đăng ký thành công! Đang chuyển đến trang đăng nhập...");
+          setTimeout(() => navigate("/login"), 2000);
+        }
       } else {
         setError("Đăng ký thất bại. Vui lòng thử lại.");
       }
@@ -81,6 +77,7 @@ export default function Register() {
               </div>
 
               {error && <div className="alert alert-danger">{error}</div>}
+              {success && <div className="alert alert-success">{success}</div>}
 
               <form onSubmit={handleSubmit} className="needs-validation" noValidate>
                 <div className="row g-4">
@@ -133,8 +130,8 @@ export default function Register() {
                         type="password"
                         className="form-control form-control-lg bg-white bg-opacity-75 border-0"
                         placeholder="••••••••"
-                        value={form.passwd}
-                        onChange={(e) => setForm({ ...form, passwd: e.target.value })}
+                        value={form.password}
+                        onChange={(e) => setForm({ ...form, password: e.target.value })}
                         required
                         disabled={loading}
                       />
@@ -160,26 +157,29 @@ export default function Register() {
                         <label className="text-white-75">
                           <input
                             type="radio"
-                            name="role_name"
+                            name="roleType"
                             value="customer"
-                            checked={form.role_name === "customer"}
-                            onChange={() => setForm({ ...form, role_name: "customer" })}
+                            checked={form.roleType === "customer"}
+                            onChange={() => setForm({ ...form, roleType: "customer" })}
                             disabled={loading}
                           />{" "}
-                          Khách hàng
+                          Khách hàng (kích hoạt ngay)
                         </label>
                         <label className="text-white-75">
                           <input
                             type="radio"
-                            name="role_name"
+                            name="roleType"
                             value="host"
-                            checked={form.role_name === "host"}
-                            onChange={() => setForm({ ...form, role_name: "host" })}
+                            checked={form.roleType === "host"}
+                            onChange={() => setForm({ ...form, roleType: "host" })}
                             disabled={loading}
                           />{" "}
-                          Chủ homestay
+                          Chủ homestay (cần duyệt)
                         </label>
                       </div>
+                      <small className="text-white-50 d-block mt-2">
+                        {form.roleType === "host" && "⚠️ Tài khoản Host cần được admin phê duyệt trước khi sử dụng."}
+                      </small>
                     </div>
 
                     <button

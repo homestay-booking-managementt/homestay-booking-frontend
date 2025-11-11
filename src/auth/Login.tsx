@@ -19,15 +19,21 @@ export default function Login() {
     const result = await dispatch(loginRequest({ identifier, password }));
 
     if (loginRequest.fulfilled.match(result)) {
-      navigate("/me");
+      // Điều hướng dựa trên role
+      const user = result.payload.user;
+      const roles = user?.roles || [];
+      
+      if (roles.includes("ADMIN")) {
+        navigate("/admin");
+      } else if (roles.includes("HOST")) {
+        navigate("/host");
+      } else {
+        navigate("/");
+      }
     }
     else if (loginRequest.rejected.match(result)) {
-      const status = (result.payload as any)?.status;
-      if (status === 401) {
-        setError("Sai tên đăng nhập hoặc mật khẩu."); 
-      } else {
-        setError("Đăng nhập thất bại. Vui lòng thử lại sau.");
-      }
+      const message = (result.payload as any)?.message;
+      setError(message || "Đăng nhập thất bại. Vui lòng thử lại sau.");
     }
   };
 

@@ -11,7 +11,7 @@ type RefreshTokenRequestFunction = () => Promise<void | RefreshTokenResult>;
 let refreshTokenRequest: Promise<void | RefreshTokenResult> | null = null;
 
 /** BẬT khi chỉ test FE (mock API) -> không auto-refresh/redirect 401 */
-const USE_MOCK = true;
+const USE_MOCK = false;
 
 /** Nhận diện route auth: /auth/* hoặc /api/auth/* */
 const isAuthRoute = (url?: string) => {

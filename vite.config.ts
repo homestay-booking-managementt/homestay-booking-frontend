@@ -14,7 +14,12 @@ export default defineConfig({
     port: 3200,
     host: "0.0.0.0",
     proxy: {
-      // FE gọi /auth/... -> Vite proxy sang backend
+      // FE gọi /auth/... -> Vite proxy sang auth-service
+      "/auth": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+        secure: false
+      },
       "/api": {
         target: "http://localhost:3203",
         changeOrigin: true,

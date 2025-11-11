@@ -88,7 +88,6 @@ const initialState: AuthState = {
   permissions: undefined,
 };
 
-// === authSlice.ts - sửa thunk login ===
 export const loginRequest = createAsyncThunk<
   { idToken: string; refreshToken?: string; user?: any },
   { identifier: string; password: string },
@@ -98,15 +97,12 @@ export const loginRequest = createAsyncThunk<
     const res = await loginSimple({ identifier, password });
     const { idToken, refreshToken, user } = res.data;
 
-    // mock đã set localStorage rồi; để chắc, có thể set lại:
-    if (idToken) localStorage.setItem("id_token", idToken);
-    if (refreshToken) localStorage.setItem("refresh_token", refreshToken);
-
+    // Token đã được lưu trong loginSimple
     return { idToken, refreshToken, user };
   } catch (err: any) {
     return rejectWithValue({
       status: err?.response?.status ?? 0,
-      message: err?.response?.data?.message || "Đăng nhập thất bại",
+      message: err?.response?.data?.message || err.message || "Đăng nhập thất bại",
     });
   }
 });
@@ -157,13 +153,21 @@ export const authSlice = createSlice({
         // Lưu user & quyền nếu có
         if (action.payload.user) {
           state.currentUser.userId = action.payload.user.id ?? null;
-          state.currentUser.userName = action.payload.user.user_name ?? null;
-          state.currentUser.roleId = action.payload.user.role_id ?? null;
-          state.currentUser.isAdmin = !!action.payload.user.is_admin;
-          state.currentUser.isActive = !!action.payload.user.is_active;
-        }
-        if (action.payload.role_permissions) {
-          state.permissions = action.payload.role_permissions;
+          state.currentUser.userName = action.payload.user.name ?? null;
+          
+          // Xác định role từ roles array
+          const roles = action.payload.user.roles || [];
+          state.currentUser.isAdmin = roles.includes("ADMIN");
+          state.currentUser.isActive = action.payload.user.status === 1;
+          
+          // Lưu roleId nếu cần (có thể dùng để phân biệt)
+          if (roles.includes("ADMIN")) {
+            state.currentUser.roleId = 1;
+          } else if (roles.includes("HOST")) {
+            state.currentUser.roleId = 2;
+          } else if (roles.includes("CUSTOMER")) {
+            state.currentUser.roleId = 3;
+          }
         }
       })
       .addCase(loginRequest.rejected, (state, action) => {

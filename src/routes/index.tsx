@@ -9,18 +9,11 @@ import ComplaintCenterPage from "@/pages/Complaints";
 import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
 import {
-  AdminDashboardPage,
-  AdminHomestayApprovalPage,
-  AdminChatMonitorPage,
-  AdminSystemStatsPage,
-} from "@/pages/Admin";
-import {
   HomestayDetailPage,
   HomestayFormPage,
   HomestayListPage,
   MyHomestaysPage,
 } from "@/pages/Homestay";
-import { HostBookingManagementPage, HostChatPage, HostRevenueReportPage } from "@/pages/Host";
 import AdminLayout from "@/pages/Admin/AdminLayout";
 import AdminMainDashboard from "@/pages/Admin/AdminMainDashboard";
 import AdminUsersPage from "@/pages/Admin/AdminUsersPage";
@@ -31,16 +24,15 @@ import AdminBookingsPage from "@/pages/Admin/AdminBookingsPage";
 import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
 import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
 import AdminSettingsPage from "@/pages/Admin/AdminSettingsPage";
-import { HomestayDetailPage, HomestayFormPage, HomestayListPage, MyHomestaysPage } from "@/pages/Homestay";
-import { 
-  HostChatPage,
+import {
   HostLayout,
   HostDashboardPage,
   HostHomestayListPage,
   HostBookingRequestsPage,
   HostPaymentTransfersPage,
   HostRevenueStatsPage,
-  HostSettingsPage
+  HostSettingsPage,
+  HostChatPage,
 } from "@/pages/Host";
 import PaymentPortalPage from "@/pages/Payment";
 import ProfilePage from "@/pages/Profile";
@@ -138,172 +130,86 @@ const PrivateRoutes = [
             path: "me",
             element: <Me />,
           },
+        ],
+      },
+      {
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
           {
-            path: "host/bookings",
-            element: <HostBookingManagementPage />,
+            index: true,
+            element: <AdminMainDashboard />,
           },
           {
-            path: "host/revenue",
-            element: <HostRevenueReportPage />,
+            path: "users",
+            element: <AdminUsersPage />,
           },
           {
-            path: "host/chat",
+            path: "homestays",
+            element: <AdminHomestayListPage />,
+          },
+          {
+            path: "homestays/pending",
+            element: <AdminHomestaysPage />,
+          },
+          {
+            path: "homestays/update-requests",
+            element: <AdminHomestayUpdateRequestsPage />,
+          },
+          {
+            path: "bookings",
+            element: <AdminBookingsPage />,
+          },
+          {
+            path: "revenue",
+            element: <AdminRevenuePage />,
+          },
+          {
+            path: "complaints",
+            element: <AdminComplaintsPage />,
+          },
+          {
+            path: "settings",
+            element: <AdminSettingsPage />,
+          },
+        ],
+      },
+      {
+        path: "/host",
+        element: <HostLayout />,
+        children: [
+          {
+            index: true,
+            element: <HostDashboardPage />,
+          },
+          {
+            path: "dashboard",
+            element: <HostDashboardPage />,
+          },
+          {
+            path: "homestays",
+            element: <HostHomestayListPage />,
+          },
+          {
+            path: "booking-requests",
+            element: <HostBookingRequestsPage />,
+          },
+          {
+            path: "revenue",
+            element: <HostRevenueStatsPage />,
+          },
+          {
+            path: "payments",
+            element: <HostPaymentTransfersPage />,
+          },
+          {
+            path: "chat",
             element: <HostChatPage />,
           },
           {
-            path: "admin",
-            element: <AdminDashboardPage />,
+            path: "settings",
+            element: <HostSettingsPage />,
           },
-          {
-            path: "admin/homestays",
-            element: <AdminHomestayApprovalPage />,
-          },
-          {
-            path: "admin/chat-monitor",
-            element: <AdminChatMonitorPage />,
-          },
-          {
-            path: "admin/statistics",
-            element: <AdminSystemStatsPage />,
-          },
-            {
-                path: "/",
-                element: <DashboardPage />,
-                children: [
-                    {
-                        index: true,
-                        element: <DashboardHome />,
-                    },
-                    {
-                        path: "homestays",
-                        element: <HomestayListPage />,
-                    },
-                    {
-                        path: "homestays/new",
-                        element: <HomestayFormPage />,
-                    },
-                    {
-                        path: "homestays/mine",
-                        element: <MyHomestaysPage />,
-                    },
-                    {
-                        path: "homestays/:homestayId",
-                        element: <HomestayDetailPage />,
-                    },
-                    {
-                        path: "homestays/:homestayId/edit",
-                        element: <HomestayFormPage />,
-                    },
-                    {
-                        path: "bookings",
-                        element: <BookingDashboardPage />,
-                    },
-                    {
-                        path: "bookings/history",
-                        element: <BookingHistoryPage />,
-                    },
-                    {
-                        path: "payments",
-                        element: <PaymentPortalPage />,
-                    },
-                    {
-                        path: "reviews",
-                        element: <ReviewCenterPage />,
-                    },
-                    {
-                        path: "complaints",
-                        element: <ComplaintCenterPage />,
-                    },
-                    {
-                        path: "support",
-                        element: <SupportCenterPage />,
-                    },
-                    {
-                        path: "profile",
-                        element: <ProfilePage />,
-                    },
-                ],
-            },
-            {
-                path: "/admin",
-                element: <AdminLayout />,
-                children: [
-                    {
-                        index: true,
-                        element: <AdminMainDashboard />,
-                    },
-                    {
-                        path: "users",
-                        element: <AdminUsersPage />,
-                    },
-                    {
-                        path: "homestays",
-                        element: <AdminHomestayListPage />,
-                    },
-                    {
-                        path: "homestays/pending",
-                        element: <AdminHomestaysPage />,
-                    },
-                    {
-                        path: "homestays/update-requests",
-                        element: <AdminHomestayUpdateRequestsPage />,
-                    },
-                    {
-                        path: "bookings",
-                        element: <AdminBookingsPage />,
-                    },
-                    {
-                        path: "revenue",
-                        element: <AdminRevenuePage />,
-                    },
-                    {
-                        path: "complaints",
-                        element: <AdminComplaintsPage />,
-                    },
-                    {
-                        path: "settings",
-                        element: <AdminSettingsPage />,
-                    },
-                ],
-            },
-            {
-                path: "/host",
-                element: <HostLayout />,
-                children: [
-                    {
-                        index: true,
-                        element: <HostDashboardPage />,
-                    },
-                    {
-                        path: "dashboard",
-                        element: <HostDashboardPage />,
-                    },
-                    {
-                        path: "homestays",
-                        element: <HostHomestayListPage />,
-                    },
-                    {
-                        path: "booking-requests",
-                        element: <HostBookingRequestsPage />,
-                    },
-                    {
-                        path: "revenue",
-                        element: <HostRevenueStatsPage />,
-                    },
-                    {
-                        path: "payments",
-                        element: <HostPaymentTransfersPage />,
-                    },
-                    {
-                        path: "chat",
-                        element: <HostChatPage />,
-                    },
-                    {
-                        path: "settings",
-                        element: <HostSettingsPage />,
-                    },
-                ],
-            },
         ],
       },
     ],
