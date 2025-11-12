@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import "@/styles/BookingPaymentModal.css"
 interface BookingPaymentModalProps {
   show: boolean;
   onClose: () => void;
@@ -52,66 +52,66 @@ const BookingPaymentModal: React.FC<BookingPaymentModalProps> = ({
 
   return (
     <div
-      className={`modal ${show ? "show" : "fade"}`}
-      style={{
-        display: show ? "block" : "none",
-        backgroundColor: show ? "rgba(0,0,0,0.5)" : "transparent",
-      }}
+      className={`custom-modal ${show ? "show" : ""}`}
+      onClick={onClose}
     >
-      <div className="modal-dialog modal-dialog-centered">
-        <div className="modal-content shadow-lg rounded-4">
-          <div className="modal-header">
-            <h5 className="modal-title fw-bold">Xác nhận thanh toán</h5>
-            <button type="button" className="btn-close" onClick={onClose}></button>
+      <div
+        className="custom-modal-dialog"
+        onClick={(e) => e.stopPropagation()} // tránh click tắt khi bấm bên trong
+      >
+        <div className="modal-header border-0">
+          <h5 className="modal-title fw-bold">Xác nhận thanh toán</h5>
+          <button type="button" className="btn-close" onClick={onClose}></button>
+        </div>
+
+        <div className="modal-body">
+          <p><strong>Homestay:</strong> {bookingInfo.homestayName}</p>
+          <p><strong>Thời gian:</strong> {fmtDate(bookingInfo.checkIn)} → {fmtDate(bookingInfo.checkOut)}</p>
+          <p><strong>Số đêm:</strong> {bookingInfo.nights}</p>
+
+          <p className="fw-bold mb-1">
+            Tổng tiền gốc: {bookingInfo.totalPrice.toLocaleString("vi-VN")} ₫
+          </p>
+
+          {discount > 0 && (
+            <p className="text-success mb-1">Giảm giá: {discount * 100}%</p>
+          )}
+
+          <p className="text-primary fw-bold fs-5">
+            Thành tiền: {finalPrice.toLocaleString("vi-VN")} ₫
+          </p>
+
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Phương thức thanh toán</label>
+            <select
+              className="form-select"
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+            >
+              <option value="bank">Chuyển khoản ngân hàng</option>
+              <option value="momo">Ví MoMo</option>
+              <option value="zalo">ZaloPay</option>
+              <option value="credit">Thẻ tín dụng</option>
+            </select>
           </div>
 
-          <div className="modal-body">
-            <p><strong>Homestay:</strong> {bookingInfo.homestayName}</p>
-            <p><strong>Thời gian:</strong> {fmtDate(bookingInfo.checkIn)} → {fmtDate(bookingInfo.checkOut)}</p>
-            <p><strong>Số đêm:</strong> {bookingInfo.nights}</p>
-
-            <p className="fw-bold mb-1">
-              Tổng tiền gốc: {bookingInfo.totalPrice.toLocaleString("vi-VN")} ₫
-            </p>
-
-            {discount > 0 && (
-              <p className="text-success mb-1">Giảm giá: {discount * 100}%</p>
-            )}
-
-            <p className="text-primary fw-bold fs-5">
-              Thành tiền: {finalPrice.toLocaleString("vi-VN")} ₫
-            </p>
-
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Phương thức thanh toán</label>
-              <select
-                className="form-select"
-                value={method}
-                onChange={(e) => setMethod(e.target.value)}
-              >
-                <option value="bank">Chuyển khoản ngân hàng</option>
-                <option value="momo">Ví MoMo</option>
-                <option value="zalo">ZaloPay</option>
-                <option value="credit">Thẻ tín dụng</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="form-label fw-semibold">Mã thanh toán</label>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nhập mã thanh toán..."
-                value={code}
-                onChange={(e) => handleCodeChange(e.target.value)}
-              />
-            </div>
+          <div>
+            <label className="form-label fw-semibold">Mã thanh toán</label>
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Nhập mã thanh toán..."
+              value={code}
+              onChange={(e) => handleCodeChange(e.target.value)}
+            />
           </div>
+        </div>
 
-          <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
-            <button className="btn btn-primary" onClick={handleConfirm}>Xác nhận thanh toán</button>
-          </div>
+        <div className="modal-footer border-0">
+          <button className="btn btn-secondary" onClick={onClose}>Hủy</button>
+          <button className="btn btn-primary" onClick={handleConfirm}>
+            Xác nhận thanh toán
+          </button>
         </div>
       </div>
     </div>

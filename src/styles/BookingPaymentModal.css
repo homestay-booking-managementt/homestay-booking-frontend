@@ -1,0 +1,71 @@
+/* ==========================
+   Fullscreen custom modal
+   ========================== */
+.custom-modal {
+    
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.custom-modal.show {
+  opacity: 1;
+  pointer-events: auto;
+  padding: 10px;
+}
+
+/* Modal content full width/height responsive */
+.custom-modal-dialog {
+  width: 90%;
+  max-width: 600px;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  border-radius: 1rem;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 0.4s ease forwards;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode */
+[data-bs-theme="dark"] .custom-modal-dialog {
+  background-color: #161b22;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+}
+/* Nếu muốn tách riêng header/body/footer cho đồng bộ Bootstrap */
+.custom-modal-dialog .modal-header,
+.custom-modal-dialog .modal-body,
+.custom-modal-dialog .modal-footer {
+  padding: 1rem 1.25rem;
+}
+
+/* Giữ border-radius và khoảng cách đều */
+.custom-modal-dialog .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.custom-modal-dialog .modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.custom-modal-dialog .btn{
+    margin: 0 5px;
+}
