@@ -86,9 +86,6 @@ const HomestayListPage = () => {
             Duyệt qua các homestay hiện có trong hệ thống.
           </p>
         </div>
-        <Link className="btn btn-primary mt-3 mt-md-0" to="/homestays/new">
-          + Thêm Homestay
-        </Link>
       </div>
 
       {/* Bộ lọc */}
@@ -201,13 +198,13 @@ const HomestayListPage = () => {
                     </p>
                     <p className="mb-1">
                       <strong>Giá cơ bản:</strong>{" "}
-                      {formatCurrency(homestay.base_price)}
+                      {formatCurrency(homestay.basePrice)}
                     </p>
                     <p className="mb-1">
                       <strong>Sức chứa:</strong> {homestay.capacity} khách
                     </p>
                     <p className="mb-1">
-                      <strong>Số phòng:</strong> {homestay.num_rooms || "--"}
+                      <strong>Số phòng:</strong> {homestay.numRooms || "--"}
                     </p>
                     <p className="mb-1">
                       <strong>Xếp hạng:</strong>{" "}
@@ -223,13 +220,20 @@ const HomestayListPage = () => {
                       </p>
                     )}
 
-                    {/* Link xem chi tiết */}
-                    <div className="mt-3">
+                    <div className="row d-flex flex-row gap-2">
                       <Link
                         className="btn btn-outline-primary w-100"
                         to={`/homestays/${homestay.id}`}
                       >
                         Xem chi tiết
+                      </Link>
+                      <Link
+                        className="btn btn-outline-primary w-100"
+                        to={`/bookings?homestayId=${homestay.id}${
+                          filters.checkIn ? `&checkIn=${filters.checkIn}` : ""
+                        }${filters.checkOut ? `&checkOut=${filters.checkOut}` : ""}`}
+                      >
+                        Đặt phòng
                       </Link>
                     </div>
                   </div>

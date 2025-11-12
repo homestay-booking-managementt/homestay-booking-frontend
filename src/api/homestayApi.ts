@@ -1,16 +1,32 @@
 import type { Homestay, HomestayFilters, HomestayPayload } from "@/types/homestay";
 import { sendRequest } from "@/utils/sendRequest";
 
-export const fetchHomestays = (filters?: HomestayFilters) =>
-  sendRequest("/homestays", {
-    method: "GET",
-    payload: filters,
-  });
+  export const fetchHomestays = async (filters?: HomestayFilters) => {
+  const query = filters
+    ? "?" +
+      new URLSearchParams(
+        Object.entries(filters).reduce((acc, [k, v]) => {
+          if (v !== undefined && v !== null && v !== "") acc[k] = String(v);
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString()
+    : "";
 
-export const fetchHomestayById = (homestayId: number) =>
-  sendRequest(`/homestays/${homestayId}`, {
+  const res = await sendRequest(`http://localhost:8082/api/homestays${query}`, {
     method: "GET",
-  }) as Promise<Homestay>;
+  });
+  return res?.data ?? [];
+};
+
+// export const fetchHomestayById = (homestayId: number) =>
+//   sendRequest(`/homestays/${homestayId}`, {
+//     method: "GET",
+//   }) as Promise<Homestay>;
+export const fetchHomestayById = async (homestayId: number): Promise<Homestay | undefined> => {
+  const allHomestays = await fetchHomestays();
+  const homestay = allHomestays.find((h) => h.id === homestayId);
+  return homestay;
+};
 
 export const createHomestay = (payload: HomestayPayload) =>
   sendRequest("/homestays", {

@@ -142,7 +142,7 @@ const ReviewHomestayPage = () => {
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const res = await fetch(`http://localhost:8084/api/v1/bookings/${bookingId}?userId=1`);
+        const res = await fetch(`http://localhost:8084/api/v1/bookings?userId=1`);
         if (!res.ok) throw new Error("Không thể tải thông tin booking!");
         const data = await res.json();
         setBooking(data);

@@ -61,7 +61,7 @@ const Header = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-lg-center">
-            <li className="nav-item dropdown">
+            {/* <li className="nav-item dropdown">
               <a
                 className="nav-link dropdown-toggle fw-medium"
                 href="#"
@@ -75,12 +75,12 @@ const Header = () => {
               <ul className="dropdown-menu dropdown-menu-end">
                 <li>
                   <NavLink
-                    className="dropdown-item"
+                    className="nav-link dropdown-toggle fw-medium"
                     to="/homestays"
                     end
                     title="Browse all available homestays"
                   >
-                    <i className="bi bi-grid me-2"></i>All Homestays
+                    <i className="bi bi-grid me-2"></i>Homestay
                   </NavLink>
                 </li>
                 <li>
@@ -102,7 +102,17 @@ const Header = () => {
                   </NavLink>
                 </li>
               </ul>
-            </li>
+            </li> */}
+            <li className="nav-item">
+                  <NavLink
+                    className={navLinkClass}
+                    to="/homestays"
+                    end
+                    title="Browse all available homestays"
+                  >
+                    <i className="bi bi-grid me-2"></i>Home
+                  </NavLink>
+                </li>
             <li className="nav-item">
               <NavLink
                 className={navLinkClass}
@@ -122,25 +132,10 @@ const Header = () => {
                 History
               </NavLink>
             </li>
-            <li className="nav-item">
-              <NavLink className={navLinkClass} to="/payments" title="View and manage payments">
-                Payments
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink className={navLinkClass} to="/reviews" title="Read and write reviews">
-                Reviews
-              </NavLink>
-            </li>
-            <li className="nav-item">
-              <NavLink
-                className={navLinkClass}
-                to="/complaints"
-                title="Submit and track complaints"
-              >
-                Complaints
-              </NavLink>
-            </li>
+            
+            
+            
+           
             <li className="nav-item">
               <NavLink className={navLinkClass} to="/support" title="Get help and support">
                 Support
@@ -151,94 +146,7 @@ const Header = () => {
                 Profile
               </NavLink>
             </li>
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle fw-medium"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                title="Host management tools"
-              >
-                Host
-              </a>
-              <ul className="dropdown-menu dropdown-menu-end">
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/host/bookings"
-                    title="Manage guest bookings for your homestays"
-                  >
-                    <i className="bi bi-calendar-check me-2"></i>Manage Bookings
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/host/revenue"
-                    title="View your revenue and earnings"
-                  >
-                    <i className="bi bi-graph-up me-2"></i>Revenue Report
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink className="dropdown-item" to="/host/chat" title="Chat with your guests">
-                    <i className="bi bi-chat-dots me-2"></i>Guest Messages
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
-            <li className="nav-item dropdown">
-              <a
-                className="nav-link dropdown-toggle fw-medium"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                title="Administrator tools and settings"
-              >
-                Admin
-              </a>
-              <ul className="dropdown-menu dropdown-menu-end">
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/admin"
-                    end
-                    title="View admin dashboard and overview"
-                  >
-                    <i className="bi bi-speedometer2 me-2"></i>Dashboard
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/admin/homestays"
-                    title="Approve or reject homestay listings"
-                  >
-                    <i className="bi bi-check-circle me-2"></i>Homestay Approval
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/admin/chat-monitor"
-                    title="Monitor chat conversations"
-                  >
-                    <i className="bi bi-eye me-2"></i>Chat Monitor
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink
-                    className="dropdown-item"
-                    to="/admin/statistics"
-                    title="View system usage statistics"
-                  >
-                    <i className="bi bi-bar-chart me-2"></i>System Statistics
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
+            
             <li className="nav-item">
               <button
                 className="nav-link btn btn-link text-danger fw-medium"
@@ -249,7 +157,7 @@ const Header = () => {
                 Logout
               </button>
             </li>
-            <li className="nav-item ms-lg-2">
+            {/* <li className="nav-item ms-lg-2">
               <button
                 className="btn btn-outline-secondary btn-sm rounded-pill"
                 onClick={handleToggleTheme}
@@ -290,7 +198,7 @@ const Header = () => {
                   </svg>
                 )}
               </button>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>
