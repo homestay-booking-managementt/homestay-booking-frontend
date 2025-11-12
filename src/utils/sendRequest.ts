@@ -88,16 +88,11 @@ interface RequestOptions {
   headers?: AxiosRequestConfig["headers"];
 }
 
-/** ✅ Thêm base URL cho mock JSON Server */
-const API_BASE_URL = "http://localhost:3001";
-
 export const sendRequest = async (url: string, options?: Partial<RequestOptions>) => {
   const method = options?.method || "GET";
 
-  /** ✅ Nếu url không bắt đầu bằng http thì tự nối baseURL */
-  const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
-
-  const config: AxiosRequestConfig = { method, url: fullUrl };
+  // Sử dụng url trực tiếp - Vite proxy sẽ xử lý việc chuyển tiếp request
+  const config: AxiosRequestConfig = { method, url };
 
   // ✅ Payload cho GET và POST/PUT/DELETE
   if (options?.payload) {

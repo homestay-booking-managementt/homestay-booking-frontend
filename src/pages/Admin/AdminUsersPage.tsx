@@ -37,9 +37,14 @@ const AdminUsersPage = () => {
   const loadUsers = async () => {
     setLoading(true);
     try {
+      console.log("🟢 [AdminUsersPage] Calling fetchUsers...");
       const data = await fetchUsers();
+      console.log("🟢 [AdminUsersPage] Received data:", data);
+      console.log("🟢 [AdminUsersPage] Is array?", Array.isArray(data));
       setUsers(Array.isArray(data) ? data : []);
+      console.log("🟢 [AdminUsersPage] Users set, length:", Array.isArray(data) ? data.length : 0);
     } catch (error) {
+      console.error("🔴 [AdminUsersPage] Error loading users:", error);
       showAlert("Không thể tải danh sách người dùng", "danger");
     } finally {
       setLoading(false);
