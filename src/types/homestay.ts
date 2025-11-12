@@ -61,9 +61,15 @@ export interface HomestayPayload {
   images?: string[];
 }
 
-// --------------------
-// Bộ lọc homestay
-// --------------------
+export interface Homestay extends HomestayPayload {
+  id: number;
+  ownerId?: number;
+  status?: string;
+  isUpdate?: boolean; // true if pending update, false if pending create
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface HomestayFilters {
   city?: string;
   capacity?: number;

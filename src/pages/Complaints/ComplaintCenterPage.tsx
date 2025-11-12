@@ -61,9 +61,7 @@ const ComplaintCenterPage = () => {
     <div className="container">
       <div className="mb-4">
         <h1 className="h3 mb-2">Complaint center</h1>
-        <p className="text-muted mb-0">
-          Track open issues and raise new complaints for follow-up.
-        </p>
+        <p className="text-muted mb-0">Track open issues and raise new complaints for follow-up.</p>
       </div>
 
       <div className="row g-4">
@@ -81,7 +79,9 @@ const ComplaintCenterPage = () => {
                     id="complaint-subject"
                     name="subject"
                     value={formState.subject}
-                    onChange={(event) => setFormState((prev) => ({ ...prev, subject: event.target.value }))}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, subject: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -95,7 +95,9 @@ const ComplaintCenterPage = () => {
                     name="content"
                     rows={4}
                     value={formState.content}
-                    onChange={(event) => setFormState((prev) => ({ ...prev, content: event.target.value }))}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, content: event.target.value }))
+                    }
                     required
                   />
                 </div>
@@ -110,7 +112,9 @@ const ComplaintCenterPage = () => {
                     type="number"
                     min={1}
                     value={formState.bookingId}
-                    onChange={(event) => setFormState((prev) => ({ ...prev, bookingId: event.target.value }))}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, bookingId: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-md-6">
@@ -124,7 +128,9 @@ const ComplaintCenterPage = () => {
                     type="number"
                     min={1}
                     value={formState.homestayId}
-                    onChange={(event) => setFormState((prev) => ({ ...prev, homestayId: event.target.value }))}
+                    onChange={(event) =>
+                      setFormState((prev) => ({ ...prev, homestayId: event.target.value }))
+                    }
                   />
                 </div>
                 <div className="col-12 text-end">
@@ -142,7 +148,12 @@ const ComplaintCenterPage = () => {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="card-title mb-0">My complaints</h5>
-                <button className="btn btn-sm btn-outline-secondary" disabled={loading} onClick={loadComplaints} type="button">
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  disabled={loading}
+                  onClick={loadComplaints}
+                  type="button"
+                >
                   {loading ? "Refreshing..." : "Refresh"}
                 </button>
               </div>
@@ -157,7 +168,9 @@ const ComplaintCenterPage = () => {
                       <div className="d-flex justify-content-between align-items-center">
                         <div>
                           <div className="fw-semibold">{complaint.subject}</div>
-                          <div className="text-muted small">Status: {complaint.status ?? "pending"}</div>
+                          <div className="text-muted small">
+                            Status: {complaint.status ?? "pending"}
+                          </div>
                         </div>
                         <div className="text-muted small">{complaint.createdAt ?? "--"}</div>
                       </div>
