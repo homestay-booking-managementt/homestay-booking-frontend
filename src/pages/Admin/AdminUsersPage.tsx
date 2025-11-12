@@ -29,6 +29,10 @@ const AdminUsersPage = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [statusHistory, setStatusHistory] = useState<UserStatusHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 8;
 
   useEffect(() => {
     loadUsers();
@@ -130,6 +134,62 @@ const AdminUsersPage = () => {
       user.id.toString().includes(searchQuery);
     return matchesFilter && matchesSearch;
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Reset to page 1 when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, searchQuery]);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const showRange = 2; // Số trang hiển thị xung quanh trang hiện tại
+
+    if (totalPages <= 7) {
+      // Nếu tổng số trang <= 7, hiển thị tất cả
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Luôn hiển thị trang đầu
+      pages.push(1);
+
+      // Tính toán range xung quanh trang hiện tại
+      const startPage = Math.max(2, currentPage - showRange);
+      const endPage = Math.min(totalPages - 1, currentPage + showRange);
+
+      // Thêm "..." nếu có khoảng cách
+      if (startPage > 2) {
+        pages.push('...');
+      }
+
+      // Thêm các trang xung quanh trang hiện tại
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+
+      // Thêm "..." nếu có khoảng cách
+      if (endPage < totalPages - 1) {
+        pages.push('...');
+      }
+
+      // Luôn hiển thị trang cuối
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
 
   // Calculate statistics
   const totalUsers = allUsersWithoutAdmin.length;
@@ -270,15 +330,37 @@ const AdminUsersPage = () => {
           <input
             type="text"
             className="search-input"
-            placeholder="Tìm kiếm theo tên, username hoặc ID..."
+            placeholder="Tìm kiếm theo tên, email hoặc ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="search-btn" type="button">
-            <FaSearch />
-          </button>
+          {searchQuery && (
+            <button 
+              className="clear-search-btn" 
+              type="button"
+              onClick={() => setSearchQuery("")}
+              title="Xóa tìm kiếm"
+            >
+              <FaTimes />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Search Results Info */}
+      {searchQuery && (
+        <div className="search-results-info">
+          <FaSearch />
+          <span>
+            Tìm thấy <strong>{filteredUsers.length}</strong> kết quả cho "{searchQuery}"
+          </span>
+          {filteredUsers.length > 0 && (
+            <span className="result-detail">
+              (Hiển thị {Math.min(filteredUsers.length, usersPerPage)} / {filteredUsers.length} trên trang này)
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Users List */}
       {loading ? (
@@ -293,13 +375,15 @@ const AdminUsersPage = () => {
           <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
         </div>
       ) : (
+        <>
         <div className="users-list">
-          {filteredUsers.map((user, index) => {
+          {currentUsers.map((user, index) => {
             const userRole = user.roles?.[0] || user.role || "CUSTOMER";
+            const globalIndex = indexOfFirstUser + index + 1;
 
             return (
               <div key={user.id} className="user-card">
-                <div className="user-number">{index + 1}</div>
+                <div className="user-number">{globalIndex}</div>
 
                 <div className="user-avatar">{user.name.charAt(0).toUpperCase()}</div>
 
@@ -386,6 +470,50 @@ const AdminUsersPage = () => {
             );
           })}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination-container">
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              « Trước
+            </button>
+            
+            <div className="pagination-numbers">
+              {getPageNumbers().map((pageNum, index) => (
+                pageNum === '...' ? (
+                  <span key={`ellipsis-${index}`} className="pagination-ellipsis">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={pageNum}
+                    className={`pagination-number ${currentPage === pageNum ? 'active' : ''}`}
+                    onClick={() => handlePageChange(pageNum as number)}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              ))}
+            </div>
+
+            <button 
+              className="pagination-btn"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Sau »
+            </button>
+
+            {/* <div className="pagination-info">
+              Trang {currentPage} / {totalPages} (Tổng: {filteredUsers.length} người dùng)
+            </div> */}
+          </div>
+        )}
+        </>
       )}
 
       {/* Confirm Action Modal */}
@@ -912,6 +1040,7 @@ const AdminUsersPage = () => {
           display: flex;
           position: relative;
           max-width: 400px;
+          align-items: center;
         }
 
         .search-input {
@@ -1004,6 +1133,104 @@ const AdminUsersPage = () => {
 
         .dark .search-btn:active {
           background: rgba(14, 165, 233, 0.25);
+        }
+
+        .clear-search-btn {
+          position: absolute;
+          right: 8px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f1f5f9;
+          border: none;
+          border-radius: 6px;
+          color: #64748b;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .clear-search-btn:hover {
+          background: #fee2e2;
+          color: #ef4444;
+        }
+
+        .clear-search-btn:active {
+          transform: translateY(-50%) scale(0.9);
+        }
+
+        .dark .clear-search-btn {
+          background: #334155;
+          color: #94a3b8;
+        }
+
+        .dark .clear-search-btn:hover {
+          background: #7f1d1d;
+          color: #fca5a5;
+        }
+
+        /* Search Results Info */
+        .search-results-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          border: 1px solid #bfdbfe;
+          border-radius: 12px;
+          margin-bottom: 16px;
+          font-size: 14px;
+          color: #1e40af;
+          animation: slideDown 0.3s ease;
+        }
+
+        .search-results-info svg {
+          font-size: 16px;
+          color: #3b82f6;
+        }
+
+        .search-results-info strong {
+          font-weight: 700;
+          color: #1e3a8a;
+        }
+
+        .search-results-info .result-detail {
+          margin-left: 8px;
+          color: #64748b;
+          font-size: 13px;
+        }
+
+        .dark .search-results-info {
+          background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+          border-color: #3b82f6;
+          color: #bfdbfe;
+        }
+
+        .dark .search-results-info svg {
+          color: #60a5fa;
+        }
+
+        .dark .search-results-info strong {
+          color: #dbeafe;
+        }
+
+        .dark .search-results-info .result-detail {
+          color: #94a3b8;
+        }
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         /* Users List */
@@ -2242,6 +2469,128 @@ const AdminUsersPage = () => {
           }
         }
 
+        /* Pagination Styles */
+        .pagination-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-top: 24px;
+          padding: 20px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          flex-wrap: wrap;
+        }
+
+        .dark .pagination-container {
+          background: #1e293b;
+          border-color: #334155;
+        }
+
+        .pagination-btn {
+          padding: 8px 16px;
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-size: 14px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .pagination-btn:disabled {
+          background: #cbd5e1;
+          cursor: not-allowed;
+          opacity: 0.5;
+        }
+
+        .dark .pagination-btn:disabled {
+          background: #475569;
+        }
+
+        .pagination-numbers {
+          display: flex;
+          gap: 6px;
+        }
+
+        .pagination-number {
+          min-width: 36px;
+          height: 36px;
+          padding: 0 12px;
+          background: #f1f5f9;
+          color: #475569;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-size: 14px;
+        }
+
+        .pagination-number:hover {
+          background: #e2e8f0;
+          border-color: #cbd5e1;
+        }
+
+        .pagination-number.active {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border-color: #3b82f6;
+        }
+
+        .pagination-ellipsis {
+          min-width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #94a3b8;
+          font-weight: 600;
+          font-size: 16px;
+          user-select: none;
+        }
+
+        .dark .pagination-ellipsis {
+          color: #64748b;
+        }
+
+        .dark .pagination-number {
+          background: #334155;
+          color: #cbd5e1;
+          border-color: #475569;
+        }
+
+        .dark .pagination-number:hover {
+          background: #475569;
+        }
+
+        .dark .pagination-number.active {
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          color: white;
+          border-color: #3b82f6;
+        }
+
+        .pagination-info {
+          padding: 8px 16px;
+          background: #f8fafc;
+          border-radius: 8px;
+          color: #64748b;
+          font-size: 13px;
+          font-weight: 500;
+        }
+
+        .dark .pagination-info {
+          background: #0f172a;
+          color: #94a3b8;
+        }
+
         @media (max-width: 768px) {
           .stats-grid {
             grid-template-columns: 1fr;
@@ -2253,6 +2602,41 @@ const AdminUsersPage = () => {
 
           .tab {
             justify-content: space-between;
+          }
+
+          .pagination-container {
+            padding: 16px;
+            gap: 8px;
+          }
+
+          .pagination-numbers {
+            order: 3;
+            width: 100%;
+            justify-content: center;
+          }
+
+          .pagination-info {
+            order: 4;
+            width: 100%;
+            text-align: center;
+          }
+
+          .pagination-number {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            font-size: 13px;
+          }
+
+          .pagination-ellipsis {
+            min-width: 28px;
+            height: 32px;
+            font-size: 14px;
+          }
+
+          .pagination-btn {
+            padding: 6px 12px;
+            font-size: 13px;
           }
 
           .modal-large {
