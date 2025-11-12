@@ -14,6 +14,7 @@ import {
   FaUserSlash,
   FaHistory,
   FaInfoCircle,
+  FaFilter,
 } from "react-icons/fa";
 
 const AdminUsersPage = () => {
@@ -33,6 +34,10 @@ const AdminUsersPage = () => {
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 8;
+
+  // Status filter state
+  const [statusFilter, setStatusFilter] = useState<"ALL" | 0 | 1 | 2 | 3>("ALL");
+  const [showStatusDropdown, setShowStatusDropdown] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -128,11 +133,12 @@ const AdminUsersPage = () => {
   const filteredUsers = allUsersWithoutAdmin.filter((user) => {
     const userRole = user.roles?.[0] || user.role;
     const matchesFilter = filter === "ALL" || userRole === filter;
+    const matchesStatusFilter = statusFilter === "ALL" || user.status === statusFilter;
     const matchesSearch =
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.id.toString().includes(searchQuery);
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesStatusFilter && matchesSearch;
   });
 
   // Pagination logic
@@ -144,7 +150,7 @@ const AdminUsersPage = () => {
   // Reset to page 1 when filter or search changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter, searchQuery]);
+  }, [filter, searchQuery, statusFilter]);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -326,24 +332,93 @@ const AdminUsersPage = () => {
           </button>
         </div>
 
-        <div className="search-container">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Tìm kiếm theo tên, email hoặc ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {searchQuery && (
+        <div className="search-and-filter-wrapper">
+          <div className="search-container">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Tìm kiếm theo tên, email hoặc ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button 
+                className="clear-search-btn" 
+                type="button"
+                onClick={() => setSearchQuery("")}
+                title="Xóa tìm kiếm"
+              >
+                <FaTimes />
+              </button>
+            )}
+          </div>
+
+          <div className="status-filter-container">
             <button 
-              className="clear-search-btn" 
-              type="button"
-              onClick={() => setSearchQuery("")}
-              title="Xóa tìm kiếm"
+              className={`status-filter-btn ${showStatusDropdown ? 'active' : ''}`}
+              onClick={() => setShowStatusDropdown(!showStatusDropdown)}
+              title="Lọc theo trạng thái"
             >
-              <FaTimes />
+              <FaFilter />
+              <span>Trạng thái</span>
+              {statusFilter !== "ALL" && <span className="filter-badge"></span>}
             </button>
-          )}
+
+            {showStatusDropdown && (
+              <div className="status-dropdown">
+                <button
+                  className={`dropdown-item ${statusFilter === "ALL" ? "active" : ""}`}
+                  onClick={() => {
+                    setStatusFilter("ALL");
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  <FaUsers />
+                  Tất cả
+                </button>
+                <button
+                  className={`dropdown-item ${statusFilter === 1 ? "active" : ""}`}
+                  onClick={() => {
+                    setStatusFilter(1);
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  <FaCheck />
+                  Hoạt động
+                </button>
+                <button
+                  className={`dropdown-item ${statusFilter === 2 ? "active" : ""}`}
+                  onClick={() => {
+                    setStatusFilter(2);
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  <FaUserClock />
+                  Tạm khóa
+                </button>
+                <button
+                  className={`dropdown-item ${statusFilter === 3 ? "active" : ""}`}
+                  onClick={() => {
+                    setStatusFilter(3);
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  <FaUserSlash />
+                  Bị chặn
+                </button>
+                <button
+                  className={`dropdown-item ${statusFilter === 0 ? "active" : ""}`}
+                  onClick={() => {
+                    setStatusFilter(0);
+                    setShowStatusDropdown(false);
+                  }}
+                >
+                  <FaUserClock />
+                  Chờ duyệt
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1036,9 +1111,16 @@ const AdminUsersPage = () => {
           background: rgba(255, 255, 255, 0.3);
         }
 
+        .search-and-filter-wrapper {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
         .search-container {
           display: flex;
           position: relative;
+          flex: 1;
           max-width: 400px;
           align-items: center;
         }
@@ -1171,6 +1253,130 @@ const AdminUsersPage = () => {
         .dark .clear-search-btn:hover {
           background: #7f1d1d;
           color: #fca5a5;
+        }
+
+        /* Status Filter */
+        .status-filter-container {
+          position: relative;
+        }
+
+        .status-filter-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          white-space: nowrap;
+          position: relative;
+        }
+
+        .status-filter-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+        }
+
+        .status-filter-btn.active {
+          background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        .status-filter-btn svg {
+          font-size: 14px;
+        }
+
+        .filter-badge {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          width: 8px;
+          height: 8px;
+          background: #ef4444;
+          border-radius: 50%;
+          border: 2px solid white;
+        }
+
+        .dark .status-filter-btn {
+          background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+
+        .dark .status-filter-btn:hover {
+          box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+        }
+
+        .status-dropdown {
+          position: absolute;
+          top: calc(100% + 8px);
+          right: 0;
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+          min-width: 200px;
+          z-index: 1000;
+          overflow: hidden;
+          animation: slideDown 0.2s ease;
+        }
+
+        .dark .status-dropdown {
+          background: #1e293b;
+          border-color: #334155;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          padding: 12px 16px;
+          background: transparent;
+          border: none;
+          text-align: left;
+          font-size: 14px;
+          color: #475569;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .dropdown-item:hover {
+          background: #f1f5f9;
+          color: #1e293b;
+        }
+
+        .dropdown-item.active {
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          color: #1e40af;
+          font-weight: 600;
+        }
+
+        .dropdown-item svg {
+          font-size: 14px;
+          opacity: 0.7;
+        }
+
+        .dropdown-item.active svg {
+          opacity: 1;
+          color: #3b82f6;
+        }
+
+        .dark .dropdown-item {
+          color: #cbd5e1;
+        }
+
+        .dark .dropdown-item:hover {
+          background: #334155;
+          color: #f1f5f9;
+        }
+
+        .dark .dropdown-item.active {
+          background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+          color: #dbeafe;
         }
 
         /* Search Results Info */

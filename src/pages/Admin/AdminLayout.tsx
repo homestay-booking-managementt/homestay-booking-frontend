@@ -2,22 +2,17 @@ import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout } from "@/auth/authSlice";
-import { 
-  FaChartLine, 
-  FaUsers, 
-  FaHome, 
-  FaCalendarAlt, 
-  FaDollarSign, 
-  FaExclamationTriangle, 
+import {
+  FaChartLine,
+  FaUsers,
+  FaHome,
+  FaCalendarAlt,
+  FaDollarSign,
+  FaExclamationTriangle,
   FaCog,
   FaMoon,
   FaSun,
   FaSignOutAlt,
-  FaChevronDown,
-  FaChevronUp,
-  FaList,
-  FaClock,
-  FaEdit
 } from "react-icons/fa";
 import "./AdminGlobalStyles.css";
 
@@ -26,10 +21,9 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.auth.currentUser);
-  
+
   const [darkMode, setDarkMode] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showHomestayMenu, setShowHomestayMenu] = useState(false);
 
   // Function to get initials from name
   const getInitials = (name?: string | null) => {
@@ -44,16 +38,7 @@ const AdminLayout = () => {
   const menuItems = [
     { path: "/admin", label: "Dashboard", icon: <FaChartLine /> },
     { path: "/admin/users", label: "Người dùng", icon: <FaUsers /> },
-    { 
-      path: "/admin/homestays", 
-      label: "Homestay", 
-      icon: <FaHome />,
-      submenu: [
-        { path: "/admin/homestays", label: "Danh sách", icon: <FaList /> },
-        { path: "/admin/homestays/pending", label: "Chờ duyệt", icon: <FaClock /> },
-        { path: "/admin/homestays/update-requests", label: "Yêu cầu cập nhật", icon: <FaEdit /> },
-      ]
-    },
+    { path: "/admin/homestays", label: "Homestay", icon: <FaHome /> },
     { path: "/admin/bookings", label: "Đặt phòng", icon: <FaCalendarAlt /> },
     { path: "/admin/revenue", label: "Doanh thu", icon: <FaDollarSign /> },
     { path: "/admin/complaints", label: "Khiếu nại", icon: <FaExclamationTriangle /> },
@@ -86,45 +71,14 @@ const AdminLayout = () => {
 
         <nav className="admin-nav">
           {menuItems.map((item) => (
-            <div key={item.path}>
-              {item.submenu ? (
-                <>
-                  <div
-                    className={`nav-item ${isActive(item.path) ? "active" : ""}`}
-                    onClick={() => setShowHomestayMenu(!showHomestayMenu)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <span className="nav-icon">{item.icon}</span>
-                    <span className="nav-label">{item.label}</span>
-                    <span className="nav-chevron" style={{ marginLeft: "auto", fontSize: "12px" }}>
-                      {showHomestayMenu ? <FaChevronUp /> : <FaChevronDown />}
-                    </span>
-                  </div>
-                  {showHomestayMenu && (
-                    <div className="nav-submenu">
-                      {item.submenu.map((subItem) => (
-                        <Link
-                          key={subItem.path}
-                          to={subItem.path}
-                          className={`nav-subitem ${location.pathname === subItem.path ? "active" : ""}`}
-                        >
-                          <span className="nav-icon">{subItem.icon}</span>
-                          <span className="nav-label">{subItem.label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Link
-                  to={item.path}
-                  className={`nav-item ${isActive(item.path) ? "active" : ""}`}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-label">{item.label}</span>
-                </Link>
-              )}
-            </div>
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`nav-item ${isActive(item.path) ? "active" : ""}`}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-label">{item.label}</span>
+            </Link>
           ))}
         </nav>
       </aside>

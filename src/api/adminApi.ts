@@ -124,3 +124,45 @@ export const fetchAllHomestaysForAdmin = async (): Promise<Homestay[]> => {
   // Backend trả về format: { success, message, data, total }
   return Array.isArray(response?.data) ? response.data : [];
 };
+
+/**
+ * Cập nhật trạng thái homestay
+ * PUT /api/admin/homestays/:id/status
+ * @param homestayId - ID của homestay
+ * @param status - Trạng thái mới (0: Inactive, 1: Active, 2: Pending, 3: Banned)
+ * @param reason - Lý do thay đổi trạng thái
+ */
+export const updateHomestayStatus = (homestayId: number, status: number, reason?: string) =>
+  sendRequest(`/api/admin/homestays/${homestayId}/status`, {
+    method: "PUT",
+    payload: { status, reason },
+  });
+
+/**
+ * Lấy chi tiết homestay
+ * GET /api/admin/homestays/:id
+ */
+export const fetchHomestayDetail = async (homestayId: number): Promise<Homestay> => {
+  const response = (await sendRequest(`/api/admin/homestays/${homestayId}`, {
+    method: "GET",
+  })) as any;
+
+  // Backend trả về format: { success, message, data }
+  if (!response?.data) {
+    throw new Error("Không tìm thấy thông tin homestay");
+  }
+  return response.data;
+};
+
+/**
+ * Lấy lịch sử thay đổi trạng thái homestay
+ * GET /api/admin/homestays/:id/status-history
+ */
+export const fetchHomestayStatusHistory = async (homestayId: number) => {
+  const response = (await sendRequest(`/api/admin/homestays/${homestayId}/status-history`, {
+    method: "GET",
+  })) as any;
+
+  // Backend trả về format: { success, message, data }
+  return Array.isArray(response?.data) ? response.data : [];
+};

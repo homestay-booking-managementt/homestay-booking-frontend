@@ -17,9 +17,7 @@ import {
 import AdminLayout from "@/pages/Admin/AdminLayout";
 import AdminMainDashboard from "@/pages/Admin/AdminMainDashboard";
 import AdminUsersPage from "@/pages/Admin/AdminUsersPage";
-import AdminHomestaysPage from "@/pages/Admin/AdminHomestaysPage";
 import AdminHomestayListPage from "@/pages/Admin/AdminHomestayListPage";
-import AdminHomestayUpdateRequestsPage from "@/pages/Admin/AdminHomestayUpdateRequestsPage";
 import AdminBookingsPage from "@/pages/Admin/AdminBookingsPage";
 import AdminRevenuePage from "@/pages/Admin/AdminRevenuePage";
 import AdminComplaintsPage from "@/pages/Admin/AdminComplaintsPage";
@@ -156,14 +154,6 @@ const PrivateRoutes = [
           {
             path: "homestays",
             element: <AdminHomestayListPage />,
-          },
-          {
-            path: "homestays/pending",
-            element: <AdminHomestaysPage />,
-          },
-          {
-            path: "homestays/update-requests",
-            element: <AdminHomestayUpdateRequestsPage />,
           },
           {
             path: "bookings",
