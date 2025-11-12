@@ -215,12 +215,7 @@ const BookingFormPage = () => {
                     Kế tiếp: Bước cuối cùng
                     </button>
                 </form>
-                <BookingPaymentModal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        bookingInfo={bookingInfo}
-        onConfirm={handleConfirm}
-      />
+                
                 </div>
             </div>
             </section>
@@ -228,7 +223,12 @@ const BookingFormPage = () => {
             </div>
           </div>
         </div>
-
+<BookingPaymentModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        bookingInfo={bookingInfo}
+        onConfirm={handleConfirm}
+      />
         {/* RIGHT: Summary */}
         <div className="col-md-4">
           <div className="card shadow-sm">
