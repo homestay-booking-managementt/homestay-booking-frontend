@@ -6,7 +6,7 @@ interface Props {
   homestayId: number;
   homestayName: string;
   bookingStatus: string;
-  imageUrl?: string; // thêm thuộc tính tùy chọn cho ảnh
+  imageUrl?: string; 
 }
 
 const BookingHeader: React.FC<Props> = ({
@@ -16,7 +16,6 @@ const BookingHeader: React.FC<Props> = ({
   imageUrl,
 }) => {
   const navigate = useNavigate();
-
   return (
     <div className="mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -24,13 +23,13 @@ const BookingHeader: React.FC<Props> = ({
           to="/bookings"
           className="btn btn-outline-primary rounded-pill px-3 shadow-sm"
         >
-          ← Quay lại danh sách
+          Quay lại danh sách
         </Link>
         <button
           className="btn btn-outline-primary rounded-pill px-3 shadow-sm"
           onClick={() => navigate(`/homestays/${homestayId}`)}
         >
-          Xem chi tiết homestay →
+          Xem chi tiết homestay
         </button>
       </div>
 

@@ -117,7 +117,7 @@ const BookingFormPage = () => {
     nights: 2,
   };
 
-  const handleConfirm = (data: { code: string; method: string }) => {
+  const handleConfirm = (data: { code: string; method: string;finalPrice: number }) => {
     console.log("Xác nhận thanh toán:", data);
     alert("Thanh toán thành công!");
     setShowModal(false);
@@ -139,9 +139,9 @@ const BookingFormPage = () => {
             <h5 className="mb-3">Yêu cầu đặc biệt</h5>
 
             <div className="card shadow-sm border-0 rounded-4">
-                <div className="card-body text-secondary small lh-lg">
+                <div className="card-body text-body small lh-lg">
                 <form onSubmit={handleSubmit}>
-                    {/* Quy định hút thuốc */}
+                    
                     <div className="mb-3">
                     <label className="form-label fw-semibold">Quy định hút thuốc:</label>
                     <div className="d-flex flex-wrap gap-3">
@@ -168,7 +168,6 @@ const BookingFormPage = () => {
                     </div>
                     </div>
 
-                    {/* Loại giường */}
                     <div className="mb-3">
                     <label className="form-label fw-semibold">Loại giường:</label>
                     <div className="d-flex flex-wrap gap-3">
@@ -195,7 +194,6 @@ const BookingFormPage = () => {
                     </div>
                     </div>
 
-                    {/* Ghi chú khác */}
                     <div className="mb-4">
                     <label className="form-label fw-semibold">
                         Ghi chú khác (nếu có):
@@ -209,26 +207,26 @@ const BookingFormPage = () => {
                         placeholder="Ví dụ: Cần tầng cao, gần cửa sổ view phố..."
                     />
                     </div>
-
-                    {/* Nút gửi */}
                     <button type="submit" onClick={()=>setShowModal(true)} className="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
                     Kế tiếp: Bước cuối cùng
                     </button>
                 </form>
-                <BookingPaymentModal
+                </div>
+                
+            </div>
+            </section>
+
+
+
+            </div>
+          </div>
+        </div>
+        <BookingPaymentModal
         show={showModal}
         onClose={() => setShowModal(false)}
         bookingInfo={bookingInfo}
         onConfirm={handleConfirm}
       />
-                </div>
-            </div>
-            </section>
-
-            </div>
-          </div>
-        </div>
-
         {/* RIGHT: Summary */}
         <div className="col-md-4">
           <div className="card shadow-sm">

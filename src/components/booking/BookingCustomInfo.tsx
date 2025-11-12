@@ -7,15 +7,15 @@ interface Props {
 
 const BookingCustomerInfo: React.FC<Props> = ({ user }) => (
   <section className="mb-5">
-  <h5 className="fw-semibold text-primary mb-3">Thông tin khách hàng</h5>
-  <div className="p-4 bg-body-tertiary rounded-4 shadow-sm border border-body">
-    <ul className="list-unstyled mb-0 text-body lh-lg">
-      <li><strong>Họ tên:</strong> {user.name}</li>
-      <li><strong>Email:</strong> {user.email}</li>
-      <li><strong>Số điện thoại:</strong> {user.phone}</li>
-    </ul>
-  </div>
-</section>
+    <h5 className="fw-semibold text-primary mb-3">Thông tin khách hàng</h5>
+    <div className="p-4 bg-body-tertiary rounded-4 shadow-sm border border-body">
+      <ul className="list-unstyled mb-0 text-body lh-lg">
+        <li><strong>Họ tên:</strong> {user.name}</li>
+        <li><strong>Email:</strong> {user.email}</li>
+        <li><strong>Số điện thoại:</strong> {user.phone}</li>
+      </ul>
+    </div>
+  </section>
 
 );
 

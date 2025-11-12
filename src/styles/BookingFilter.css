@@ -1,3 +1,6 @@
+.border-purple{
+  border: 1px solid  rgba(155, 93, 229, 0.45) !important ;
+}
 .text-purple {
   color: #6f42c1;
 }
@@ -30,12 +33,7 @@
   color: #6f42c1;
   transition: all 0.3s;
 }
-
 .btn-outline-purple:hover {
   background-color: #6f42c1;
   color: white;
-}
-.dark-mode .form-control::placeholder {
-  color: white !important;  /* chữ sáng hơn */
-  opacity: 1;
 }

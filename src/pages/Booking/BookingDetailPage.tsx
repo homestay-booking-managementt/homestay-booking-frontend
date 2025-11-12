@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import type { Booking, BookingDetail } from "@/types/booking";
+import type { BookingDetail } from "@/types/booking";
 import { showAlert } from "@/utils/showAlert";
 import { fetchBookings } from "@/api/bookingApi";
 import BookingHeader from "@/components/booking/BookingHeader";

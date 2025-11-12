@@ -4,9 +4,6 @@ import { BookingFilter } from "@/components/booking/BookingFilterBar";
 import { BookingCard } from "@/components/booking/BookingCard";
 import "@/styles/BookingListPages.css"
 
-// ======================
-// Demo Data (copy từ đề bài)
-// ======================
 const DEMO_BOOKINGS: Booking[] = [
   {
     bookingId: 4,
@@ -42,10 +39,6 @@ const DEMO_BOOKINGS: Booking[] = [
   },
 ];
 
-
-// ======================
-// Theme (tím pastel nhẹ)
-// ======================
 const Theme = () => (
   <style>{`
     

@@ -19,12 +19,11 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
         check_out={booking.checkOut}
       />
     </div>
-
-    <div className="p-4 bg-white rounded-4 shadow-sm border">
+    <div className="p-4 rounded-4 shadow-sm border bg-body text-body">
       <div className="fw-bold mb-1 fs-2">{booking.homestay.name}</div>
       <div className="text-muted mb-3">{booking.homestay.address}</div>
 
-      <ul className="list-unstyled lh-lg text-secondary">
+      <ul className="list-unstyled lh-lg text-body">
         <li><strong>Ngày nhận phòng:</strong> {booking.checkIn}</li>
         <li><strong>Ngày trả phòng:</strong> {booking.checkOut}</li>
         <li><strong>Số đêm:</strong> {booking.nights}</li>
@@ -32,6 +31,7 @@ const BookingDetailInfo: React.FC<Props> = ({ booking }) => (
         <li><strong>Ngày đặt:</strong> {new Date(booking.createdAt).toLocaleString()}</li>
       </ul>
     </div>
+
   </section>
 );
 

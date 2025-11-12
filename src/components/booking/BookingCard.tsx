@@ -14,9 +14,6 @@ const toVND = (n: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(
     n
   );
-// ======================
-// Booking Badge theo trạng thái
-// ======================
 const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
   const map: Record<Booking["status"], string> = {
     pending: "warning",
