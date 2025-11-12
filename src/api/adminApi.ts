@@ -126,6 +126,19 @@ export const fetchAllHomestaysForAdmin = async (): Promise<Homestay[]> => {
 };
 
 /**
+ * Lấy danh sách homestay có yêu cầu cập nhật đang chờ duyệt
+ * GET /api/admin/homestays-pending-update
+ */
+export const fetchHomestaysPendingUpdate = async (): Promise<Homestay[]> => {
+  const response = (await sendRequest("/api/admin/homestays-pending-update", {
+    method: "GET",
+  })) as any;
+
+  // Backend trả về format: { success, message, data, total }
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
  * Cập nhật trạng thái homestay
  * PUT /api/admin/homestays/:id/status
  * @param homestayId - ID của homestay
@@ -166,3 +179,23 @@ export const fetchHomestayStatusHistory = async (homestayId: number) => {
   // Backend trả về format: { success, message, data }
   return Array.isArray(response?.data) ? response.data : [];
 };
+
+/**
+ * Duyệt yêu cầu cập nhật homestay
+ * POST /api/admin/homestay-pending/:id/approve
+ */
+export const approvePendingUpdate = (pendingId: number, adminId: number) =>
+  sendRequest(`/api/admin/homestay-pending/${pendingId}/approve`, {
+    method: "POST",
+    payload: { adminId },
+  });
+
+/**
+ * Từ chối yêu cầu cập nhật homestay
+ * POST /api/admin/homestay-pending/:id/reject
+ */
+export const rejectPendingUpdate = (pendingId: number, adminId: number, reason: string) =>
+  sendRequest(`/api/admin/homestay-pending/${pendingId}/reject`, {
+    method: "POST",
+    payload: { adminId, reason },
+  });
