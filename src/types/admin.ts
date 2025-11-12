@@ -2,12 +2,33 @@ export interface AdminUser {
   id: number;
   name: string;
   email: string;
-  role: "CUSTOMER" | "HOST" | "ADMIN";
-  status: 0 | 1;
+  username?: string;
+  phone?: string;
+  address?: string;
+  dateOfBirth?: string;
+  role?: "CUSTOMER" | "HOST" | "ADMIN"; // Single role for backward compatibility
+  roles?: string[]; // Array of roles from Backend
+  status: number; // Backend có thể trả về 1, 2, 3 không chỉ 0 | 1
+  isDeleted?: boolean;
+  createdAt?: string;
+  updatedAt?: string | null;
 }
 
 export interface UpdateUserStatusPayload {
-  status: 0 | 1;
+  status: 0 | 1 | 2 | 3; // 0:chờ duyệt, 1:hoạt động, 2:tạm khóa, 3:bị chặn
+  reason?: string; // Lý do thay đổi trạng thái
+}
+
+export interface UserStatusHistory {
+  id: number;
+  userId: number;
+  oldStatus: number | null;
+  newStatus: number | null;
+  reason: string | null;
+  changedBy: number | null;
+  changedByName: string | null;
+  changedByEmail: string | null;
+  changedAt: string;
 }
 
 export interface HomestayRequestReviewPayload {
@@ -35,10 +56,18 @@ export interface AdminFaqItem extends AdminFaqPayload {
 
 export interface AdminBookingSummary {
   id: number;
-  homestayName: string;
-  guestName: string;
+  userId?: number;
+  homestayId?: number;
+  homestayName?: string;
+  guestName?: string;
+  userName?: string;
+  userEmail?: string;
   status: string;
   totalPrice?: number;
+  checkIn?: string;
+  checkOut?: string;
+  nights?: number;
+  createdAt?: string;
 }
 
 export interface AdminComplaintSummary {
@@ -57,6 +86,28 @@ export interface AdminHomestayRequest {
 }
 
 export interface AdminRevenueReport {
-  items: RevenueReportItem[];
+  // Tổng quan
+  totalRevenue?: number;
+  totalBookings?: number;
+  completedBookings?: number;
+  cancelledBookings?: number;
+  pendingBookings?: number;
+
+  // Doanh thu theo trạng thái
+  completedRevenue?: number;
+  pendingRevenue?: number;
+  confirmedRevenue?: number;
+
+  // Thống kê
+  averageBookingValue?: number;
+  totalHomestays?: number;
+  totalCustomers?: number;
+
+  // Thời gian báo cáo
+  reportGeneratedAt?: string;
+  period?: string;
+
+  // Để tương thích với code cũ
+  items?: RevenueReportItem[];
   generatedAt?: string;
 }

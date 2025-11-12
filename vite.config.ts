@@ -20,8 +20,16 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
+      // FE gọi /api/admin/... -> Vite proxy sang admin-service
+      "/api/admin": {
+        target: "http://localhost:8083",
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      },
+      // FE gọi /api/... (fallback) -> các service khác
       "/api": {
-        target: "http://localhost:3203",
+        target: "http://localhost:8083",
         changeOrigin: true,
         secure: false
       },
