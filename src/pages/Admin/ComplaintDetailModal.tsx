@@ -328,6 +328,8 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
           grid-template-columns: 1fr 1fr;
           gap: 0;
           background: white;
+          overflow-y: auto;
+          max-height: calc(90vh - 400px);
         }
 
         /* Info Columns */
@@ -339,7 +341,7 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
 
         .homestay-column {
           background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
-          border-right: 2px solid #e0e7ff;
+          border-right: 1px solid #e0e7ff;
         }
 
         .user-column {
@@ -410,6 +412,7 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
           color: #6b7280;
           letter-spacing: 1px;
           margin-bottom: 6px;
+          text-transform: uppercase;
         }
 
         .info-value {
@@ -418,6 +421,7 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
           color: #111827;
           line-height: 1.5;
           word-break: break-word;
+          overflow-wrap: break-word;
         }
 
         .no-data {
@@ -435,6 +439,8 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
           background: white;
           padding: 18px 24px;
           border-top: 2px solid #f3f4f6;
+          overflow-y: auto;
+          max-height: 300px;
         }
 
         .content-header {
@@ -589,32 +595,58 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
 
           .complaint-modal-body {
             grid-template-columns: 1fr;
-            gap: 16px;
-            padding: 20px;
-            max-height: 45vh;
+            gap: 0;
+            padding: 0;
+            max-height: calc(95vh - 350px);
+            overflow-y: auto;
+          }
+
+          .info-column {
+            padding: 16px 20px;
+            border-right: none;
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+          }
+
+          .info-column:last-child {
+            border-bottom: none;
           }
 
           .column-header {
-            font-size: 14px;
-            padding: 10px 16px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+          }
+
+          .column-title {
+            font-size: 13px;
           }
 
           .column-icon {
-            font-size: 20px;
+            font-size: 18px;
           }
 
-          .info-label,
+          .info-item {
+            padding: 8px 10px;
+          }
+
+          .info-label {
+            font-size: 9px;
+            margin-bottom: 4px;
+          }
+
           .info-value {
             font-size: 12px;
           }
 
           .complaint-content-section {
-            padding: 20px;
+            padding: 16px 20px;
+            max-height: 250px;
           }
 
           .content-body {
             font-size: 13px;
-            padding: 14px;
+            padding: 12px;
+            max-height: 180px;
+            overflow-y: auto;
           }
 
           .complaint-modal-info {
@@ -768,7 +800,95 @@ const ComplaintDetailModal = ({ complaint, show, onClose, onResolve }: Complaint
           border-top-color: #334155;
         }
 
-        [data-theme="dark"] .complaint-modal-body::-webkit-scrollbar-track {
+        /* Scrollbar Styling */
+        .complaint-modal-body::-webkit-scrollbar,
+        .complaint-content-section::-webkit-scrollbar,
+        .content-body::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .complaint-modal-body::-webkit-scrollbar-track,
+        .complaint-content-section::-webkit-scrollbar-track,
+        .content-body::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 3px;
+        }
+
+        .complaint-modal-body::-webkit-scrollbar-thumb,
+        .complaint-content-section::-webkit-scrollbar-thumb,
+        .content-body::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 3px;
+        }
+
+        .complaint-modal-body::-webkit-scrollbar-thumb:hover,
+        .complaint-content-section::-webkit-scrollbar-thumb:hover,
+        .content-body::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+
+        [data-theme="dark"] .complaint-modal-body::-webkit-scrollbar-track,
+        [data-theme="dark"] .complaint-content-section::-webkit-scrollbar-track,
+        [data-theme="dark"] .content-body::-webkit-scrollbar-track {
+          background: #0f172a;
+        }
+
+        [data-theme="dark"] .complaint-modal-body::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .complaint-content-section::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .content-body::-webkit-scrollbar-thumb {
+          background: #334155;
+        }
+
+        [data-theme="dark"] .complaint-modal-body::-webkit-scrollbar-thumb:hover,
+        [data-theme="dark"] .complaint-content-section::-webkit-scrollbar-thumb:hover,
+        [data-theme="dark"] .content-body::-webkit-scrollbar-thumb:hover {
+          background: #475569;
+        }
+
+        /* Small screen adjustments */
+        @media (max-width: 480px) {
+          .complaint-modal-overlay {
+            padding: 10px;
+          }
+
+          .complaint-modal-container {
+            border-radius: 16px;
+          }
+
+          .complaint-modal-header {
+            padding: 14px 16px;
+          }
+
+          .complaint-id {
+            font-size: 18px;
+          }
+
+          .status-badge {
+            font-size: 10px;
+            padding: 5px 12px;
+          }
+
+          .complaint-modal-title {
+            padding: 14px 16px;
+            font-size: 15px;
+          }
+
+          .info-column {
+            padding: 14px 16px;
+          }
+
+          .complaint-content-section {
+            padding: 14px 16px;
+          }
+
+          .complaint-modal-info {
+            padding: 12px 16px;
+          }
+
+          .complaint-modal-footer {
+            padding: 12px 16px;
+          }
+        }
       `}</style>
     </>
   );

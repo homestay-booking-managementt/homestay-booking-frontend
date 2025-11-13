@@ -558,14 +558,95 @@ const ResolveComplaintModal = ({ complaint, show, onClose, onConfirm }: ResolveC
         }
 
         @media (max-width: 768px) {
-          .modal-footer-custom {
+          .modal-backdrop {
+            padding: 10px;
+          }
+
+          .modal-dialog {
+            max-width: 100%;
+          }
+
+          .modal-header-custom {
+            padding: 16px 20px;
+          }
+
+          .modal-title {
+            font-size: 18px;
+          }
+
+          .modal-body-custom {
+            padding: 20px;
+          }
+
+          .complaint-info {
+            padding: 14px;
+          }
+
+          .info-row {
             flex-direction: column;
+            gap: 4px;
+          }
+
+          .info-label {
+            min-width: auto;
+            font-size: 12px;
+          }
+
+          .info-value {
+            font-size: 14px;
+          }
+
+          .form-label {
+            font-size: 13px;
+          }
+
+          .form-control-readonly,
+          .form-control-select,
+          .form-control-textarea {
+            font-size: 14px;
+          }
+
+          .modal-footer-custom {
+            flex-direction: column-reverse;
+            padding: 16px 20px;
           }
 
           .btn-cancel,
           .btn-confirm {
             width: 100%;
             justify-content: center;
+            padding: 12px 20px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .modal-backdrop {
+            padding: 5px;
+          }
+
+          .modal-content {
+            border-radius: 10px;
+          }
+
+          .modal-header-custom {
+            padding: 14px 16px;
+          }
+
+          .modal-title {
+            font-size: 16px;
+          }
+
+          .modal-body-custom {
+            padding: 16px;
+          }
+
+          .complaint-info {
+            padding: 12px;
+            margin-bottom: 20px;
+          }
+
+          .form-group {
+            margin-bottom: 16px;
           }
         }
       `}</style>
