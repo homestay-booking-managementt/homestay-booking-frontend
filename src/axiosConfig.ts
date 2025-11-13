@@ -24,12 +24,15 @@ const isAuthRoute = (url?: string) => {
   }
 };
 
-/** Request interceptor: gắn Authorization cho route thường, bỏ cho /auth/* (trừ /auth/refresh) */
+/** Request interceptor: gắn Authorization cho route thường, bỏ cho /auth/* (trừ /auth/refresh và /auth/v1/me) */
 const handleAxiosRequest = async (config: InternalAxiosRequestConfig) => {
   const url = config.url ?? "";
 
-  // Không gắn token cho /auth/* (login/register/...) ngoại trừ refresh
-  if (isAuthRoute(url) && !/\/auth\/refresh/.test(url)) {
+  // Các endpoint auth KHÔNG CẦN token: login, register, logout (public endpoints)
+  const publicAuthEndpoints = /\/(auth\/v1\/(login|register|logout))/;
+
+  // Không gắn token cho public auth endpoints
+  if (publicAuthEndpoints.test(url)) {
     return config;
   }
 
