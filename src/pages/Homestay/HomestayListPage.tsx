@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fetchHomestays } from "@/api/homestayApi";
 import type { Homestay, HomestayFilters } from "@/types/homestay";
 import { showAlert } from "@/utils/showAlert";
-
+import AppDialog from "@/components/common/AppDialog";
 interface FilterFormState {
   city: string;
   capacity: string;
@@ -22,6 +22,17 @@ const HomestayListPage = () => {
   const [filters, setFilters] = useState<FilterFormState>(defaultFilters);
   const [loading, setLoading] = useState(false);
   const [homestays, setHomestays] = useState<Homestay[]>([]);
+  const navigate = useNavigate();
+  const [dialog, setDialog] = useState({
+  show: false,
+  title: "",
+  message: "",
+  confirmText: "OK",
+  cancelText: undefined as string | undefined,
+  onConfirm: null as (() => void) | null,
+});
+
+  const [pendingHomestayId, setPendingHomestayId] = useState<number | null>(null);
 
   // Chuẩn hóa filters (loại bỏ giá trị rỗng)
   const sanitizedFilters = useMemo(() => {
@@ -75,6 +86,121 @@ const HomestayListPage = () => {
         maximumFractionDigits: 0,
       }).format(value)
       : "--";
+  // const handleBookingClick = (id: number) => {
+  //   if (!filters.checkIn || !filters.checkOut) {
+  //     setDialog({
+  //       show: true,
+  //       title: "Thiếu thông tin ngày",
+  //       message: "Bạn cần chọn ngày check-in và check-out trước khi đặt phòng.",
+  //     });
+  //     return;
+  //   }
+
+  //   navigate(`/bookings?homestayId=${id}&checkIn=${filters.checkIn}&checkOut=${filters.checkOut}`);
+  // };
+  const handleDetailClick =(id : number) =>{
+    navigate(`/homestays/${id}`);
+  }
+  const handleBookingClick = (id: number) => {
+    // 1. Thiếu ngày
+    if (!filters.checkIn || !filters.checkOut) {
+      setDialog({
+        show: true,
+        title: "Thiếu thông tin ngày",
+        message: "Bạn cần chọn ngày check-in và check-out trước khi đặt phòng.",
+        confirmText: "Đã hiểu",
+    cancelText: undefined,
+    onConfirm: null
+      });
+      return;
+    }
+
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const checkInDate = new Date(filters.checkIn);
+  const checkOutDate = new Date(filters.checkOut);
+
+  // 2. Kiểm tra date hợp lệ
+  if (isNaN(checkInDate.getTime()) || isNaN(checkOutDate.getTime())) {
+    setDialog({
+      show: true,
+      title: "Ngày không hợp lệ",
+      message: "Vui lòng chọn lại ngày check-in và check-out.",
+      confirmText: "Đã hiểu",
+  cancelText: undefined,
+  onConfirm: null
+    });
+    return;
+  }
+
+  // 3. Không cho đặt quá khứ
+  if (checkInDate < today) {
+    setDialog({
+      show: true,
+      title: "Ngày check-in không hợp lệ",
+      message: "Ngày đến không được nhỏ hơn ngày hiện tại.",
+      confirmText: "Đã hiểu",
+  cancelText: undefined,
+  onConfirm: null
+    });
+    return;
+  }
+
+  // 4. Check-out phải sau check-in
+  if (checkOutDate <= checkInDate) {
+    setDialog({
+      show: true,
+      title: "Ngày không hợp lệ",
+      message: "Ngày đi phải sau ngày đến.",
+      confirmText: "Đã hiểu",
+  cancelText: undefined,
+  onConfirm: null
+    });
+    return;
+  }
+
+  // 5. Tính số đêm
+  const nights = Math.floor(
+    (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // 6. Giới hạn năm (tối đa 1 năm)
+  const maxFutureDate = new Date();
+  maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 1);
+
+  if (checkInDate > maxFutureDate ) {
+    setDialog({
+      show: true,
+      title: "Ngày đặt quá xa",
+      message: "Bạn chỉ có thể đặt phòng tối đa 1 năm kể từ hôm nay.",
+      confirmText: "Đã hiểu",
+  cancelText: undefined,
+  onConfirm: null
+    });
+    return;
+  }
+
+  // ⭐ 7. Nếu ở > 10 ngày → yêu cầu xác nhận
+  if (nights > 10) {
+    setPendingHomestayId(id); // lưu id để dùng khi xác nhận
+    setDialog({
+      show: true,
+  title: "Xác nhận đặt phòng dài ngày",
+  message: `Bạn đang đặt ${nights} đêm. Bạn có chắc chắn muốn đặt không?`,
+  confirmText: "Đồng ý",
+  cancelText: "Hủy",
+  onConfirm: () => {
+    navigate(`/bookings?homestayId=${id}&checkIn=${filters.checkIn}&checkOut=${filters.checkOut}`);
+  }
+    });
+    return;
+  }
+
+  // 8. Điều hướng bình thường
+  navigate(`/bookings?homestayId=${id}&checkIn=${filters.checkIn}&checkOut=${filters.checkOut}`);
+};
 
   return (
     <div className="container py-4">
@@ -220,22 +346,65 @@ const HomestayListPage = () => {
                       </p>
                     )}
 
-                    <div className="row d-flex flex-row gap-2">
+                    {/* <div className="row d-flex flex-row gap-2">
                       <Link
                         className="btn btn-outline-primary w-100"
                         to={`/homestays/${homestay.id}`}
                       >
                         Xem chi tiết
                       </Link>
-                      <Link
+                      
+                      <button
                         className="btn btn-outline-primary w-100"
-                        to={`/bookings?homestayId=${homestay.id}${
-                          filters.checkIn ? `&checkIn=${filters.checkIn}` : ""
-                        }${filters.checkOut ? `&checkOut=${filters.checkOut}` : ""}`}
+                        type="button"
+                        onClick={()=>{
+                          handleBookingClick(homestay.id);
+                        }}
                       >
                         Đặt phòng
-                      </Link>
-                    </div>
+                      </button>
+                    </div> */}
+                    {/* <div className="row g-2">
+                      <div className="col-6">
+                        <button
+                          className="btn btn-outline-primary w-100 boder-2"
+                          onClick={() => handleDetailClick(homestay.id)}
+                        >
+                          Xem chi tiết
+                        </button>
+                      </div>
+                      <div className="col-6">
+                        <button
+                          className="btn btn-outline-primary w-100"
+                          onClick={() => handleBookingClick(homestay.id)}
+                        >
+                          Đặt phòng
+                        </button>
+                      </div>
+                    </div> */}
+                    <div className="row g-2 justify-content-center">
+  {/* Đặt phòng bên trái */}
+  <div className="col-6 ">
+    <button
+      className="btn btn-outline-primary w-100 border-2 justify-content-center"
+      onClick={() => handleBookingClick(homestay.id)}
+    >
+      Đặt phòng
+    </button>
+  </div>
+
+  {/* Xem chi tiết bên phải */}
+  <div className="col-6">
+    <button
+      className="btn btn-outline-primary w-100 border-2 justify-content-center"
+      onClick={() => handleDetailClick(homestay.id)}
+    >
+      Xem chi tiết
+    </button>
+  </div>
+</div>
+
+
                   </div>
                 </div>
               </div>
@@ -243,6 +412,26 @@ const HomestayListPage = () => {
           </div>
         )}
       </div>
+      {/* <AppDialog
+                        show={dialog.show}
+                        title={dialog.title}
+                        message={dialog.message}
+                        onClose={() => setDialog((old) => ({ ...old, show: false }))}
+                        confirmText="Đã hiểu"
+                      /> */}
+        <AppDialog
+        show={dialog.show}
+        title={dialog.title}
+        message={dialog.message}
+        confirmText={dialog.confirmText}
+        cancelText={dialog.cancelText}
+        onClose={() => setDialog((old) => ({ ...old, show: false }))}
+        onConfirm={() => {
+          if (dialog.onConfirm) dialog.onConfirm();
+          setDialog((old) => ({ ...old, show: false }));
+        }}
+      />
+
     </div>
   );
 };

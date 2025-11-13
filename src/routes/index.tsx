@@ -10,7 +10,6 @@ import DashboardHome from "@/pages/DashboardHome/";
 import DashboardPage from "@/pages/DashboardPage/";
 import {
   HomestayDetailPage,
-  HomestayFormPage,
   HomestayListPage,
   MyHomestaysPage,
 } from "@/pages/Homestay";
@@ -40,6 +39,7 @@ import { ErrorPage } from "@/pages/error/ErrorPage";
 import { ErrorType } from "@/pages/error/types";
 import { useRoutes } from "react-router-dom";
 import BookingDetailPage from "@/pages/Booking/BookingDetailPage";
+import PaymentPage from "@/pages/Payment";
 
 const PublicRoutes = [
   // Public routes (no authentication required)
@@ -81,10 +81,10 @@ const PrivateRoutes = [
             path: "homestays",
             element: <HomestayListPage />,
           },
-          {
-            path: "homestays/new",
-            element: <HomestayFormPage />,
-          },
+          // {
+          //   path: "homestays/new",
+          //   element: <HomestayFormPage />,
+          // },
           {
             path: "homestays/mine",
             element: <MyHomestaysPage />,
@@ -93,10 +93,10 @@ const PrivateRoutes = [
             path: "homestays/:homestayId",
             element: <HomestayDetailPage />,
           },
-          {
-            path: "homestays/:homestayId/edit",
-            element: <HomestayFormPage />,
-          },
+          // {
+          //   path: "homestays/:homestayId/edit",
+          //   element: <HomestayFormPage />,
+          // },
           {
             path: "bookings",
             element: <BookingDashboardPage />,
@@ -110,8 +110,8 @@ const PrivateRoutes = [
             element: <BookingDetailPage />,
           },
           {
-            path: "payments",
-            element: <PaymentPortalPage />,
+            path: "payments/:bookingId",
+            element: <PaymentPage />,
           },
           {
             path: "reviews",

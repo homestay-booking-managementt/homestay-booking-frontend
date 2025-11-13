@@ -24,7 +24,7 @@ const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
     paid: "info",
     checked_in: "info",
     checked_out: "secondary",
-    canceled: "danger",
+    cancelled: "danger",
     refunded: "dark",
     completed: "success",
   };
@@ -34,7 +34,7 @@ const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
     paid: "Đã thanh toán",
     checked_in: "Đã nhận phòng",
     checked_out: "Đã trả phòng",
-    canceled: "Đã hủy",
+    cancelled: "Đã hủy",
     refunded: "Đã hoàn tiền",
     completed: "Hoàn tất",
   };

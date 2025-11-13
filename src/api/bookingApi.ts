@@ -8,7 +8,7 @@ export const fetchBookings = () =>
   sendRequest(BOOKINGS_ENDPOINT, { method: "GET" }) as Promise<PaginatedResponse<Booking>>;
 
 export const createBooking = (payload: BookingPayload) =>
-  sendRequest(BOOKINGS_ENDPOINT, {
+  sendRequest('http://localhost:8084/api/v1/bookings', {
     method: "POST",
     payload,
   });
@@ -21,10 +21,12 @@ export const fetchBookingsByUser = async (userId: number): Promise<Booking[]> =>
 
   return data as Booking[];
 };
-export const cancelBooking = (bookingId: number) =>
-  sendRequest(`${BOOKINGS_ENDPOINT}/${bookingId}/cancel`, {
-    method: "POST",
+export const cancelBooking = (bookingId: number, userId: number, reason: string) =>
+  sendRequest(`http://localhost:8084/api/v1/bookings/${bookingId}/cancel?userId=${userId}`, {
+    method: "PATCH",
+    payload: { cancellationReason: reason },
   });
+
 
 export const updateBookingStatus = (bookingId: number, payload: BookingStatusPayload) =>
   sendRequest(`${BOOKINGS_ENDPOINT}/${bookingId}/status`, {
