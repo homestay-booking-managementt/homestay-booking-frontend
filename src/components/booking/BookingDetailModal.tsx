@@ -5,6 +5,29 @@ import type { BookingDetail } from "@/types/admin";
 import { showAlert } from "@/utils/showAlert";
 import { formatCurrency } from "@/utils/bookingUtils";
 
+// Map trạng thái sang tiếng Việt
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Chờ xác nhận",
+  CONFIRMED: "Đã xác nhận",
+  COMPLETED: "Hoàn tất",
+  CANCELLED: "Đã hủy",
+  CANCELED: "Đã hủy",
+  PAID: "Đã thanh toán",
+  CHECKED_IN: "Đã nhận phòng",
+  CHECKED_OUT: "Đã trả phòng",
+  REFUNDED: "Đã hoàn tiền",
+  // Lowercase versions
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  completed: "Hoàn tất",
+  cancelled: "Đã hủy",
+  canceled: "Đã hủy",
+  paid: "Đã thanh toán",
+  checked_in: "Đã nhận phòng",
+  checked_out: "Đã trả phòng",
+  refunded: "Đã hoàn tiền",
+};
+
 interface BookingDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -15,6 +38,10 @@ const BookingDetailModal = ({ isOpen, onClose, bookingId }: BookingDetailModalPr
   const [bookingDetail, setBookingDetail] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const getStatusLabel = (status: string) => {
+    return STATUS_LABELS[status] || status;
+  };
 
   // Fetch booking detail when modal opens
   useEffect(() => {
@@ -83,7 +110,7 @@ const BookingDetailModal = ({ isOpen, onClose, bookingId }: BookingDetailModalPr
             <h2 id="modal-title">Chi tiết đặt phòng #{bookingId}</h2>
             {bookingDetail && (
               <span className={`status-badge ${bookingDetail.status.toLowerCase()}`}>
-                {bookingDetail.status}
+                {getStatusLabel(bookingDetail.status)}
               </span>
             )}
           </div>

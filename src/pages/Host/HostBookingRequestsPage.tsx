@@ -153,7 +153,9 @@ const HostBookingRequestsPage = () => {
                             ? "Đã xác nhận"
                             : booking.status === "completed"
                               ? "Hoàn thành"
-                              : "Đã từ chối"}
+                              : booking.status === "canceled" || booking.status === "cancelled"
+                                ? "Đã hủy"
+                                : "Đã từ chối"}
                       </span>
                     </td>
                     <td>
