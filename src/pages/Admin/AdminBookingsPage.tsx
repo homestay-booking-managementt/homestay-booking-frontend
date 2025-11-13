@@ -23,7 +23,7 @@ import {
 } from "react-icons/fa";
 import BookingTrendsChart from "@/components/charts/BookingTrendsChart";
 import RevenueByStatusChart from "@/components/charts/RevenueByStatusChart";
-import BookingCard from "@/components/booking/BookingCard";
+import BookingCard from "@/components/booking/AdminBookingCard";
 import BookingDetailModal from "@/components/booking/BookingDetailModal";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ErrorState from "@/components/ErrorState";
