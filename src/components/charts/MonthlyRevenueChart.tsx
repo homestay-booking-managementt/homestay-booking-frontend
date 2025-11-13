@@ -23,12 +23,12 @@ interface MonthlyRevenueChartProps {
 /**
  * Format month string to Vietnamese label
  * @param month - Month string in YYYY-MM format
- * @returns Formatted month label like "Tháng 1/2024"
+ * @returns Formatted month label like "T1/2024"
  */
 const formatMonthLabel = (month: string): string => {
   if (!month) return "";
   const [year, monthNum] = month.split("-");
-  return `Tháng ${parseInt(monthNum)}/${year}`;
+  return `T${parseInt(monthNum)}/${year}`;
 };
 
 /**
@@ -82,78 +82,90 @@ const MonthlyRevenueChart = ({
       role="img"
       aria-label="Biểu đồ doanh thu theo tháng"
     >
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart
           data={chartData}
           margin={{
-            top: 5,
-            right: 30,
+            top: 20,
+            right: 40,
             left: 20,
-            bottom: 5,
+            bottom: 40,
           }}
           aria-label="Biểu đồ cột thể hiện doanh thu và số đơn đặt phòng theo tháng"
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <defs>
+            <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
+              <stop offset="100%" stopColor="#059669" stopOpacity={0.75} />
+            </linearGradient>
+            <linearGradient id="bookingsGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.95} />
+              <stop offset="100%" stopColor="#2563eb" stopOpacity={0.75} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
           <XAxis
             dataKey="monthLabel"
             stroke="#6b7280"
-            style={{ fontSize: "12px" }}
-            angle={-45}
-            textAnchor="end"
-            height={80}
+            style={{ fontSize: "12px", fontWeight: 500 }}
+            angle={0}
+            textAnchor="middle"
+            height={50}
+            interval={0}
+            tick={{ fill: "#374151" }}
             aria-label="Trục tháng"
           />
           <YAxis
             yAxisId="left"
-            stroke="#00BCD4"
-            style={{ fontSize: "12px" }}
+            stroke="#10b981"
+            style={{ fontSize: "12px", fontWeight: 500 }}
             tickFormatter={formatRevenueAxis}
+            tick={{ fill: "#10b981" }}
             label={{
               value: "Doanh thu (VND)",
               angle: -90,
               position: "insideLeft",
+              style: { fill: "#10b981", fontWeight: 600, fontSize: 13 },
             }}
             aria-label="Trục doanh thu"
           />
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke="#0D6EFD"
-            style={{ fontSize: "12px" }}
+            stroke="#3b82f6"
+            style={{ fontSize: "12px", fontWeight: 500 }}
+            tick={{ fill: "#3b82f6" }}
             label={{
               value: "Số đơn",
               angle: 90,
               position: "insideRight",
+              style: { fill: "#3b82f6", fontWeight: 600, fontSize: 13 },
             }}
             aria-label="Trục số lượng đơn"
           />
           <Tooltip
-            formatter={(value: number, name: string) => {
-              if (name === "Doanh thu") {
-                return formatChartTooltip(value, "revenue");
-              }
-              return [value, name];
-            }}
+            cursor={{ fill: "rgba(102, 126, 234, 0.1)" }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload as MonthlyRevenueData;
                 return (
                   <div
                     style={{
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      padding: "12px",
+                      backgroundColor: "rgba(255, 255, 255, 0.98)",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: "12px",
+                      padding: "14px 16px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                     }}
                   >
-                    <p style={{ margin: "0 0 8px 0", fontWeight: 600 }}>
+                    <p style={{ margin: "0 0 10px 0", fontWeight: 700, fontSize: "15px", color: "#1f2937" }}>
                       {data.monthLabel}
                     </p>
-                    <p style={{ margin: "0 0 4px 0", fontSize: "14px", color: "#00BCD4" }}>
-                      Doanh thu: {formatChartTooltip(data.revenue, "revenue")}
+                    <p style={{ margin: "0 0 6px 0", fontSize: "14px", color: "#10b981", fontWeight: 600 }}>
+                      💰 Doanh thu: {formatChartTooltip(data.revenue, "revenue")}
                     </p>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#0D6EFD" }}>
-                      Số đơn: {data.bookings}
+                    <p style={{ margin: 0, fontSize: "14px", color: "#3b82f6", fontWeight: 600 }}>
+                      📦 Số đơn: {data.bookings}
                     </p>
                   </div>
                 );
@@ -163,22 +175,27 @@ const MonthlyRevenueChart = ({
           />
           <Legend
             wrapperStyle={{
-              paddingTop: "20px",
+              paddingTop: "24px",
+              fontSize: "14px",
+              fontWeight: 600,
             }}
+            iconType="circle"
           />
           <Bar
             yAxisId="left"
             dataKey="revenue"
             name="Doanh thu"
-            fill="#00BCD4"
-            radius={[8, 8, 0, 0]}
+            fill="url(#revenueGradient)"
+            radius={[10, 10, 0, 0]}
+            maxBarSize={60}
           />
           <Bar
             yAxisId="right"
             dataKey="bookings"
             name="Số đơn"
-            fill="#0D6EFD"
-            radius={[8, 8, 0, 0]}
+            fill="url(#bookingsGradient)"
+            radius={[10, 10, 0, 0]}
+            maxBarSize={60}
           />
         </BarChart>
       </ResponsiveContainer>
@@ -195,7 +212,7 @@ const MonthlyRevenueChart = ({
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          height: 350px;
+          height: 400px;
           color: #6b7280;
         }
 

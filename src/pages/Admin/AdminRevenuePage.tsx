@@ -353,11 +353,27 @@ const AdminRevenuePage = () => {
             </ChartErrorBoundary>
           </div>
 
+          {/* Monthly Revenue Chart */}
+          <div className="chart-card full-width">
+            <div className="chart-header">
+              <h3>Doanh thu theo Tháng</h3>
+              <p className="chart-subtitle">Biểu đồ doanh thu và số đơn đặt phòng theo từng tháng</p>
+            </div>
+            <ChartErrorBoundary onReset={handleRetry}>
+              <MonthlyRevenueChart
+                data={monthlyRevenue}
+                loading={loading}
+                error={errors.monthly}
+                onRetry={handleRetry}
+              />
+            </ChartErrorBoundary>
+          </div>
+
           {/* Revenue by Status Chart */}
           <div className="chart-card">
             <div className="chart-header">
               <h3>Doanh thu theo Trạng thái</h3>
-              <p className="chart-subtitle">Phân bố doanh thu theo trạng thái đơn</p>
+              <p className="chart-subtitle">Phân bố doanh thu theo trạng thái đơn đặt phòng</p>
             </div>
             <ChartErrorBoundary onReset={handleRetry}>
               <RevenueByStatusChart
@@ -373,29 +389,13 @@ const AdminRevenuePage = () => {
           <div className="chart-card">
             <div className="chart-header">
               <h3>Phân bố Đơn đặt phòng</h3>
-              <p className="chart-subtitle">Tỷ lệ đơn theo trạng thái</p>
+              <p className="chart-subtitle">Tỷ lệ phần trăm đơn đặt phòng theo từng trạng thái</p>
             </div>
             <ChartErrorBoundary onReset={handleRetry}>
               <BookingStatusPieChart
                 data={bookings}
                 loading={loading}
                 error={errors.bookings}
-                onRetry={handleRetry}
-              />
-            </ChartErrorBoundary>
-          </div>
-
-          {/* Monthly Revenue Chart */}
-          <div className="chart-card full-width">
-            <div className="chart-header">
-              <h3>Doanh thu theo Tháng</h3>
-              <p className="chart-subtitle">12 tháng gần nhất</p>
-            </div>
-            <ChartErrorBoundary onReset={handleRetry}>
-              <MonthlyRevenueChart
-                data={monthlyRevenue}
-                loading={loading}
-                error={errors.monthly}
                 onRetry={handleRetry}
               />
             </ChartErrorBoundary>
