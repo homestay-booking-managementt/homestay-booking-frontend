@@ -62,12 +62,62 @@ export interface AdminBookingSummary {
   guestName?: string;
   userName?: string;
   userEmail?: string;
+  userPhone?: string;
+  phone?: string;
   status: string;
   totalPrice?: number;
   checkIn?: string;
   checkOut?: string;
   nights?: number;
   createdAt?: string;
+}
+
+export interface BookingStatusHistory {
+  id: number;
+  bookingId: number;
+  oldStatus: string | null;
+  newStatus: string | null;
+  reason: string | null;
+  changedBy: number | null;
+  changedByName: string | null;
+  changedByEmail: string | null;
+  changedAt: string;
+}
+
+export interface BookingDetail extends AdminBookingSummary {
+  // Guest info (có thể có trong tương lai)
+  guestEmail?: string;
+  guestPhone?: string;
+  guestAddress?: string;
+  numberOfGuests?: number;
+  numberOfAdults?: number;
+  numberOfChildren?: number;
+  
+  // Homestay info (từ backend)
+  homestayAddress?: string;        // Có từ backend
+  homestayCity?: string;           // Có từ backend
+  homestayCapacity?: number;       // Có từ backend
+  homestayNumRooms?: number;       // Có từ backend (số phòng ngủ)
+  homestayBathroomCount?: number;  // Có từ backend (số phòng tắm)
+  homestayBasePrice?: number;      // Có từ backend (giá/đêm)
+  
+  // Homestay info (chưa có từ backend)
+  homestayDistrict?: string;
+  homestayWard?: string;
+  homestayType?: string;
+  
+  // Owner info (chưa có từ backend)
+  ownerName?: string;
+  ownerEmail?: string;
+  ownerPhone?: string;
+  
+  // Booking details (chưa có từ backend)
+  checkInTime?: string;
+  checkOutTime?: string;
+  specialRequests?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  statusHistory?: BookingStatusHistory[];
 }
 
 export interface AdminComplaintSummary {
@@ -110,4 +160,16 @@ export interface AdminRevenueReport {
   // Để tương thích với code cũ
   items?: RevenueReportItem[];
   generatedAt?: string;
+}
+
+export interface CustomerInfo {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+}
+
+export interface CustomerBookingsResponse {
+  bookings: AdminBookingSummary[];
+  customerInfo: CustomerInfo | null;
 }

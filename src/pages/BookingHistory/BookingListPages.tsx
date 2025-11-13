@@ -270,7 +270,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/app/hooks";
 import { Booking } from "@/types/booking";
 import { BookingFilter } from "@/components/booking/BookingFilterBar";
-import { BookingCard } from "@/components/booking/BookingCard";
+import BookingCard from "@/components/booking/BookingCard";
 import "@/styles/BookingListPages.css";
 
 const Theme = () => (

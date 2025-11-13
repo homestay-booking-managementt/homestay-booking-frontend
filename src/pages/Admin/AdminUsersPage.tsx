@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchUsers, updateUserStatus, fetchUserStatusHistory } from "@/api/adminApi";
 import type { AdminUser, UserStatusHistory } from "@/types/admin";
 import { showAlert } from "@/utils/showAlert";
@@ -15,9 +16,12 @@ import {
   FaHistory,
   FaInfoCircle,
   FaFilter,
+  FaHome,
+  FaCalendarAlt,
 } from "react-icons/fa";
 
 const AdminUsersPage = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "CUSTOMER" | "HOST">("ALL");
@@ -121,6 +125,16 @@ const AdminUsersPage = () => {
   const closeDetailModal = () => {
     setShowDetailModal(false);
     setSelectedUser(null);
+  };
+
+  const handleViewHomestays = (user: AdminUser) => {
+    // Navigate đến trang homestay list với owner filter
+    navigate(`/admin/homestays?ownerId=${user.id}&ownerName=${encodeURIComponent(user.name)}`);
+  };
+
+  const handleViewBookings = (user: AdminUser) => {
+    // Navigate đến trang booking list với customer filter
+    navigate(`/admin/bookings?customerId=${user.id}&customerName=${encodeURIComponent(user.name)}`);
   };
 
   // Lọc bỏ Admin khỏi danh sách
@@ -539,6 +553,26 @@ const AdminUsersPage = () => {
                       <FaInfoCircle />
                       <span className="btn-tooltip">Chi tiết</span>
                     </button>
+                    {userRole === "HOST" && (
+                      <button
+                        className="action-icon-btn homestay-btn"
+                        onClick={() => handleViewHomestays(user)}
+                        title="Xem homestay"
+                      >
+                        <FaHome />
+                        <span className="btn-tooltip">Homestay</span>
+                      </button>
+                    )}
+                    {userRole === "CUSTOMER" && (
+                      <button
+                        className="action-icon-btn booking-btn"
+                        onClick={() => handleViewBookings(user)}
+                        title="Xem booking"
+                      >
+                        <FaCalendarAlt />
+                        <span className="btn-tooltip">Booking</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2220,6 +2254,56 @@ const AdminUsersPage = () => {
           background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
           color: white;
           border-color: #8b5cf6;
+        }
+
+        .homestay-btn {
+          background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+          color: #15803d;
+          border-color: #bbf7d0;
+        }
+
+        .homestay-btn:hover {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          border-color: #10b981;
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .dark .homestay-btn {
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+          color: #6ee7b7;
+          border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .dark .homestay-btn:hover {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          border-color: #10b981;
+        }
+
+        .booking-btn {
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          color: #b45309;
+          border-color: #fde68a;
+        }
+
+        .booking-btn:hover {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+          border-color: #f59e0b;
+          box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .dark .booking-btn {
+          background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
+          color: #fcd34d;
+          border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .dark .booking-btn:hover {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: white;
+          border-color: #f59e0b;
         }
 
         /* Button Tooltip */

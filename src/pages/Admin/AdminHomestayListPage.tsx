@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   fetchAllHomestaysForAdmin,
   fetchHomestaysPendingUpdate,
@@ -7,6 +8,7 @@ import {
   fetchHomestayStatusHistory,
   approvePendingUpdate,
   rejectPendingUpdate,
+  fetchHomestaysByOwnerId,
 } from "@/api/adminApi";
 import type { Homestay, HomestayStatusHistory } from "@/types/homestay";
 import { showAlert } from "@/utils/showAlert";
@@ -24,8 +26,14 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import "./OwnerInfoCard.css";
 
 const AdminHomestayListPage = () => {
+  // URL query params
+  const [searchParams] = useSearchParams();
+  const ownerId = searchParams.get('ownerId');
+  const ownerName = searchParams.get('ownerName');
+  
   // Tab state
   const [activeTab, setActiveTab] = useState<"all" | "pending-updates">("all");
   
@@ -35,6 +43,13 @@ const AdminHomestayListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<number | "ALL">("ALL");
   const [showStatusDropdown, setShowStatusDropdown] = useState(false);
+  
+  // Owner info state
+  const [ownerInfo, setOwnerInfo] = useState<{
+    id: number;
+    name: string;
+    email: string;
+  } | null>(null);
   
   // Detail modal
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -95,12 +110,31 @@ const AdminHomestayListPage = () => {
   const loadHomestays = async () => {
     setLoading(true);
     try {
-      const [allData, pendingData] = await Promise.all([
-        fetchAllHomestaysForAdmin(),
-        fetchHomestaysPendingUpdate()
-      ]);
-      setHomestays(Array.isArray(allData) ? allData : []);
-      setPendingUpdateRequests(Array.isArray(pendingData) ? pendingData : []);
+      if (ownerId) {
+        // Lấy homestay theo owner ID và pending updates
+        const [ownerHomestaysResult, allPendingData] = await Promise.all([
+          fetchHomestaysByOwnerId(Number(ownerId)),
+          fetchHomestaysPendingUpdate()
+        ]);
+        
+        setHomestays(Array.isArray(ownerHomestaysResult.homestays) ? ownerHomestaysResult.homestays : []);
+        setOwnerInfo(ownerHomestaysResult.ownerInfo);
+        
+        // Filter pending updates để chỉ lấy của owner này
+        const ownerPendingUpdates = Array.isArray(allPendingData) 
+          ? allPendingData.filter((req: any) => req.homestay?.host?.id === Number(ownerId))
+          : [];
+        setPendingUpdateRequests(ownerPendingUpdates);
+      } else {
+        // Lấy tất cả homestay
+        const [allData, pendingData] = await Promise.all([
+          fetchAllHomestaysForAdmin(),
+          fetchHomestaysPendingUpdate()
+        ]);
+        setHomestays(Array.isArray(allData) ? allData : []);
+        setPendingUpdateRequests(Array.isArray(pendingData) ? pendingData : []);
+        setOwnerInfo(null);
+      }
     } catch (error) {
       showAlert("Không thể tải danh sách homestay", "danger");
     } finally {
@@ -369,8 +403,42 @@ const AdminHomestayListPage = () => {
   return (
     <div className="admin-homestay-list-page">
       <div className="page-header">
-        <h1>Danh sách Homestay</h1>
-        <p>Quản lý toàn bộ homestay trong hệ thống ({homestays.length} homestay)</p>
+        {ownerId && ownerName ? (
+          <>
+            <div className="breadcrumb">
+              <Link to="/admin/users" className="breadcrumb-link">
+                <FaUsers /> Quản lý người dùng
+              </Link>
+              <span className="breadcrumb-separator">/</span>
+              <span className="breadcrumb-current">
+                <FaHome /> Homestay của {decodeURIComponent(ownerName)}
+              </span>
+            </div>
+            <h1>Homestay của {decodeURIComponent(ownerName)}</h1>
+            {ownerInfo && (
+              <div className="owner-info-card">
+                <div className="owner-avatar">
+                  {ownerInfo.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="owner-details">
+                  <p className="owner-name">{ownerInfo.name}</p>
+                  <p className="owner-email">{ownerInfo.email}</p>
+                  <p className="owner-id">ID: {ownerInfo.id}</p>
+                </div>
+                <div className="owner-stats">
+                  <span className="stat-badge">
+                    <FaHome /> {homestays.length} homestay
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <h1>Danh sách Homestay</h1>
+            <p>Quản lý toàn bộ homestay trong hệ thống ({homestays.length} homestay)</p>
+          </>
+        )}
       </div>
 
       {/* Tabs */}
@@ -380,7 +448,7 @@ const AdminHomestayListPage = () => {
           onClick={() => setActiveTab("all")}
         >
           <FaHome />
-          Tất cả Homestay
+          {ownerId ? "Homestay" : "Tất cả Homestay"}
           <span className="tab-count">{homestays.length}</span>
         </button>
         <button 
@@ -457,8 +525,20 @@ const AdminHomestayListPage = () => {
       ) : filteredHomestays.length === 0 ? (
         <div className="empty-state">
           <FaHome className="empty-icon" />
-          <h3>Không có homestay nào</h3>
-          <p>{searchTerm ? "Không tìm thấy homestay phù hợp với từ khóa tìm kiếm" : "Không có homestay trong hệ thống"}</p>
+          <h3>
+            {activeTab === "pending-updates" ? "Không có yêu cầu cập nhật nào" : "Không có homestay nào"}
+          </h3>
+          <p>
+            {activeTab === "pending-updates" 
+              ? (ownerId 
+                  ? "Chủ nhà chưa có yêu cầu cập nhật nào đang chờ duyệt" 
+                  : "Không có yêu cầu cập nhật đang chờ duyệt")
+              : (ownerId 
+                  ? "Chủ nhà chưa có homestay nào" 
+                  : searchTerm 
+                    ? "Không tìm thấy homestay phù hợp với từ khóa tìm kiếm" 
+                    : "Không có homestay trong hệ thống")}
+          </p>
         </div>
       ) : (
         <>

@@ -1,0 +1,139 @@
+/* Breadcrumb Navigation */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.breadcrumb-link {
+  color: #f59e0b;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.breadcrumb-link:hover {
+  color: #d97706;
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  color: #9ca3af;
+}
+
+.breadcrumb-current {
+  color: #4b5563;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+/* Customer Info Card */
+.customer-info-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.customer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.customer-details {
+  flex: 1;
+}
+
+.customer-name {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+}
+
+.customer-email {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.customer-phone {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 2px 0 0 0;
+}
+
+.customer-id {
+  font-size: 12px;
+  opacity: 0.7;
+  margin: 4px 0 0 0;
+}
+
+.customer-stats {
+  display: flex;
+  gap: 12px;
+}
+
+.customer-stats .stat-badge {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Dark mode support */
+.dark .breadcrumb-link {
+  color: #fbbf24;
+}
+
+.dark .breadcrumb-link:hover {
+  color: #f59e0b;
+}
+
+.dark .breadcrumb-current {
+  color: #d1d5db;
+}
+
+.dark .customer-info-card {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .customer-info-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 16px;
+  }
+
+  .customer-details {
+    width: 100%;
+  }
+
+  .customer-stats {
+    width: 100%;
+    justify-content: center;
+  }
+}

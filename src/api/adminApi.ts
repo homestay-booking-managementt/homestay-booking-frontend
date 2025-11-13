@@ -6,6 +6,7 @@ import type {
   AdminHomestayRequest,
   AdminRevenueReport,
   AdminUser,
+  BookingDetail,
   HomestayRequestReviewPayload,
   UpdateUserStatusPayload,
 } from "@/types/admin";
@@ -66,6 +67,22 @@ export const fetchAdminBookings = async (): Promise<AdminBookingSummary[]> => {
 
   // Backend trả về format: { success, message, data, total }
   return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
+ * Lấy chi tiết đặt phòng
+ * GET /api/admin/bookings/:id
+ */
+export const fetchBookingDetail = async (bookingId: number): Promise<BookingDetail> => {
+  const response = (await sendRequest(`/api/admin/bookings/${bookingId}`, {
+    method: "GET",
+  })) as any;
+
+  // Backend trả về format: { success, message, data }
+  if (!response?.data) {
+    throw new Error("Không tìm thấy thông tin đặt phòng");
+  }
+  return response.data;
 };
 
 export const fetchAdminComplaints = async (): Promise<AdminComplaintSummary[]> => {
@@ -199,3 +216,46 @@ export const rejectPendingUpdate = (pendingId: number, adminId: number, reason: 
     method: "POST",
     payload: { adminId, reason },
   });
+
+/**
+ * Lấy danh sách homestay theo owner ID
+ * GET /api/admin/homestays/owner/:ownerId
+ */
+export const fetchHomestaysByOwnerId = async (ownerId: number) => {
+  try {
+    const response = (await sendRequest(`/api/admin/homestays/owner/${ownerId}`, {
+      method: "GET",
+    })) as any;
+
+    if (response?.success) {
+      return {
+        homestays: Array.isArray(response.data) ? response.data : [],
+        total: response.total || 0,
+        ownerInfo: response.ownerInfo || null,
+      };
+    }
+    throw new Error(response?.message || "Không thể tải danh sách homestay");
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.message || "Lỗi khi tải danh sách homestay");
+  }
+};
+
+/**
+ * Lấy danh sách booking theo customer ID kèm thông tin customer
+ * GET /api/admin/bookings/customer/:customerId
+ */
+export const fetchBookingsByCustomerId = async (customerId: number) => {
+  try {
+    const response = (await sendRequest(`/api/admin/bookings/customer/${customerId}`, {
+      method: "GET",
+    })) as any;
+
+    // Backend trả về format: { bookings: [...], customerInfo: {...} }
+    return {
+      bookings: Array.isArray(response?.bookings) ? response.bookings : [],
+      customerInfo: response?.customerInfo || null,
+    };
+  } catch (error: any) {
+    throw new Error(error.response?.data?.message || error.message || "Lỗi khi tải danh sách booking của khách hàng");
+  }
+};
