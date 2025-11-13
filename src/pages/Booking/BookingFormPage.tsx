@@ -1,68 +1,64 @@
 /* eslint-disable prettier/prettier */
+import { fetchUsers } from "@/api/adminApi";
+import { createBooking } from "@/api/bookingApi";
+import { fetchHomestayById } from "@/api/homestayApi";
+import { useAppSelector } from "@/app/hooks";
 import BookingCustomerInfo from "@/components/booking/BookingCustomInfo";
 import BookingPaymentModal from "@/components/booking/BookingPaymentModal";
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-
+import AppDialog from "@/components/common/AppDialog";
+import { Homestay } from "@/types/homestay";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const BookingFormPage = () => {
-  const localtion = useLocation();
-  const { homestayId, checkIn, checkOut } = {
-  homestayId: 1,
-  checkIn: "2025-12-10",
-  checkOut: "2025-12-12",
-};//localtion.state || {};
-  const nights =
-    (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-    (1000 * 60 * 60 * 24);
-  const data = {
-        "id": 1,
-        "userId": 1,
-        "name": "Villa Biển Đà Nẵng",
-        "description": "Villa sang trọng view biển, gần bãi tắm Mỹ Khê",
-        "address": "123 Võ Nguyên Giáp, Sơn Trà",
-        "city": "Đà Nẵng",
-        "lat": 16.0471,
-        "longitude": 108.2376,
-        "capacity": 8,
-        "numRooms": 3,
-        "bathroomCount": 2,
-        "basePrice": 2500000.00,
-        "amenities": "{\"wifi\": true, \"pool\": true, \"parking\": true, \"ac\": true, \"kitchen\": true}",
-        "status": 2,
-        "createdAt": "2025-01-10 08:30:00",
-        "updatedAt": "2025-01-15 10:00:00",
-        "images": [
-            {
-                "id": 1,
-                "url": "https://chefjob.vn/wp-content/uploads/2020/07/biet-thu-vinpearl-da-nang-resort-villas.jpg",
-                "alt": "Villa Biển Đà Nẵng - Mặt tiền",
-                "isPrimary": true,
-                "createdAt": "2025-10-26 22:41:57"
-            },
-            {
-                "id": 2,
-                "url": "https://example.com/images/villa-danang-2.jpg",
-                "alt": "Villa Biển Đà Nẵng - Hồ bơi",
-                "isPrimary": false,
-                "createdAt": "2025-10-26 22:41:57"
-            },
-            {
-                "id": 8,
-                "url": "/images/homestay1a.jpg",
-                "alt": "Phòng khách Bình An",
-                "isPrimary": false,
-                "createdAt": "2025-10-27 17:45:27"
-            },
-            {
-                "id": 9,
-                "url": "/images/homestay1b.jpg",
-                "alt": "Phòng ngủ Bình An",
-                "isPrimary": false,
-                "createdAt": "2025-10-27 17:45:27"
-            }
-        ]
-    }
+  //khoi tao
+const [searchParams] = useSearchParams();
+const navigate = useNavigate();
+//lay du lieu can thiet
+const homestayId = searchParams.get("homestayId");
+const checkIn = searchParams.get("checkIn") || "2025-12-12" ;
+const checkOut = searchParams.get("checkOut") || "2025-12-12";
+console.log(homestayId,checkIn,checkOut); 
+const nights =
+  (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+  (1000 * 60 * 60 * 24);
+    //lay homestay
+const [homestay, setHomestay] = useState<Homestay | null>(null);
+    
+const loadHomestay = async (id: number) => {
+  try {
+    const data = await fetchHomestayById(id);
+    if(data)
+    setHomestay(data);
+  } catch {
+    console.log("Không thể tải chi tiết homestay", "danger");
+  } 
+};
+    
+useEffect(() => {
+  if (homestayId) {
+    const id = Number(homestayId);
+    loadHomestay(id);
+  }
+}, [homestayId, navigate]);
+//popup sau dat phong
+interface DialogState {
+  show: boolean;
+  title: string;
+  message: string;
+  confirmText: string;
+  cancelText?: string;
+  onConfirm?: () => void;
+  onCancel?: () => void;
+}
+
+const [dialog, setDialog] = useState<DialogState>({
+  show: false,
+  title: "",
+  message: "",
+  confirmText: "",
+});
+
 
   // form state
   const [form, setForm] = useState({
@@ -75,17 +71,20 @@ const BookingFormPage = () => {
     bedPreference: "",
     notes: "",
   });
-
+  const [user1,setUser1] = useState({
+    "userId": 1,
+      "name": "Nguyễn Văn A",
+      "email": "nguyenvana@example.com",
+      "phone": "0901234567"
+  });
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     // Tạo JSON đầy đủ
     const payload = {
-      
       userInfo: {
         name: `${form.lastName} ${form.firstName}`.trim(),
         email: form.email,
@@ -101,21 +100,80 @@ const BookingFormPage = () => {
 
     console.log("📦 Dữ liệu gửi API:", payload);
   };
-  const user = {
-        "userId": 1,
-        "name": "Nguyễn Văn A",
-        "email": "nguyenvana@example.com",
-        "phone": "0901234567"
+    const currentUser = useAppSelector((store) => store.auth.currentUser);
+    useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await fetchUsers();
+        console.log("Users:", data);
+        const found = data.find(d => d.id === currentUser.userId);
+        console.log("FOUND", found );
+        if (found) {
+        setUser1({
+          userId: found.id,
+          name: found.name,
+          email: found.email,
+          phone: found.phone || "",
+        });
+      }
+        
+      } catch (err) {
+        console.error("Lỗi fetchUsers:", err);
+      }
     };
-    const [showModal, setShowModal] = useState(false);
 
+    load();
+  }, []);
+    console.log(currentUser);
+    console.log("user1",user1);
+    const [showModal, setShowModal] = useState(false);
   const bookingInfo = {
-    homestayName: "Villa Biển Đà Nẵng",
-    totalPrice: 5000000,
-    checkIn: "2025-12-10",
-    checkOut: "2025-12-12",
-    nights: 2,
+    homestayName: homestay?.name || "",
+    totalPrice: homestay?.basePrice && nights 
+  ? homestay.basePrice * nights 
+  : 0,
+
+    checkIn: checkIn,
+    checkOut: checkOut,
+    nights: nights,
   };
+// 🌟 Tạo booking trước khi thanh toán
+const handleCreateBooking = async () => {
+  try {
+    const payload = {
+      homestayId: Number(homestayId),
+      userId: currentUser.userId,
+      checkIn,
+      checkOut,
+    };
+
+    const created = await createBooking(payload);
+
+    console.log("🎉 Tạo booking thành công:", created);
+    setDialog({
+      show: true,
+      title: "Đặt phòng thành công",
+      message: "Bạn muốn thanh toán ngay không?",
+      confirmText: "Thanh toán",
+      cancelText: "Để sau",
+      onConfirm: () => {
+        navigate(`/payments/${created.bookingId}`);
+      },
+      onCancel: () => {
+        navigate(`/bookings/history`);
+      }
+    });
+  } catch (err:any) {
+    console.error("❌ Lỗi tạo booking:", err);
+    setDialog({
+      show: true,
+      title: "Lỗi",
+      message: err?.message || "Đặt phòng thất bại, vui lòng thử lại!",
+      confirmText: "Đã hiểu",
+      cancelText: "",
+    });
+  }
+};
 
   const handleConfirm = (data: { code: string; method: string }) => {
     console.log("Xác nhận thanh toán:", data);
@@ -126,12 +184,13 @@ const BookingFormPage = () => {
   const d = new Date(iso);
   return d.toLocaleDateString("vi-VN"); 
 };
+
   return (
     <div className="container my-4">
       <div className="row g-4">
         {/* LEFT: Form */}
         <div className="col-md-8">
-            <BookingCustomerInfo user={user } />
+            <BookingCustomerInfo user={user1} />
           <div className="card shadow-sm">
             <div className="card-body">
               {/* FORM YÊU CẦU ĐẶC BIỆT */}
@@ -211,9 +270,17 @@ const BookingFormPage = () => {
                     </div>
 
                     {/* Nút gửi */}
-                    <button type="submit" onClick={()=>setShowModal(true)} className="btn btn-primary w-100 rounded-pill py-2 fw-semibold">
-                    Kế tiếp: Bước cuối cùng
-                    </button>
+                    {/* <button type="submit" onClick={()=>setShowModal(true)} className="btn btn-primary w-100 rounded-pill py-2 fw-semibold"> */}
+                    <div className="d-flex justify-content-center">
+                      <button
+                        type="submit"
+                        onClick={handleCreateBooking}
+                        className="btn btn-primary rounded-pill py-2 fw-semibold px-5 fs-5"
+                      >
+                        Đặt phòng
+                      </button>
+                    </div>
+
                 </form>
                 
                 </div>
@@ -233,14 +300,14 @@ const BookingFormPage = () => {
         <div className="col-md-4">
           <div className="card shadow-sm">
             <img
-              src={data.images[0].url}
-              alt={data.images[0].alt}
+              src={homestay?.images?.[0].url}
+              alt={homestay?.images?.[0].alt}
               className="card-img-top"
               style={{ height: "200px", objectFit: "cover" }}
             />
             <div className="card-body">
-              <h5>{data.name}</h5>
-              <p className="text-muted">{data.address}</p>
+              <h5>{homestay?.name}</h5>
+              <p className="text-muted">{homestay?.address}</p>
               <hr />
               <p>
                 <strong>Nhận phòng:</strong> {fmtDate(checkIn)}
@@ -254,7 +321,9 @@ const BookingFormPage = () => {
                 {new Intl.NumberFormat("vi-VN", {
                   style: "currency",
                   currency: "VND",
-                }).format(data.basePrice * nights)}
+                }).format(homestay?.basePrice && nights 
+  ? homestay.basePrice * nights 
+  : 0)}
               </p>
 
               <ul className="small list-unstyled">
@@ -267,6 +336,16 @@ const BookingFormPage = () => {
           </div>
         </div>
       </div>
+      <AppDialog
+  show={dialog.show}
+  title={dialog.title}
+  message={dialog.message}
+  confirmText={dialog.confirmText}
+  cancelText={dialog.cancelText}
+  onConfirm={dialog.onConfirm}
+  onCancel={dialog.onCancel}
+/>
+
     </div>
   );
 };

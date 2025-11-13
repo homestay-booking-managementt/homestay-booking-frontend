@@ -13,7 +13,7 @@ export interface BookingStatusPayload {
     | "paid"
     | "checked_in"
     | "checked_out"
-    | "canceled"
+    | "cancelled"
     | "refunded"
     | "completed";
 }
@@ -82,7 +82,7 @@ export const STATUS_LABEL: Record<BookingStatusPayload["status"], string> = {
   paid: "Đã thanh toán",
   checked_in: "Đã nhận phòng",
   checked_out: "Đã trả phòng",
-  canceled: "Đã hủy",
+  cancelled: "Đã hủy",
   refunded: "Đã hoàn tiền",
   completed: "Hoàn tất",
 };
@@ -92,7 +92,7 @@ export const STATUS_BADGE: Record<BookingStatusPayload["status"], string> = {
   paid: "bg-success-subtle text-success-emphasis",
   checked_in: "bg-primary-subtle text-primary-emphasis",
   checked_out: "bg-secondary-subtle text-secondary-emphasis",
-  canceled: "bg-danger-subtle text-danger-emphasis",
+  cancelled: "bg-danger-subtle text-danger-emphasis",
   refunded: "bg-dark-subtle text-dark-emphasis",
   completed: "bg-success-subtle text-success-emphasis",
 };

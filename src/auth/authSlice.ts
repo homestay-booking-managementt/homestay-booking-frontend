@@ -16,42 +16,63 @@ let isActive = false;
 /** Are both `idToken` and `refreshToken` existing in local storage and valid? */
 let areTokensValid = Boolean(idToken && refreshToken);
 
+// if (idToken) {
+//   try {
+//     const tokenDecode: Record<string, unknown> = jwtDecode(idToken);
+
+//     // Hỗ trợ nhiều format token từ backend khác nhau
+//     if (tokenDecode) {
+//       // Thử các field khác nhau cho userId
+//       userId = (tokenDecode["user_id"] || tokenDecode["id"] || tokenDecode["sub"]) as number | null;
+//       userName = (tokenDecode["user_name"] || tokenDecode["name"] || tokenDecode["username"]) as
+//         | string
+//         | null;
+//       roleId = tokenDecode["role_id"] as number | null;
+
+//       // Check admin role từ nhiều nguồn
+//       isAdmin =
+//         (tokenDecode["is_admin"] as boolean) ||
+//         (Array.isArray(tokenDecode["roles"]) &&
+//           (tokenDecode["roles"] as string[]).includes("ADMIN")) ||
+//         false;
+
+//       isActive = (tokenDecode["is_active"] as boolean) || tokenDecode["status"] === 1 || true; // Mặc định active nếu không có field này
+
+//       // Không set areTokensValid = false nếu thiếu field, vì token vẫn có thể hợp lệ
+//       // Chỉ kiểm tra token expired
+//       if (Object.prototype.hasOwnProperty.call(tokenDecode, "exp")) {
+//         const expirationTime = (tokenDecode["exp"] as number) * 1000;
+//         if (expirationTime < new Date().getTime()) {
+//           areTokensValid = false;
+//         }
+//       }
+//     }
+//   } catch (error) {
+//     console.error("❌ Error decoding id_token:", error);
+//     // Không xóa token ngay, vì có thể là lỗi decode nhưng token vẫn valid
+//     // Để backend API check và trả 401 nếu token không hợp lệ
+//     areTokensValid = true; // Vẫn cho phép tiếp tục, backend sẽ validate
+//   }
+// }
 if (idToken) {
   try {
-    const tokenDecode: Record<string, unknown> = jwtDecode(idToken);
+    const tokenDecode: any = jwtDecode(idToken);
 
-    // Hỗ trợ nhiều format token từ backend khác nhau
-    if (tokenDecode) {
-      // Thử các field khác nhau cho userId
-      userId = (tokenDecode["user_id"] || tokenDecode["id"] || tokenDecode["sub"]) as number | null;
-      userName = (tokenDecode["user_name"] || tokenDecode["name"] || tokenDecode["username"]) as
-        | string
-        | null;
-      roleId = tokenDecode["role_id"] as number | null;
+    userId = tokenDecode["userId"] ?? null;   // backend trả userId
+    roleId = tokenDecode["roles"]?.[0] === "ADMIN" ? 1 
+            : tokenDecode["roles"]?.[0] === "HOST" ? 2
+            : tokenDecode["roles"]?.[0] === "CUSTOMER" ? 3 
+            : null;
 
-      // Check admin role từ nhiều nguồn
-      isAdmin =
-        (tokenDecode["is_admin"] as boolean) ||
-        (Array.isArray(tokenDecode["roles"]) &&
-          (tokenDecode["roles"] as string[]).includes("ADMIN")) ||
-        false;
+    isAdmin = tokenDecode["roles"]?.includes("ADMIN") || false;
 
-      isActive = (tokenDecode["is_active"] as boolean) || tokenDecode["status"] === 1 || true; // Mặc định active nếu không có field này
+    // email nằm trong sub
+    userName = null; // JWT không có name, KHÔNG gán email vào đây
 
-      // Không set areTokensValid = false nếu thiếu field, vì token vẫn có thể hợp lệ
-      // Chỉ kiểm tra token expired
-      if (Object.prototype.hasOwnProperty.call(tokenDecode, "exp")) {
-        const expirationTime = (tokenDecode["exp"] as number) * 1000;
-        if (expirationTime < new Date().getTime()) {
-          areTokensValid = false;
-        }
-      }
-    }
-  } catch (error) {
-    console.error("❌ Error decoding id_token:", error);
-    // Không xóa token ngay, vì có thể là lỗi decode nhưng token vẫn valid
-    // Để backend API check và trả 401 nếu token không hợp lệ
-    areTokensValid = true; // Vẫn cho phép tiếp tục, backend sẽ validate
+    isActive = true; // KO có status trong JWT
+
+  } catch (e) {
+    console.error("Decode token failed:", e);
   }
 }
 
