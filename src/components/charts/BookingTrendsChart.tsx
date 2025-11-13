@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   LineChart,
   Line,
@@ -64,7 +65,7 @@ const BookingTrendsChart = ({ data, loading, error, onRetry }: BookingTrendsChar
           />
           <YAxis
             yAxisId="left"
-            stroke="#3b82f6"
+            stroke="#0D6EFD"
             style={{ fontSize: "12px" }}
             label={{ value: "Số đơn", angle: -90, position: "insideLeft" }}
             aria-label="Trục số lượng đơn đặt phòng"
@@ -72,7 +73,7 @@ const BookingTrendsChart = ({ data, loading, error, onRetry }: BookingTrendsChar
           <YAxis
             yAxisId="right"
             orientation="right"
-            stroke="#10b981"
+            stroke="#00BCD4"
             style={{ fontSize: "12px" }}
             tickFormatter={formatRevenueAxis}
             label={{ value: "Doanh thu", angle: 90, position: "insideRight" }}
@@ -101,21 +102,21 @@ const BookingTrendsChart = ({ data, loading, error, onRetry }: BookingTrendsChar
             yAxisId="left"
             type="monotone"
             dataKey="bookings"
-            stroke="#3b82f6"
-            strokeWidth={2}
+            stroke="#0D6EFD"
+            strokeWidth={3}
             name="Số đơn"
-            dot={{ fill: "#3b82f6", r: 4 }}
-            activeDot={{ r: 6 }}
+            dot={{ fill: "#0D6EFD", r: 5 }}
+            activeDot={{ r: 7, fill: "#0D6EFD" }}
           />
           <Line
             yAxisId="right"
             type="monotone"
             dataKey="revenue"
-            stroke="#10b981"
-            strokeWidth={2}
+            stroke="#00BCD4"
+            strokeWidth={3}
             name="Doanh thu"
-            dot={{ fill: "#10b981", r: 4 }}
-            activeDot={{ r: 6 }}
+            dot={{ fill: "#00BCD4", r: 5 }}
+            activeDot={{ r: 7, fill: "#00BCD4" }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -166,4 +167,4 @@ const BookingTrendsChart = ({ data, loading, error, onRetry }: BookingTrendsChar
   );
 };
 
-export default BookingTrendsChart;
+export default memo(BookingTrendsChart);

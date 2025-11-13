@@ -21,23 +21,36 @@ export interface RevenueByStatusData {
 }
 
 /**
- * Status colors mapping
+ * Status colors mapping - Ocean theme palette
+ * Supports both uppercase and lowercase status values
  */
 export const STATUS_COLORS: Record<string, string> = {
-  PENDING: "#f59e0b",
-  CONFIRMED: "#3b82f6",
-  COMPLETED: "#10b981",
-  CANCELLED: "#ef4444",
-  PAID: "#8b5cf6",
-  CHECKED_IN: "#06b6d4",
-  CHECKED_OUT: "#6b7280",
-  REFUNDED: "#f97316",
+  // Uppercase
+  PENDING: "#FFA726",      // Orange 400 - Cam sáng (chờ xác nhận)
+  CONFIRMED: "#0D6EFD",    // Ocean Blue - Xanh dương biển (đã xác nhận)
+  COMPLETED: "#10B981",    // Emerald 500 - Xanh lá (hoàn tất)
+  CANCELLED: "#EF4444",    // Red 500 - Đỏ (đã hủy)
+  PAID: "#9B5DE5",         // Purple 500 - Tím (đã thanh toán)
+  CHECKED_IN: "#00BCD4",   // Cyan 500 - Xanh ngọc (đã nhận phòng)
+  CHECKED_OUT: "#607D8B",  // Blue Grey 500 - Xám xanh (đã trả phòng)
+  REFUNDED: "#FF6B6B",     // Coral Red - Đỏ san hô (đã hoàn tiền)
+  // Lowercase (for backend compatibility)
+  pending: "#FFA726",
+  confirmed: "#0D6EFD",
+  completed: "#10B981",
+  cancelled: "#EF4444",
+  paid: "#9B5DE5",
+  checked_in: "#00BCD4",
+  checked_out: "#607D8B",
+  refunded: "#FF6B6B",
 };
 
 /**
  * Status labels in Vietnamese
+ * Supports both uppercase and lowercase status values
  */
 export const STATUS_LABELS: Record<string, string> = {
+  // Uppercase
   PENDING: "Chờ xác nhận",
   CONFIRMED: "Đã xác nhận",
   COMPLETED: "Hoàn tất",
@@ -46,6 +59,15 @@ export const STATUS_LABELS: Record<string, string> = {
   CHECKED_IN: "Đã nhận phòng",
   CHECKED_OUT: "Đã trả phòng",
   REFUNDED: "Đã hoàn tiền",
+  // Lowercase (for backend compatibility)
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  completed: "Hoàn tất",
+  cancelled: "Đã hủy",
+  paid: "Đã thanh toán",
+  checked_in: "Đã nhận phòng",
+  checked_out: "Đã trả phòng",
+  refunded: "Đã hoàn tiền",
 };
 
 /**
@@ -96,6 +118,14 @@ export const prepareBookingTrendsData = (
 };
 
 /**
+ * Get status color by status key (case-insensitive)
+ */
+const getStatusColor = (status: string): string => {
+  const upperStatus = status.toUpperCase();
+  return STATUS_COLORS[upperStatus] || STATUS_COLORS[status] || "#6b7280";
+};
+
+/**
  * Prepare revenue by status data for bar chart
  * @param bookings - Array of booking summaries
  * @returns Array of revenue by status data points
@@ -117,12 +147,13 @@ export const prepareRevenueByStatusData = (
 
   return statuses.map((status) => {
     const statusBookings = bookings.filter((b) => b.status === status);
+    const upperStatus = status.toUpperCase();
 
     return {
-      status: STATUS_LABELS[status] || status,
+      status: STATUS_LABELS[upperStatus] || STATUS_LABELS[status] || status,
       revenue: statusBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0),
       count: statusBookings.length,
-      color: STATUS_COLORS[status] || "#6b7280",
+      color: getStatusColor(status),
     };
   }).filter(data => data.count > 0); // Only include statuses with bookings
 };

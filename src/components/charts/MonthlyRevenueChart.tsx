@@ -8,20 +8,50 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
-import type { RevenueByStatusData } from "@/utils/bookingUtils";
+import type { MonthlyRevenueData } from "@/types/admin";
 import { formatChartTooltip, formatRevenueAxis } from "@/utils/bookingUtils";
 import ChartError from "./ChartError";
 
-interface RevenueByStatusChartProps {
-  data: RevenueByStatusData[];
+interface MonthlyRevenueChartProps {
+  data: MonthlyRevenueData[];
   loading?: boolean;
   error?: string | null;
   onRetry?: () => void;
 }
 
-const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatusChartProps) => {
+/**
+ * Format month string to Vietnamese label
+ * @param month - Month string in YYYY-MM format
+ * @returns Formatted month label like "Tháng 1/2024"
+ */
+const formatMonthLabel = (month: string): string => {
+  if (!month) return "";
+  const [year, monthNum] = month.split("-");
+  return `Tháng ${parseInt(monthNum)}/${year}`;
+};
+
+/**
+ * Prepare chart data with formatted labels
+ */
+const prepareChartData = (data: MonthlyRevenueData[]): MonthlyRevenueData[] => {
+  if (!Array.isArray(data)) return [];
+  
+  // Limit to last 12 months and add formatted labels
+  return data
+    .slice(-12)
+    .map(item => ({
+      ...item,
+      monthLabel: item.monthLabel || formatMonthLabel(item.month),
+    }));
+};
+
+const MonthlyRevenueChart = ({
+  data,
+  loading,
+  error,
+  onRetry,
+}: MonthlyRevenueChartProps) => {
   if (loading) {
     return (
       <div className="chart-loading" role="status" aria-live="polite">
@@ -35,7 +65,9 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
     return <ChartError message={error} onRetry={onRetry} />;
   }
 
-  if (!data || data.length === 0) {
+  const chartData = prepareChartData(data);
+
+  if (chartData.length === 0) {
     return (
       <div className="chart-empty" role="status">
         <p aria-hidden="true">📊</p>
@@ -45,31 +77,55 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
   }
 
   return (
-    <div className="revenue-by-status-chart" role="img" aria-label="Biểu đồ doanh thu theo trạng thái đặt phòng">
+    <div
+      className="monthly-revenue-chart"
+      role="img"
+      aria-label="Biểu đồ doanh thu theo tháng"
+    >
       <ResponsiveContainer width="100%" height={350}>
         <BarChart
-          data={data}
+          data={chartData}
           margin={{
             top: 5,
             right: 30,
             left: 20,
             bottom: 5,
           }}
-          aria-label="Biểu đồ cột thể hiện doanh thu theo từng trạng thái đặt phòng"
+          aria-label="Biểu đồ cột thể hiện doanh thu và số đơn đặt phòng theo tháng"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
           <XAxis
-            dataKey="status"
+            dataKey="monthLabel"
             stroke="#6b7280"
             style={{ fontSize: "12px" }}
-            aria-label="Trục trạng thái đặt phòng"
+            angle={-45}
+            textAnchor="end"
+            height={80}
+            aria-label="Trục tháng"
           />
           <YAxis
-            stroke="#6b7280"
+            yAxisId="left"
+            stroke="#00BCD4"
             style={{ fontSize: "12px" }}
             tickFormatter={formatRevenueAxis}
-            label={{ value: "Doanh thu (VND)", angle: -90, position: "insideLeft" }}
+            label={{
+              value: "Doanh thu (VND)",
+              angle: -90,
+              position: "insideLeft",
+            }}
             aria-label="Trục doanh thu"
+          />
+          <YAxis
+            yAxisId="right"
+            orientation="right"
+            stroke="#0D6EFD"
+            style={{ fontSize: "12px" }}
+            label={{
+              value: "Số đơn",
+              angle: 90,
+              position: "insideRight",
+            }}
+            aria-label="Trục số lượng đơn"
           />
           <Tooltip
             formatter={(value: number, name: string) => {
@@ -80,7 +136,7 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
             }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
-                const data = payload[0].payload as RevenueByStatusData;
+                const data = payload[0].payload as MonthlyRevenueData;
                 return (
                   <div
                     style={{
@@ -91,13 +147,13 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
                     }}
                   >
                     <p style={{ margin: "0 0 8px 0", fontWeight: 600 }}>
-                      {data.status}
+                      {data.monthLabel}
                     </p>
-                    <p style={{ margin: "0 0 4px 0", fontSize: "14px" }}>
+                    <p style={{ margin: "0 0 4px 0", fontSize: "14px", color: "#00BCD4" }}>
                       Doanh thu: {formatChartTooltip(data.revenue, "revenue")}
                     </p>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-                      Số đơn: {data.count}
+                    <p style={{ margin: 0, fontSize: "14px", color: "#0D6EFD" }}>
+                      Số đơn: {data.bookings}
                     </p>
                   </div>
                 );
@@ -110,16 +166,25 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
               paddingTop: "20px",
             }}
           />
-          <Bar dataKey="revenue" name="Doanh thu" radius={[8, 8, 0, 0]}>
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Bar>
+          <Bar
+            yAxisId="left"
+            dataKey="revenue"
+            name="Doanh thu"
+            fill="#00BCD4"
+            radius={[8, 8, 0, 0]}
+          />
+          <Bar
+            yAxisId="right"
+            dataKey="bookings"
+            name="Số đơn"
+            fill="#0D6EFD"
+            radius={[8, 8, 0, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
 
       <style>{`
-        .revenue-by-status-chart {
+        .monthly-revenue-chart {
           width: 100%;
           height: 100%;
         }
@@ -164,4 +229,4 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
   );
 };
 
-export default memo(RevenueByStatusChart);
+export default memo(MonthlyRevenueChart);

@@ -1,27 +1,88 @@
 import { useEffect, useState } from "react";
-import { fetchAdminComplaints } from "@/api/adminApi";
-import type { AdminComplaintSummary } from "@/types/admin";
+import { fetchAdminComplaints, updateComplaintStatus } from "@/api/adminApi";
+import type { AdminComplaintSummary, ComplaintStatus } from "@/types/admin";
 import { showAlert } from "@/utils/showAlert";
 import { FaExclamationTriangle, FaClipboardList, FaCheckCircle, FaChartLine, FaInbox } from "react-icons/fa";
+import ComplaintDetailModal from "./ComplaintDetailModal";
+import ResolveComplaintModal from "./ResolveComplaintModal";
 
 const AdminComplaintsPage = () => {
   const [complaints, setComplaints] = useState<AdminComplaintSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("ALL");
+  const [selectedComplaint, setSelectedComplaint] = useState<AdminComplaintSummary | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showResolveModal, setShowResolveModal] = useState(false);
+
+  const getStatusText = (status: string) => {
+    const statusMap: Record<string, string> = {
+      OPEN: "Đang xử lý",
+      IN_PROGRESS: "Đang tiến hành",
+      RESOLVED: "Đã giải quyết",
+      CLOSED: "Đã đóng",
+      pending: "Đang xử lý",
+      in_review: "Đang tiến hành",
+      resolved: "Đã giải quyết",
+      closed: "Đã đóng",
+    };
+    return statusMap[status] || status;
+  };
 
   useEffect(() => {
     loadComplaints();
   }, []);
 
+  const [loadError, setLoadError] = useState(false);
+
   const loadComplaints = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const data = await fetchAdminComplaints();
       setComplaints(Array.isArray(data) ? data : []);
     } catch (error) {
+      console.error("Error loading complaints:", error);
+      setLoadError(true);
       showAlert("Không thể tải danh sách khiếu nại", "danger");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleViewDetail = (complaint: AdminComplaintSummary) => {
+    setSelectedComplaint(complaint);
+    setShowDetailModal(true);
+  };
+
+  const handleResolve = (complaint: AdminComplaintSummary) => {
+    setSelectedComplaint(complaint);
+    setShowResolveModal(true);
+  };
+
+  const handleCloseModals = () => {
+    setShowDetailModal(false);
+    setShowResolveModal(false);
+    setSelectedComplaint(null);
+  };
+
+  const handleStatusUpdate = async (complaintId: number, newStatus: ComplaintStatus, note?: string) => {
+    try {
+      await updateComplaintStatus(complaintId, { status: newStatus, note });
+      
+      // Optimistic update: cập nhật local state
+      setComplaints((prev) =>
+        prev.map((c) => (c.id === complaintId ? { ...c, status: newStatus } : c))
+      );
+      
+      showAlert("Cập nhật trạng thái thành công", "success");
+      handleCloseModals();
+      
+      // Reload để đảm bảo data đồng bộ
+      loadComplaints();
+    } catch (error: any) {
+      console.error("Error updating complaint status:", error);
+      showAlert(error?.message || "Không thể cập nhật trạng thái khiếu nại", "danger");
+      throw error;
     }
   };
 
@@ -84,31 +145,69 @@ const AdminComplaintsPage = () => {
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="filter-bar">
-        <button className={`filter-btn ${filter === "ALL" ? "active" : ""}`} onClick={() => setFilter("ALL")}>
+      {/* Filter Tabs */}
+      <div className="filter-tabs">
+        <button
+          className={`filter-tab ${filter === "ALL" ? "active" : ""}`}
+          onClick={() => setFilter("ALL")}
+          type="button"
+        >
           Tất cả
         </button>
-        <button className={`filter-btn ${filter === "OPEN" ? "active" : ""}`} onClick={() => setFilter("OPEN")}>
+        <button
+          className={`filter-tab ${filter === "OPEN" ? "active" : ""}`}
+          onClick={() => setFilter("OPEN")}
+          type="button"
+        >
           Đang xử lý
         </button>
         <button
-          className={`filter-btn ${filter === "IN_PROGRESS" ? "active" : ""}`}
+          className={`filter-tab ${filter === "IN_PROGRESS" ? "active" : ""}`}
           onClick={() => setFilter("IN_PROGRESS")}
+          type="button"
         >
           Đang tiến hành
         </button>
-        <button className={`filter-btn ${filter === "RESOLVED" ? "active" : ""}`} onClick={() => setFilter("RESOLVED")}>
+        <button
+          className={`filter-tab ${filter === "RESOLVED" ? "active" : ""}`}
+          onClick={() => setFilter("RESOLVED")}
+          type="button"
+        >
           Đã giải quyết
         </button>
-        <button className={`filter-btn ${filter === "CLOSED" ? "active" : ""}`} onClick={() => setFilter("CLOSED")}>
+        <button
+          className={`filter-tab ${filter === "CLOSED" ? "active" : ""}`}
+          onClick={() => setFilter("CLOSED")}
+          type="button"
+        >
           Đã đóng
         </button>
       </div>
 
-      {/* Complaints Grid */}
-      {loading ? (
-        <div className="loading">Đang tải...</div>
+      {/* Complaints List */}
+      {loadError ? (
+        <div className="error-state">
+          <div className="error-icon">⚠️</div>
+          <h3>Không thể tải dữ liệu</h3>
+          <p>Đã xảy ra lỗi khi tải danh sách khiếu nại</p>
+          <button className="retry-btn" onClick={loadComplaints} type="button">
+            🔄 Thử lại
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="complaints-list">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="complaint-row skeleton-row">
+              <div className="skeleton skeleton-id" />
+              <div className="skeleton skeleton-badge" />
+              <div className="skeleton skeleton-subject" />
+              <div className="skeleton skeleton-text" />
+              <div className="skeleton skeleton-text" />
+              <div className="skeleton skeleton-text" />
+              <div className="skeleton skeleton-text" />
+            </div>
+          ))}
+        </div>
       ) : filteredComplaints.length === 0 ? (
         <div className="empty-state">
           <FaInbox className="empty-icon" />
@@ -116,31 +215,56 @@ const AdminComplaintsPage = () => {
           <p>Không tìm thấy khiếu nại nào phù hợp với bộ lọc</p>
         </div>
       ) : (
-        <div className="complaints-grid">
+        <div className="complaints-list">
           {filteredComplaints.map((complaint) => (
-            <div key={complaint.id} className="complaint-card">
-              <div className="complaint-header">
-                <span className="complaint-id">#{complaint.id}</span>
-                <span className={`status-badge ${complaint.status.toLowerCase()}`}>{complaint.status}</span>
+            <div 
+              key={complaint.id} 
+              className="complaint-row"
+              onClick={() => handleViewDetail(complaint)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleViewDetail(complaint);
+                }
+              }}
+            >
+              <div className="row-cell id-cell">#{complaint.id}</div>
+              <div className="row-cell status-cell">
+                <span className={`status-badge ${complaint.status.toLowerCase()}`}>
+                  {getStatusText(complaint.status)}
+                </span>
               </div>
-
-              <h3 className="complaint-subject">{complaint.subject}</h3>
-
-              {complaint.assignedTo && (
-                <div className="assigned-to">
-                  <span className="assigned-label">Phụ trách:</span>
-                  <span className="assigned-name">{complaint.assignedTo}</span>
-                </div>
-              )}
-
-              <div className="complaint-actions">
-                <button className="action-btn view">👁️ Xem chi tiết</button>
-                <button className="action-btn resolve">✓ Giải quyết</button>
+              <div className="row-cell subject-cell">{complaint.subject}</div>
+              <div className="row-cell homestay-cell">{complaint.homestayName || "-"}</div>
+              <div className="row-cell user-cell">{complaint.userName || "-"}</div>
+              <div className="row-cell date-cell">
+                {complaint.createdAt 
+                  ? new Date(complaint.createdAt).toLocaleDateString('vi-VN')
+                  : "-"}
+              </div>
+              <div className="row-cell assigned-cell">
+                {complaint.assignedTo || complaint.assignedAdminName || "-"}
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Modals */}
+      <ComplaintDetailModal
+        complaint={selectedComplaint}
+        onClose={handleCloseModals}
+        onResolve={handleResolve}
+        show={showDetailModal}
+      />
+      <ResolveComplaintModal
+        complaint={selectedComplaint}
+        onClose={handleCloseModals}
+        onConfirm={handleStatusUpdate}
+        show={showResolveModal}
+      />
 
       <style>{`
         .admin-complaints-page {
@@ -179,6 +303,12 @@ const AdminComplaintsPage = () => {
           display: flex;
           gap: 16px;
           align-items: center;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .stat-icon {
@@ -190,24 +320,31 @@ const AdminComplaintsPage = () => {
           justify-content: center;
           font-size: 24px;
           flex-shrink: 0;
-          color: #6b7280;
-          background: #e5e7eb;
+          transition: transform 0.2s;
+        }
+
+        .stat-card:hover .stat-icon {
+          transform: scale(1.1);
         }
 
         .stat-icon.red {
-          background: #e5e7eb;
+          background: #fee2e2;
+          color: #dc2626;
         }
 
         .stat-icon.yellow {
-          background: #e5e7eb;
+          background: #fef3c7;
+          color: #d97706;
         }
 
         .stat-icon.green {
-          background: #e5e7eb;
+          background: #d1fae5;
+          color: #059669;
         }
 
         .stat-icon.blue {
-          background: #e5e7eb;
+          background: #dbeafe;
+          color: #2563eb;
         }
 
         .stat-content {
@@ -225,40 +362,6 @@ const AdminComplaintsPage = () => {
           font-size: 24px;
           font-weight: 700;
           color: #1f2937;
-        }
-
-        .filter-bar {
-          background: white;
-          padding: 20px;
-          border-radius: 12px;
-          margin-bottom: 24px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-
-        .filter-btn {
-          padding: 10px 20px;
-          border: 1px solid #e5e7eb;
-          background: white;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #6b7280;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .filter-btn:hover {
-          background: #f9fafb;
-          border-color: #d1d5db;
-        }
-
-        .filter-btn.active {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border-color: transparent;
         }
 
         .loading {
@@ -295,36 +398,138 @@ const AdminComplaintsPage = () => {
           color: #6b7280;
         }
 
-        .complaints-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 20px;
-        }
-
-        .complaint-card {
+        .error-state {
+          text-align: center;
+          padding: 80px 20px;
           background: white;
           border-radius: 12px;
-          padding: 24px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .complaint-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .complaint-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+        .error-icon {
+          font-size: 64px;
           margin-bottom: 16px;
         }
 
-        .complaint-id {
+        .error-state h3 {
+          margin: 0 0 8px 0;
+          font-size: 20px;
+          font-weight: 600;
+          color: #dc2626;
+        }
+
+        .error-state p {
+          margin: 0 0 24px 0;
+          color: #6b7280;
+        }
+
+        .retry-btn {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          border-radius: 8px;
           font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .retry-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 24px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+          height: 4px;
+        }
+
+        .filter-tabs::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 2px;
+        }
+
+        .filter-tabs::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 2px;
+        }
+
+        .filter-tab {
+          padding: 10px 20px;
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 500;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+
+        .filter-tab:hover {
+          border-color: #667eea;
+          color: #667eea;
+        }
+
+        .filter-tab.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-color: transparent;
+        }
+
+        /* Complaints List */
+        .complaints-list {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
+        }
+
+        .complaint-row {
+          display: grid;
+          grid-template-columns: 80px 120px 1fr 180px 150px 120px 150px;
+          gap: 16px;
+          padding: 16px 20px;
+          border-bottom: 1px solid #e5e7eb;
+          align-items: center;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .complaint-row:last-child {
+          border-bottom: none;
+        }
+
+        .complaint-row:hover {
+          background: #f9fafb;
+        }
+
+        .row-cell {
+          font-size: 14px;
+          color: #1f2937;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .id-cell {
           font-weight: 600;
           color: #6b7280;
+        }
+
+        .status-cell {
+          display: flex;
+          align-items: center;
         }
 
         .status-badge {
@@ -332,6 +537,7 @@ const AdminComplaintsPage = () => {
           border-radius: 12px;
           font-size: 12px;
           font-weight: 600;
+          display: inline-block;
         }
 
         .status-badge.open {
@@ -354,124 +560,187 @@ const AdminComplaintsPage = () => {
           color: #4b5563;
         }
 
-        .complaint-subject {
-          margin: 0 0 16px 0;
-          font-size: 18px;
+        .subject-cell {
           font-weight: 600;
-          color: #1f2937;
         }
 
-        .assigned-to {
-          margin-bottom: 16px;
-          padding: 12px;
-          background: #f9fafb;
-          border-radius: 8px;
-          display: flex;
-          gap: 8px;
-          font-size: 14px;
-        }
-
-        .assigned-label {
+        .homestay-cell,
+        .user-cell,
+        .assigned-cell {
           color: #6b7280;
         }
 
-        .assigned-name {
-          color: #1f2937;
-          font-weight: 500;
+        .date-cell {
+          color: #6b7280;
+          font-size: 13px;
         }
 
-        .complaint-actions {
-          display: flex;
-          gap: 12px;
+        /* Skeleton Loading */
+        .skeleton-row {
+          pointer-events: none;
         }
 
-        .action-btn {
-          flex: 1;
-          padding: 10px 16px;
-          border: none;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.2s;
+        .skeleton {
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: loading 1.5s ease-in-out infinite;
+          border-radius: 4px;
+          height: 16px;
         }
 
-        .action-btn.view {
-          background: #e5e7eb;
-          color: #1f2937;
+        @keyframes loading {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -200% 0;
+          }
         }
 
-        .action-btn.view:hover {
-          background: #d1d5db;
+        .skeleton-id {
+          width: 60px;
         }
 
-        .action-btn.resolve {
-          background: #10b981;
-          color: white;
+        .skeleton-badge {
+          width: 100px;
+          height: 24px;
+          border-radius: 12px;
         }
 
-        .action-btn.resolve:hover {
-          background: #059669;
+        .skeleton-subject {
+          width: 100%;
+        }
+
+        .skeleton-text {
+          width: 80%;
         }
 
         /* Dark Mode */
         .dark .page-header h1,
         .dark .stat-value,
-        .dark .empty-state h3,
-        .dark .complaint-subject {
+        .dark .empty-state h3 {
           color: #f1f5f9;
         }
 
         .dark .page-header p,
         .dark .stat-label,
-        .dark .empty-state p,
-        .dark .complaint-id {
+        .dark .empty-state p {
+          color: #94a3b8;
+        }
+
+        .dark .error-state {
+          background: #1e293b;
+        }
+
+        .dark .error-state h3 {
+          color: #f87171;
+        }
+
+        .dark .error-state p {
           color: #94a3b8;
         }
 
         .dark .stat-card,
-        .dark .filter-bar,
         .dark .loading,
-        .dark .empty-state,
-        .dark .complaint-card {
+        .dark .empty-state {
           background: #1e293b;
         }
 
-        .dark .filter-btn {
-          background: #0f172a;
-          color: #cbd5e0;
+        .dark .filter-tab {
+          background: #1e293b;
           border-color: #334155;
+          color: #94a3b8;
         }
 
-        .dark .filter-btn:hover {
+        .dark .filter-tab:hover {
+          border-color: #667eea;
+          color: #667eea;
+        }
+
+        .dark .complaints-list {
           background: #1e293b;
         }
 
-        .dark .assigned-to {
-          background: #0f172a;
+        .dark .complaint-row {
+          border-bottom-color: #334155;
         }
 
-        .dark .assigned-name {
-          color: #e2e8f0;
-        }
-
-        .dark .action-btn.view {
-          background: #0f172a;
-          color: #cbd5e0;
-        }
-
-        .dark .action-btn.view:hover {
+        .dark .complaint-row:hover {
           background: #334155;
         }
 
+        .dark .row-cell {
+          color: #e2e8f0;
+        }
+
+        .dark .id-cell,
+        .dark .homestay-cell,
+        .dark .user-cell,
+        .dark .assigned-cell,
+        .dark .date-cell {
+          color: #94a3b8;
+        }
+
+        .dark .skeleton {
+          background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+          background-size: 200% 100%;
+        }
+
+        @media (max-width: 1024px) {
+          .complaint-row {
+            grid-template-columns: 80px 120px 1fr 180px 150px 120px;
+          }
+
+          .assigned-cell {
+            display: none;
+          }
+        }
+
         @media (max-width: 768px) {
-          .stats-grid,
-          .complaints-grid {
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .complaint-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding: 16px;
+          }
+
+          .row-cell {
+            white-space: normal;
+          }
+
+          .homestay-cell,
+          .user-cell,
+          .date-cell,
+          .assigned-cell {
+            display: none;
+          }
+
+          .id-cell::before {
+            content: "ID: ";
+            font-weight: 400;
+            color: #9ca3af;
+          }
+
+          .subject-cell {
+            font-size: 15px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .stats-grid {
             grid-template-columns: 1fr;
           }
 
-          .filter-bar {
-            flex-direction: column;
+          .filter-tabs {
+            gap: 6px;
+          }
+
+          .filter-tab {
+            padding: 8px 16px;
+            font-size: 13px;
           }
         }
       `}</style>

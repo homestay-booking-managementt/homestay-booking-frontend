@@ -122,9 +122,39 @@ export interface BookingDetail extends AdminBookingSummary {
 
 export interface AdminComplaintSummary {
   id: number;
+  userId?: number;
+  bookingId?: number;
+  homestayId?: number;
   subject: string;
+  content?: string;
   status: string;
-  assignedTo?: string;
+  assignedAdminId?: number;
+  adminResponse?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  
+  // Thông tin người khiếu nại
+  userName?: string;           // Tên người khiếu nại
+  userEmail?: string;          // Email người khiếu nại
+  userPhone?: string;          // SĐT người khiếu nại
+  
+  // Thông tin homestay bị khiếu nại
+  homestayName?: string;       // Tên homestay
+  homestayAddress?: string;    // Địa chỉ đầy đủ homestay
+  homestayOwner?: string;      // Tên chủ homestay
+  homestayOwnerPhone?: string; // SĐT chủ homestay
+  homestayOwnerEmail?: string; // Email chủ homestay
+  
+  // Thông tin admin
+  assignedAdminName?: string;  // Tên admin được giao (nếu có)
+  assignedTo?: string;         // Alias cho assignedAdminName (backward compatibility)
+}
+
+export type ComplaintStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+
+export interface UpdateComplaintStatusPayload {
+  status: ComplaintStatus;
+  note?: string;
 }
 
 export interface AdminHomestayRequest {
@@ -172,4 +202,52 @@ export interface CustomerInfo {
 export interface CustomerBookingsResponse {
   bookings: AdminBookingSummary[];
   customerInfo: CustomerInfo | null;
+}
+
+// Revenue Dashboard Types
+export interface RevenueTrendData {
+  date: string; // YYYY-MM-DD
+  revenue: number;
+  bookings: number;
+}
+
+export interface RevenueByStatusData {
+  status: string;
+  statusLabel?: string;
+  revenue: number;
+  count: number;
+  color?: string;
+}
+
+export interface TopHomestayData {
+  rank?: number;
+  homestayId: number;
+  homestayName: string;
+  bookings: number;
+  revenue: number;
+  percentage: number;
+}
+
+export interface MonthlyRevenueData {
+  month: string; // YYYY-MM
+  monthLabel?: string;
+  revenue: number;
+  bookings: number;
+}
+
+export interface ComparisonData {
+  currentRevenue: number;
+  previousRevenue: number;
+  revenueChange: number;
+  revenueChangePercentage: number;
+  currentBookings: number;
+  previousBookings: number;
+  bookingsChange: number;
+  bookingsChangePercentage: number;
+}
+
+export interface TimeRange {
+  type: '7d' | '30d' | '90d' | 'custom';
+  startDate: Date;
+  endDate: Date;
 }

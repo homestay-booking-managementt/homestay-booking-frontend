@@ -1,133 +1,427 @@
-import { useEffect, useState } from "react";
-import { fetchRevenueReport } from "@/api/adminApi";
-import type { AdminRevenueReport } from "@/types/admin";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import {
+  fetchRevenueReport,
+  fetchRevenueTrends,
+  fetchRevenueByStatus,
+  fetchTopHomestays,
+  fetchMonthlyRevenue,
+  fetchRevenueComparison,
+  fetchAllBookings,
+} from "@/api/adminApi";
+import type {
+  AdminRevenueReport,
+  AdminBookingSummary,
+  RevenueTrendData,
+  RevenueByStatusData,
+  TopHomestayData,
+  MonthlyRevenueData,
+  ComparisonData,
+  TimeRange,
+} from "@/types/admin";
+import type { BookingTrendData } from "@/utils/bookingUtils";
 import { showAlert } from "@/utils/showAlert";
-import { FaDollarSign, FaChartBar, FaTrophy, FaHome } from "react-icons/fa";
+import TimeFilterBar from "@/components/revenue/TimeFilterBar";
+import SummaryCard from "@/components/revenue/SummaryCard";
+import BookingTrendsChart from "@/components/charts/BookingTrendsChart";
+import RevenueByStatusChart from "@/components/charts/RevenueByStatusChart";
+import BookingStatusPieChart from "@/components/charts/BookingStatusPieChart";
+import MonthlyRevenueChart from "@/components/charts/MonthlyRevenueChart";
+import TopHomestaysTable from "@/components/revenue/TopHomestaysTable";
+import ChartErrorBoundary from "@/components/revenue/ChartErrorBoundary";
+import EmptyState from "@/components/revenue/EmptyState";
+import {
+  FaDollarSign,
+  FaCheckCircle,
+  FaShoppingCart,
+  FaChartLine,
+  FaHome,
+  FaUsers,
+} from "react-icons/fa";
 
 const AdminRevenuePage = () => {
-  const [revenue, setRevenue] = useState<AdminRevenueReport | null>(null);
-  const [loading, setLoading] = useState(true);
+  // State for time range
+  const [timeRange, setTimeRange] = useState<TimeRange>({
+    type: "30d",
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    endDate: new Date(),
+  });
 
-  useEffect(() => {
-    loadRevenue();
+  // State for data
+  const [revenueReport, setRevenueReport] = useState<AdminRevenueReport | null>(null);
+  const [bookings, setBookings] = useState<AdminBookingSummary[]>([]);
+  const [revenueTrends, setRevenueTrends] = useState<BookingTrendData[]>([]);
+  const [revenueByStatus, setRevenueByStatus] = useState<RevenueByStatusData[]>([]);
+  const [topHomestays, setTopHomestays] = useState<TopHomestayData[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenueData[]>([]);
+  const [comparison, setComparison] = useState<ComparisonData | null>(null);
+
+  // State for loading and errors
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string | null>>({});
+
+  const navigate = useNavigate();
+
+  /**
+   * Convert RevenueTrendData to BookingTrendData format
+   */
+  const convertTrendData = useCallback((data: RevenueTrendData[]): BookingTrendData[] => {
+    return data.map(item => ({
+      date: format(new Date(item.date), "dd/MM"),
+      bookings: item.bookings,
+      revenue: item.revenue,
+    }));
   }, []);
 
-  const loadRevenue = async () => {
+  const loadAllData = useCallback(async () => {
     setLoading(true);
+    setErrors({});
+
+    const startDate = timeRange.startDate.toISOString().split("T")[0];
+    const endDate = timeRange.endDate.toISOString().split("T")[0];
+
     try {
-      const data = await fetchRevenueReport();
-      setRevenue(data);
+      // Fetch all data in parallel for better performance
+      const [
+        reportData,
+        bookingsData,
+        trendsData,
+        statusData,
+        homestaysData,
+        monthlyData,
+        comparisonData,
+      ] = await Promise.allSettled([
+        fetchRevenueReport(),
+        fetchAllBookings(),
+        fetchRevenueTrends(startDate, endDate),
+        fetchRevenueByStatus(startDate, endDate),
+        fetchTopHomestays(startDate, endDate, 10),
+        fetchMonthlyRevenue(startDate, endDate),
+        fetchRevenueComparison(startDate, endDate),
+      ]);
+
+      // Handle revenue report
+      if (reportData.status === "fulfilled") {
+        setRevenueReport(reportData.value);
+      } else {
+        setErrors((prev) => ({ ...prev, report: "Không thể tải báo cáo doanh thu" }));
+      }
+
+      // Handle bookings
+      if (bookingsData.status === "fulfilled") {
+        setBookings(bookingsData.value);
+      } else {
+        setErrors((prev) => ({ ...prev, bookings: "Không thể tải dữ liệu đặt phòng" }));
+      }
+
+      // Handle revenue trends
+      if (trendsData.status === "fulfilled") {
+        setRevenueTrends(convertTrendData(trendsData.value));
+      } else {
+        setErrors((prev) => ({ ...prev, trends: "Không thể tải dữ liệu xu hướng" }));
+      }
+
+      // Handle revenue by status
+      if (statusData.status === "fulfilled") {
+        // Add colors to status data
+        const dataWithColors = statusData.value.map((item: RevenueByStatusData) => {
+          const upperStatus = item.status.toUpperCase();
+          const STATUS_COLORS: Record<string, string> = {
+            PENDING: "#FFA726",
+            CONFIRMED: "#0D6EFD",
+            COMPLETED: "#10B981",
+            CANCELLED: "#EF4444",
+            PAID: "#9B5DE5",
+            CHECKED_IN: "#00BCD4",
+            CHECKED_OUT: "#607D8B",
+            REFUNDED: "#FF6B6B",
+            pending: "#FFA726",
+            confirmed: "#0D6EFD",
+            completed: "#10B981",
+            cancelled: "#EF4444",
+            paid: "#9B5DE5",
+            checked_in: "#00BCD4",
+            checked_out: "#607D8B",
+            refunded: "#FF6B6B",
+          };
+          const STATUS_LABELS: Record<string, string> = {
+            PENDING: "Chờ xác nhận",
+            CONFIRMED: "Đã xác nhận",
+            COMPLETED: "Hoàn tất",
+            CANCELLED: "Đã hủy",
+            pending: "Chờ xác nhận",
+            confirmed: "Đã xác nhận",
+            completed: "Hoàn tất",
+            cancelled: "Đã hủy",
+          };
+          
+          return {
+            ...item,
+            status: STATUS_LABELS[upperStatus] || STATUS_LABELS[item.status] || item.status,
+            color: STATUS_COLORS[upperStatus] || STATUS_COLORS[item.status] || "#6b7280",
+          };
+        });
+        setRevenueByStatus(dataWithColors);
+      } else {
+        setErrors((prev) => ({ ...prev, status: "Không thể tải dữ liệu theo trạng thái" }));
+      }
+
+      // Handle top homestays
+      if (homestaysData.status === "fulfilled") {
+        // Add rank numbers starting from 1
+        const homestaysWithRank = homestaysData.value.map((item: TopHomestayData, index: number) => ({
+          ...item,
+          rank: index + 1,
+        }));
+        setTopHomestays(homestaysWithRank);
+      } else {
+        setErrors((prev) => ({ ...prev, homestays: "Không thể tải top homestays" }));
+      }
+
+      // Handle monthly revenue
+      if (monthlyData.status === "fulfilled") {
+        setMonthlyRevenue(monthlyData.value);
+      } else {
+        setErrors((prev) => ({ ...prev, monthly: "Không thể tải dữ liệu theo tháng" }));
+      }
+
+      // Handle comparison
+      if (comparisonData.status === "fulfilled") {
+        setComparison(comparisonData.value);
+      } else {
+        setErrors((prev) => ({ ...prev, comparison: "Không thể tải dữ liệu so sánh" }));
+      }
     } catch (error) {
-      showAlert("Không thể tải báo cáo doanh thu", "danger");
+      showAlert("Có lỗi xảy ra khi tải dữ liệu", "danger");
     } finally {
       setLoading(false);
     }
-  };
+  }, [timeRange, convertTrendData]);
 
-  const totalRevenue = revenue?.items?.reduce((sum, item) => sum + (item.totalRevenue || 0), 0) || 0;
-  const averageRevenue = revenue?.items?.length ? totalRevenue / revenue.items.length : 0;
-  const topHomestay = revenue?.items?.sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0))[0];
+  useEffect(() => {
+    loadAllData();
+  }, [loadAllData]);
+
+  const handleTimeRangeChange = useCallback((newTimeRange: TimeRange) => {
+    setTimeRange(newTimeRange);
+  }, []);
+
+  const handleHomestayClick = useCallback((homestayId: number) => {
+    navigate(`/admin/homestays/${homestayId}`);
+  }, [navigate]);
+
+  const handleRetry = useCallback(() => {
+    loadAllData();
+  }, [loadAllData]);
+
+  // Memoize comparison values for summary cards
+  const revenueComparison = useMemo(() => {
+    if (!comparison) return undefined;
+    return {
+      value: comparison.revenueChange,
+      percentage: comparison.revenueChangePercentage,
+    };
+  }, [comparison]);
+
+  const bookingsComparison = useMemo(() => {
+    if (!comparison) return undefined;
+    return {
+      value: comparison.bookingsChange,
+      percentage: comparison.bookingsChangePercentage,
+    };
+  }, [comparison]);
+
+  // Check if we have any data
+  const hasData = useMemo(() => {
+    return (
+      (revenueReport?.totalRevenue || 0) > 0 ||
+      revenueTrends.length > 0 ||
+      revenueByStatus.length > 0 ||
+      bookings.length > 0
+    );
+  }, [revenueReport, revenueTrends, revenueByStatus, bookings]);
+
+  // Show empty state if no data and not loading
+  if (!loading && !hasData) {
+    return (
+      <div className="admin-revenue-page">
+        <div className="page-header">
+          <h1>Báo cáo Doanh thu</h1>
+          <p>Thống kê và phân tích doanh thu từ đặt phòng homestay</p>
+        </div>
+
+        <TimeFilterBar value={timeRange} onChange={handleTimeRangeChange} />
+
+        <EmptyState
+          icon="📊"
+          title="Chưa có dữ liệu doanh thu"
+          message="Hiện tại chưa có dữ liệu đặt phòng trong khoảng thời gian này. Hãy thử thay đổi bộ lọc thời gian hoặc kiểm tra lại sau."
+          action={{
+            label: "Thử lại",
+            onClick: handleRetry,
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="admin-revenue-page">
+      {/* Page Header */}
       <div className="page-header">
         <h1>Báo cáo Doanh thu</h1>
         <p>Thống kê và phân tích doanh thu từ đặt phòng homestay</p>
       </div>
 
+      {/* Time Filter */}
+      <TimeFilterBar
+        value={timeRange}
+        onChange={handleTimeRangeChange}
+      />
+
       {/* Summary Cards */}
       <div className="summary-grid">
-        <div className="summary-card">
-          <div className="summary-icon purple">
-            <FaDollarSign />
-          </div>
-          <div className="summary-content">
-            <span className="summary-label">Tổng doanh thu</span>
-            <span className="summary-value">{totalRevenue.toLocaleString("vi-VN")} VND</span>
-          </div>
-        </div>
-
-        <div className="summary-card">
-          <div className="summary-icon blue">
-            <FaChartBar />
-          </div>
-          <div className="summary-content">
-            <span className="summary-label">Trung bình/Homestay</span>
-            <span className="summary-value">{Math.round(averageRevenue).toLocaleString("vi-VN")} VND</span>
-          </div>
-        </div>
-
-        <div className="summary-card">
-          <div className="summary-icon green">
-            <FaTrophy />
-          </div>
-          <div className="summary-content">
-            <span className="summary-label">Homestay xuất sắc nhất</span>
-            <span className="summary-value">{topHomestay?.homestayName || "N/A"}</span>
-          </div>
-        </div>
-
-        <div className="summary-card">
-          <div className="summary-icon yellow">
-            <FaHome />
-          </div>
-          <div className="summary-content">
-            <span className="summary-label">Số lượng Homestay</span>
-            <span className="summary-value">{revenue?.items?.length || 0}</span>
-          </div>
-        </div>
+        <SummaryCard
+          title="Tổng doanh thu"
+          value={revenueReport?.totalRevenue || 0}
+          icon={<FaDollarSign />}
+          color="purple"
+          format="currency"
+          loading={loading}
+          comparison={revenueComparison}
+        />
+        <SummaryCard
+          title="Doanh thu hoàn thành"
+          value={revenueReport?.completedRevenue || 0}
+          icon={<FaCheckCircle />}
+          color="green"
+          format="currency"
+          loading={loading}
+        />
+        <SummaryCard
+          title="Số đơn đặt phòng"
+          value={revenueReport?.totalBookings || 0}
+          icon={<FaShoppingCart />}
+          color="blue"
+          format="number"
+          loading={loading}
+          comparison={bookingsComparison}
+        />
+        <SummaryCard
+          title="Giá trị trung bình/đơn"
+          value={revenueReport?.averageBookingValue || 0}
+          icon={<FaChartLine />}
+          color="orange"
+          format="currency"
+          loading={loading}
+        />
+        <SummaryCard
+          title="Số Homestay hoạt động"
+          value={revenueReport?.totalHomestays || 0}
+          icon={<FaHome />}
+          color="teal"
+          format="number"
+          loading={loading}
+        />
+        <SummaryCard
+          title="Số khách hàng"
+          value={revenueReport?.totalCustomers || 0}
+          icon={<FaUsers />}
+          color="pink"
+          format="number"
+          loading={loading}
+        />
       </div>
 
-      {/* Revenue Table */}
-      {loading ? (
-        <div className="loading">Đang tải...</div>
-      ) : (
-        <div className="table-container">
-          <div className="table-header">
-            <h2>Chi tiết Doanh thu theo Homestay</h2>
-            {revenue?.generatedAt && (
-              <span className="generated-time">
-                Cập nhật: {new Date(revenue.generatedAt).toLocaleString("vi-VN")}
-              </span>
-            )}
+      {/* Charts Grid */}
+      <ChartErrorBoundary onReset={handleRetry}>
+        <div className="charts-grid">
+          {/* Revenue Trends Chart */}
+          <div className="chart-card full-width">
+            <div className="chart-header">
+              <h3>Xu hướng Doanh thu</h3>
+              <p className="chart-subtitle">Doanh thu và số đơn theo ngày</p>
+            </div>
+            <ChartErrorBoundary onReset={handleRetry}>
+              <BookingTrendsChart
+                data={revenueTrends}
+                loading={loading}
+                error={errors.trends}
+                onRetry={handleRetry}
+              />
+            </ChartErrorBoundary>
           </div>
 
-          <table className="revenue-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Tên Homestay</th>
-                <th>Tháng</th>
-                <th>Doanh thu</th>
-                <th>% Tổng doanh thu</th>
-              </tr>
-            </thead>
-            <tbody>
-              {revenue?.items?.map((item, index) => {
-                const percentage = totalRevenue > 0 ? ((item.totalRevenue || 0) / totalRevenue) * 100 : 0;
-                return (
-                  <tr key={index}>
-                    <td>{item.homestayId}</td>
-                    <td className="homestay-name">{item.homestayName}</td>
-                    <td>{item.month || "Tất cả"}</td>
-                    <td className="revenue-value">{(item.totalRevenue || 0).toLocaleString("vi-VN")} VND</td>
-                    <td>
-                      <div className="percentage-bar">
-                        <div className="percentage-fill" style={{ width: `${percentage}%` }} />
-                        <span className="percentage-text">{percentage.toFixed(1)}%</span>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          {/* Revenue by Status Chart */}
+          <div className="chart-card">
+            <div className="chart-header">
+              <h3>Doanh thu theo Trạng thái</h3>
+              <p className="chart-subtitle">Phân bố doanh thu theo trạng thái đơn</p>
+            </div>
+            <ChartErrorBoundary onReset={handleRetry}>
+              <RevenueByStatusChart
+                data={revenueByStatus}
+                loading={loading}
+                error={errors.status}
+                onRetry={handleRetry}
+              />
+            </ChartErrorBoundary>
+          </div>
+
+          {/* Booking Status Pie Chart */}
+          <div className="chart-card">
+            <div className="chart-header">
+              <h3>Phân bố Đơn đặt phòng</h3>
+              <p className="chart-subtitle">Tỷ lệ đơn theo trạng thái</p>
+            </div>
+            <ChartErrorBoundary onReset={handleRetry}>
+              <BookingStatusPieChart
+                data={bookings}
+                loading={loading}
+                error={errors.bookings}
+                onRetry={handleRetry}
+              />
+            </ChartErrorBoundary>
+          </div>
+
+          {/* Monthly Revenue Chart */}
+          <div className="chart-card full-width">
+            <div className="chart-header">
+              <h3>Doanh thu theo Tháng</h3>
+              <p className="chart-subtitle">12 tháng gần nhất</p>
+            </div>
+            <ChartErrorBoundary onReset={handleRetry}>
+              <MonthlyRevenueChart
+                data={monthlyRevenue}
+                loading={loading}
+                error={errors.monthly}
+                onRetry={handleRetry}
+              />
+            </ChartErrorBoundary>
+          </div>
         </div>
-      )}
+      </ChartErrorBoundary>
+
+      {/* Top Homestays Table */}
+      <div className="table-card">
+        <div className="table-header">
+          <h3>Top 10 Homestay theo Doanh thu</h3>
+          <p className="table-subtitle">Homestays có doanh thu cao nhất trong kỳ</p>
+        </div>
+        <TopHomestaysTable
+          data={topHomestays}
+          loading={loading}
+          error={errors.homestays}
+          onHomestayClick={handleHomestayClick}
+          onRetry={handleRetry}
+        />
+      </div>
 
       <style>{`
         .admin-revenue-page {
           max-width: 1400px;
+          padding: 0;
         }
 
         .page-header {
@@ -151,183 +445,85 @@ const AdminRevenuePage = () => {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
           gap: 20px;
-          margin-bottom: 24px;
+          margin: 24px 0;
         }
 
-        .summary-card {
+        .charts-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 24px;
+          margin: 24px 0;
+        }
+
+        .chart-card {
           background: white;
           border-radius: 12px;
           padding: 24px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-          display: flex;
-          gap: 16px;
-          align-items: center;
         }
 
-        .summary-icon {
-          width: 64px;
-          height: 64px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 28px;
-          flex-shrink: 0;
-          color: #6b7280;
-          background: #e5e7eb;
+        .chart-card.full-width {
+          grid-column: 1 / -1;
         }
 
-        .summary-icon.purple {
-          background: #e5e7eb;
+        .chart-header {
+          margin-bottom: 20px;
         }
 
-        .summary-icon.blue {
-          background: #e5e7eb;
-        }
-
-        .summary-icon.green {
-          background: #e5e7eb;
-        }
-
-        .summary-icon.yellow {
-          background: #e5e7eb;
-        }
-
-        .summary-content {
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-        }
-
-        .summary-label {
-          font-size: 14px;
-          color: #6b7280;
-          margin-bottom: 4px;
-        }
-
-        .summary-value {
-          font-size: 20px;
-          font-weight: 700;
+        .chart-header h3 {
+          margin: 0 0 4px 0;
+          font-size: 18px;
+          font-weight: 600;
           color: #1f2937;
         }
 
-        .loading {
-          text-align: center;
-          padding: 60px;
+        .chart-subtitle {
+          margin: 0;
+          font-size: 14px;
           color: #6b7280;
-          background: white;
-          border-radius: 12px;
         }
 
-        .table-container {
+        .table-card {
           background: white;
           border-radius: 12px;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
           overflow: hidden;
+          margin: 24px 0;
         }
 
         .table-header {
           padding: 24px;
           border-bottom: 1px solid #f3f4f6;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
         }
 
-        .table-header h2 {
+        .table-header h3 {
+          margin: 0 0 4px 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .table-subtitle {
           margin: 0;
-          font-size: 20px;
-          font-weight: 600;
-          color: #1f2937;
-        }
-
-        .generated-time {
           font-size: 14px;
           color: #6b7280;
-        }
-
-        .revenue-table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
-        .revenue-table thead {
-          background: #f9fafb;
-        }
-
-        .revenue-table th {
-          padding: 16px 20px;
-          text-align: left;
-          font-size: 13px;
-          font-weight: 600;
-          color: #6b7280;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .revenue-table td {
-          padding: 16px 20px;
-          border-top: 1px solid #f3f4f6;
-          font-size: 14px;
-          color: #1f2937;
-        }
-
-        .revenue-table tbody tr:hover {
-          background: #f9fafb;
-        }
-
-        .homestay-name {
-          font-weight: 500;
-        }
-
-        .revenue-value {
-          font-weight: 600;
-          color: #059669;
-        }
-
-        .percentage-bar {
-          position: relative;
-          width: 100%;
-          height: 32px;
-          background: #f3f4f6;
-          border-radius: 8px;
-          overflow: hidden;
-        }
-
-        .percentage-fill {
-          position: absolute;
-          height: 100%;
-          background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
-          transition: width 0.3s ease;
-        }
-
-        .percentage-text {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          height: 100%;
-          font-size: 12px;
-          font-weight: 600;
-          color: #1f2937;
         }
 
         /* Dark Mode */
         .dark .page-header h1,
-        .dark .summary-value,
-        .dark .table-header h2 {
+        .dark .chart-header h3,
+        .dark .table-header h3 {
           color: #f1f5f9;
         }
 
         .dark .page-header p,
-        .dark .summary-label,
-        .dark .generated-time {
+        .dark .chart-subtitle,
+        .dark .table-subtitle {
           color: #94a3b8;
         }
 
-        .dark .summary-card,
-        .dark .loading,
-        .dark .table-container {
+        .dark .chart-card,
+        .dark .table-card {
           background: #1e293b;
         }
 
@@ -335,44 +531,34 @@ const AdminRevenuePage = () => {
           border-bottom-color: #334155;
         }
 
-        .dark .revenue-table thead {
-          background: #0f172a;
-        }
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .charts-grid {
+            grid-template-columns: 1fr;
+          }
 
-        .dark .revenue-table th {
-          color: #94a3b8;
-        }
-
-        .dark .revenue-table td {
-          color: #e2e8f0;
-          border-top-color: #334155;
-        }
-
-        .dark .revenue-table tbody tr:hover {
-          background: #0f172a;
-        }
-
-        .dark .percentage-bar {
-          background: #0f172a;
-        }
-
-        .dark .percentage-text {
-          color: #e2e8f0;
+          .chart-card.full-width {
+            grid-column: 1;
+          }
         }
 
         @media (max-width: 768px) {
+          .page-header h1 {
+            font-size: 24px;
+          }
+
           .summary-grid {
             grid-template-columns: 1fr;
           }
 
-          .table-container {
-            overflow-x: auto;
+          .chart-card,
+          .table-card {
+            padding: 16px;
           }
 
+          .chart-header,
           .table-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 8px;
+            padding: 16px;
           }
         }
       `}</style>

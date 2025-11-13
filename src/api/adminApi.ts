@@ -8,6 +8,7 @@ import type {
   AdminUser,
   BookingDetail,
   HomestayRequestReviewPayload,
+  UpdateComplaintStatusPayload,
   UpdateUserStatusPayload,
 } from "@/types/admin";
 import type { Homestay } from "@/types/homestay";
@@ -70,6 +71,11 @@ export const fetchAdminBookings = async (): Promise<AdminBookingSummary[]> => {
 };
 
 /**
+ * Alias for fetchAdminBookings - used by Revenue Dashboard
+ */
+export const fetchAllBookings = fetchAdminBookings;
+
+/**
  * Lấy chi tiết đặt phòng
  * GET /api/admin/bookings/:id
  */
@@ -93,6 +99,18 @@ export const fetchAdminComplaints = async (): Promise<AdminComplaintSummary[]> =
   // Backend trả về format: { success, message, data, total }
   return Array.isArray(response?.data) ? response.data : [];
 };
+
+/**
+ * Cập nhật trạng thái khiếu nại
+ * PUT /api/admin/complaints/:id/status
+ * @param complaintId - ID của khiếu nại
+ * @param payload - Trạng thái mới và ghi chú
+ */
+export const updateComplaintStatus = (complaintId: number, payload: UpdateComplaintStatusPayload) =>
+  sendRequest(`/api/admin/complaints/${complaintId}/status`, {
+    method: "PUT",
+    payload,
+  });
 
 export const fetchRevenueReport = async (): Promise<AdminRevenueReport> => {
   const response = (await sendRequest("/api/admin/reports/revenue", {
@@ -258,4 +276,86 @@ export const fetchBookingsByCustomerId = async (customerId: number) => {
   } catch (error: any) {
     throw new Error(error.response?.data?.message || error.message || "Lỗi khi tải danh sách booking của khách hàng");
   }
+};
+
+
+/**
+ * Lấy xu hướng doanh thu theo ngày
+ * GET /api/admin/reports/revenue/trends
+ */
+export const fetchRevenueTrends = async (startDate?: string, endDate?: string) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+
+  const response = (await sendRequest(`/api/admin/reports/revenue/trends?${params.toString()}`, {
+    method: "GET",
+  })) as any;
+
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
+ * Lấy doanh thu theo trạng thái
+ * GET /api/admin/reports/revenue/by-status
+ */
+export const fetchRevenueByStatus = async (startDate?: string, endDate?: string) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+
+  const response = (await sendRequest(`/api/admin/reports/revenue/by-status?${params.toString()}`, {
+    method: "GET",
+  })) as any;
+
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
+ * Lấy top homestays theo doanh thu
+ * GET /api/admin/reports/revenue/top-homestays
+ */
+export const fetchTopHomestays = async (startDate?: string, endDate?: string, limit: number = 10) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+  params.append("limit", limit.toString());
+
+  const response = (await sendRequest(`/api/admin/reports/revenue/top-homestays?${params.toString()}`, {
+    method: "GET",
+  })) as any;
+
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
+ * Lấy doanh thu theo tháng
+ * GET /api/admin/reports/revenue/monthly
+ */
+export const fetchMonthlyRevenue = async (startDate?: string, endDate?: string) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+
+  const response = (await sendRequest(`/api/admin/reports/revenue/monthly?${params.toString()}`, {
+    method: "GET",
+  })) as any;
+
+  return Array.isArray(response?.data) ? response.data : [];
+};
+
+/**
+ * Lấy dữ liệu so sánh với kỳ trước
+ * GET /api/admin/reports/revenue/comparison
+ */
+export const fetchRevenueComparison = async (startDate?: string, endDate?: string) => {
+  const params = new URLSearchParams();
+  if (startDate) params.append("startDate", startDate);
+  if (endDate) params.append("endDate", endDate);
+
+  const response = (await sendRequest(`/api/admin/reports/revenue/comparison?${params.toString()}`, {
+    method: "GET",
+  })) as any;
+
+  return response?.data || null;
 };
