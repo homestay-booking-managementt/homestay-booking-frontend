@@ -20,6 +20,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
+      // FE gọi /api/v1/user/... -> Vite proxy sang auth-service (UserController)
+      "/api/v1/user": {
+        target: "http://localhost:8081",
+        changeOrigin: true,
+        secure: false
+      },
       // FE gọi /api/v1/bookings/... -> Vite proxy sang booking-service
       "/api/v1/bookings": {
         target: "http://localhost:8084",

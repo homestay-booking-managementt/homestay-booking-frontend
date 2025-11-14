@@ -1,20 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "@/app/hooks";
 import { useNavigate } from "react-router-dom";
-import { getProfileSimple } from "@/api/authApi"; 
+import { getProfileSimple, updateProfile, changePassword } from "@/api/authApi";
+import { uploadHomestayImage } from "@/api/uploadApi";
 
-// Types
+// Types - Matching backend User entity from /api/v1/user/my-profile
 interface UserProfile {
   id: number;
   name: string;
   email: string;
   phone?: string | null;
-  role_name: "customer" | "host";
-  status?: 0 | 1 | 2 | 3;
+  status: 0 | 1 | 2 | 3; // 0:chưa kích hoạt,1:hoạt động,2:tạm khóa,3:bị chặn
+  createdAt?: string;
+  updatedAt?: string | null;
+  // Note: Backend User entity doesn't include roles directly, we'll get it from Redux/auth state
+  roles?: string[];
+  // These fields don't exist in backend User entity yet
   avatar_url?: string | null;
   bio?: string | null;
   location?: string | null;
-  joined_at?: string;
 }
 
 interface SessionItem {
@@ -30,25 +34,14 @@ interface SessionItem {
 export default function MePage() {
   const navigate = useNavigate();
   const auth = useAppSelector((s) => (s as any)?.auth) || { user: null };
-  const currentUser: UserProfile = auth?.user || {
-    id: 1,
-    name: "Traveler Demo",
-    email: "traveler@example.com",
-    phone: "+84 888 999 000",
-    role_name: "customer",
-    status: 1,
-    avatar_url:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=256&h=256&fit=crop",
-    bio: "Yêu homestay ven biển, săn bình minh và cà phê muối.",
-    location: "Da Nang, Vietnam",
-    joined_at: "2024-06-12T09:30:00Z",
-  };
 
-  const [profile, setProfile] = useState<UserProfile>(currentUser);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [changingPass, setChangingPass] = useState(false);
   const [twoFA, setTwoFA] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"overview" | "security" | "sessions" | "history">("overview");
   const [sessions, setSessions] = useState<SessionItem[]>([
     {
@@ -60,62 +53,71 @@ export default function MePage() {
       last_seen: new Date().toISOString(),
       this_device: true,
     },
-    {
-      id: "sess_2",
-      device: "iPhone 15 Pro",
-      browser: "Mobile Safari",
-      ip: "113.22.10.6",
-      created_at: "2025-01-22T08:01:00Z",
-      last_seen: "2025-10-30T21:10:00Z",
-    },
   ]);
 
-  const [history, setHistory] = useState<Array<{ id: string; when: string; text: string }>>([
-    { id: "h1", when: "2025-09-04T07:30:00Z", text: "Đổi số điện thoại" },
-    { id: "h2", when: "2025-07-11T14:10:00Z", text: "Cập nhật ảnh đại diện" },
-    { id: "h3", when: "2025-06-12T09:30:00Z", text: "Tạo tài khoản" },
-  ]);
+  const [history, setHistory] = useState<Array<{ id: string; when: string; text: string }>>([]);
 
   // Gọi API getProfileSimple()
   useEffect(() => {
     (async () => {
+      setLoading(true);
+      setError(null);
       try {
         const res = await getProfileSimple();
         if (res?.data) {
           const p = res.data;
-          setProfile((prev) => ({
-            ...prev,
-            id: p.id ?? prev.id,
-            name: p.name ?? p.user_name ?? prev.name,
-            email: p.email ?? prev.email,
-            phone: p.phone ?? prev.phone,
-            role_name: p.role_name ?? prev.role_name,
+          // Backend returns User entity: { id, name, email, phone, passwd, createdAt, updatedAt, status, isDeleted }
+          // Get roles from Redux auth state (stored during login)
+          const userRoles = auth?.user?.roles || ["CUSTOMER"];
+
+          const newProfile: UserProfile = {
+            id: p.id ?? 0,
+            name: p.name ?? "Unknown User",
+            email: p.email ?? "",
+            phone: p.phone ?? null,
             status: p.status ?? 1,
-            avatar_url: p.avatar_url ?? prev.avatar_url,
-            bio: p.bio ?? prev.bio,
-            location: p.location ?? prev.location,
-            joined_at: p.joined_at ?? prev.joined_at,
-          }));
+            createdAt: p.createdAt ?? new Date().toISOString(),
+            updatedAt: p.updatedAt ?? null,
+            roles: userRoles,
+            // These fields don't exist in backend yet
+            avatar_url: null,
+            bio: null,
+            location: null,
+          };
+          setProfile(newProfile);
+
+          // Add creation event to history
+          setHistory([
+            { id: "h1", when: newProfile.createdAt || new Date().toISOString(), text: "Tạo tài khoản" },
+          ]);
         }
       } catch (err: any) {
         const status = err?.response?.status ?? 0;
         if (status === 401) {
           navigate("/401");
+        } else {
+          setError("Không thể tải thông tin hồ sơ. Vui lòng thử lại.");
         }
+      } finally {
+        setLoading(false);
       }
     })();
-  }, [navigate]);
+  }, [navigate, auth?.user?.roles]);
 
   // Helpers
   const roleBadge = useMemo(() => {
-    const map: Record<UserProfile["role_name"], { label: string; className: string }> = {
-      customer: { label: "Khách du lịch", className: "badge rounded-pill bg-info" },
-      host: { label: "Chủ homestay", className: "badge rounded-pill bg-primary" },
+    if (!profile) return { label: "Loading...", className: "badge rounded-pill bg-secondary" };
+    // Backend returns roles array like ["CUSTOMER"] or ["HOST"]
+    const primaryRole = profile.roles?.[0]?.toUpperCase() || "CUSTOMER";
+    const map: Record<string, { label: string; className: string }> = {
+      CUSTOMER: { label: "Khách du lịch", className: "badge rounded-pill bg-info" },
+      HOST: { label: "Chủ homestay", className: "badge rounded-pill bg-primary" },
     };
-    return map[profile.role_name];
-  }, [profile.role_name]);
+    return map[primaryRole] || map.CUSTOMER;
+  }, [profile]);
 
   const statusChip = useMemo(() => {
+    if (!profile) return { text: "Loading...", cls: "badge text-bg-secondary" };
     const m: any = {
       0: { text: "Chưa kích hoạt", cls: "badge text-bg-secondary" },
       1: { text: "Đang hoạt động", cls: "badge text-bg-success" },
@@ -123,36 +125,45 @@ export default function MePage() {
       3: { text: "Bị chặn", cls: "badge text-bg-danger" },
     };
     return m[profile.status ?? 1];
-  }, [profile.status]);
+  }, [profile]);
 
   // Edit form state
   const [form, setForm] = useState({
-    name: profile.name || "",
-    email: profile.email || "",
-    phone: profile.phone || "",
-    bio: profile.bio || "",
-    location: profile.location || "",
-    avatar_url: profile.avatar_url || "",
+    name: "",
+    email: "",
+    phone: "",
+    bio: "",
+    location: "",
+    avatar_url: "",
   });
 
   useEffect(() => {
-    setForm({
-      name: profile.name || "",
-      email: profile.email || "",
-      phone: profile.phone || "",
-      bio: profile.bio || "",
-      location: profile.location || "",
-      avatar_url: profile.avatar_url || "",
-    });
+    if (profile) {
+      setForm({
+        name: profile.name || "",
+        email: profile.email || "",
+        phone: profile.phone || "",
+        bio: profile.bio || "",
+        location: profile.location || "",
+        avatar_url: profile.avatar_url || "",
+      });
+    }
   }, [profile]);
 
   const saveProfile = async () => {
+    if (!profile) return;
     setBusy(true);
-    await new Promise(r => setTimeout(r, 700));
-    setProfile(p => ({ ...p, ...form }));
-    setHistory(h => [{ id: crypto.randomUUID(), when: new Date().toISOString(), text: "Cập nhật hồ sơ" }, ...h]);
-    setBusy(false);
-    setEditing(false);
+    setError(null);
+    try {
+      await updateProfile(form);
+      setProfile(p => p ? { ...p, ...form } : null);
+      setHistory(h => [{ id: crypto.randomUUID(), when: new Date().toISOString(), text: "Cập nhật hồ sơ" }, ...h]);
+      setEditing(false);
+    } catch (err: any) {
+      setError(err.message || "Tính năng cập nhật hồ sơ chưa được triển khai trên backend. Vui lòng liên hệ admin để thêm endpoint.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const revokeSession = async (id: string) => {
@@ -162,8 +173,86 @@ export default function MePage() {
     setBusy(false);
   };
 
+  // Password change form state
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const handleChangePassword = async () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      setError("Mật khẩu mới không khớp!");
+      return;
+    }
+    if (passwordForm.newPassword.length < 6) {
+      setError("Mật khẩu mới phải có ít nhất 6 ký tự!");
+      return;
+    }
+
+    setBusy(true);
+    setError(null);
+    try {
+      await changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
+      });
+      setHistory(h => [{ id: crypto.randomUUID(), when: new Date().toISOString(), text: "Đổi mật khẩu" }, ...h]);
+      setChangingPass(false);
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err: any) {
+      setError(err.message || "Tính năng đổi mật khẩu chưa được triển khai trên backend. Vui lòng liên hệ admin để thêm endpoint.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Handle file upload
+  const handleAvatarUpload = async (file: File) => {
+    setBusy(true);
+    setError(null);
+    try {
+      const url = await uploadHomestayImage(file);
+      setForm(f => ({ ...f, avatar_url: url }));
+    } catch (err: any) {
+      setError("Không thể tải ảnh lên. Vui lòng thử lại.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="profile-page position-relative min-vh-100 d-flex align-items-center justify-content-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="profile-page position-relative min-vh-100 d-flex align-items-center justify-content-center">
+        <div className="alert alert-danger">
+          {error || "Không thể tải thông tin hồ sơ."}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="profile-page position-relative min-vh-100 overflow-hidden">
+      {/* Error Banner */}
+      {error && (
+        <div className="position-fixed top-0 start-50 translate-middle-x mt-3 z-3" style={{ maxWidth: "500px" }}>
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            {error}
+            <button type="button" className="btn-close" onClick={() => setError(null)} />
+          </div>
+        </div>
+      )}
+
       {/* Cover */}
       <div className="cover position-relative">
         <div className="cover-bg" />
@@ -186,7 +275,7 @@ export default function MePage() {
                 )}
               </div>
               <div className="small opacity-75 mt-2">
-                Tham gia từ {new Date(profile.joined_at || new Date().toISOString()).toLocaleDateString()}
+                Tham gia từ {new Date(profile.createdAt || new Date().toISOString()).toLocaleDateString()}
               </div>
             </div>
             <div className="ms-auto d-flex flex-wrap gap-2">
@@ -216,10 +305,6 @@ export default function MePage() {
                   <div>
                     <div className="text-uppercase text-muted small">Số điện thoại</div>
                     <div className="fw-medium">{profile.phone || "—"}</div>
-                  </div>
-                  <div>
-                    <div className="text-uppercase text-muted small">Giới thiệu</div>
-                    <div>{profile.bio || "Chưa có mô tả."}</div>
                   </div>
                 </div>
               </div>
@@ -399,14 +484,11 @@ export default function MePage() {
                           type="file"
                           accept="image/*"
                           className="form-control"
+                          disabled={busy}
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
-                              const reader = new FileReader();
-                              reader.onload = (ev) => {
-                                setForm((f) => ({ ...f, avatar_url: ev.target?.result as string }));
-                              };
-                              reader.readAsDataURL(file);
+                              handleAvatarUpload(file);
                             }
                           }}
                         />
@@ -414,6 +496,7 @@ export default function MePage() {
                           type="text"
                           className="form-control"
                           placeholder="Hoặc dán link ảnh (Unsplash/Pexels)"
+                          disabled={busy}
                           value={form.avatar_url || ""}
                           onChange={(e) =>
                             setForm((f) => ({ ...f, avatar_url: e.target.value }))
@@ -437,41 +520,62 @@ export default function MePage() {
         </div>
       )}
 
-          {/* Change Password Modal */}
-          {changingPass && (
-            <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true">
-              <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content border-0 shadow-lg">
-                  <div className="modal-header">
-                    <h5 className="modal-title"><i className="bi bi-key me-2" />Đổi mật khẩu</h5>
-                    <button type="button" className="btn-close" onClick={() => setChangingPass(false)} />
-                  </div>
-                  <div className="modal-body vstack gap-3">
-                    <div>
-                      <label className="form-label">Mật khẩu hiện tại</label>
-                      <input className="form-control" type="password" />
-                    </div>
-                    <div>
-                      <label className="form-label">Mật khẩu mới</label>
-                      <input className="form-control" type="password" />
-                    </div>
-                    <div>
-                      <label className="form-label">Xác nhận mật khẩu mới</label>
-                      <input className="form-control" type="password" />
-                    </div>
-                    <div className="form-text">Gợi ý: dùng mật khẩu dài & duy nhất. 🤫</div>
-                  </div>
-                  <div className="modal-footer">
-                    <button className="btn btn-outline-secondary" onClick={() => setChangingPass(false)}>Hủy</button>
-                    <button className="btn btn-primary" onClick={() => setChangingPass(false)}>Cập nhật</button>
-                  </div>
+      {/* Change Password Modal */}
+      {changingPass && (
+        <div className="modal fade show d-block" tabIndex={-1} role="dialog" aria-modal="true">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow-lg">
+              <div className="modal-header">
+                <h5 className="modal-title"><i className="bi bi-key me-2" />Đổi mật khẩu</h5>
+                <button type="button" className="btn-close" onClick={() => { setChangingPass(false); setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" }); }} />
+              </div>
+              <div className="modal-body vstack gap-3">
+                <div>
+                  <label className="form-label">Mật khẩu hiện tại</label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    disabled={busy}
+                    value={passwordForm.currentPassword}
+                    onChange={e => setPasswordForm(f => ({ ...f, currentPassword: e.target.value }))}
+                  />
                 </div>
+                <div>
+                  <label className="form-label">Mật khẩu mới</label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    disabled={busy}
+                    value={passwordForm.newPassword}
+                    onChange={e => setPasswordForm(f => ({ ...f, newPassword: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="form-label">Xác nhận mật khẩu mới</label>
+                  <input
+                    className="form-control"
+                    type="password"
+                    disabled={busy}
+                    value={passwordForm.confirmPassword}
+                    onChange={e => setPasswordForm(f => ({ ...f, confirmPassword: e.target.value }))}
+                  />
+                </div>
+                <div className="form-text">Gợi ý: dùng mật khẩu dài & duy nhất. 🤫</div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-outline-secondary" onClick={() => { setChangingPass(false); setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" }); }}>Hủy</button>
+                <button className="btn btn-primary" disabled={busy} onClick={handleChangePassword}>
+                  {busy && <span className="spinner-border spinner-border-sm me-2" />}
+                  Cập nhật
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
-          {/* Page styles */}
-          <style>{`
+      {/* Page styles */}
+      <style>{`
         .cover { min-height: 240px; }
         .cover-bg { 
           background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop');
@@ -486,7 +590,8 @@ export default function MePage() {
         .timeline-item { position:relative; padding-left: 36px; margin-bottom: 16px; }
         .timeline-item .dot { position:absolute; left:6px; top:4px; width:12px; height:12px; border-radius:50%; background: linear-gradient(135deg,#0d6efd,#0dcaf0); box-shadow: 0 0 0 4px rgba(13,110,253,.15); }
         .device-icon { width: 40px; height: 40px; display:grid; place-items:center; background: rgba(13,110,253,.1); color:#0d6efd; }
+        .modal.show { background: rgba(0,0,0,0.5); }
       `}</style>
-        </div>
-      );
+    </div>
+  );
 }

@@ -21,8 +21,8 @@ export const registerSimple = async (data: {
   return {
     status: response.status,
     data: {
-      message: data.roleType === "host" 
-        ? "Đăng ký thành công! Tài khoản Host đang chờ admin phê duyệt." 
+      message: data.roleType === "host"
+        ? "Đăng ký thành công! Tài khoản Host đang chờ admin phê duyệt."
         : "Đăng ký thành công!",
       user: response.data,
     },
@@ -66,6 +66,51 @@ export const loginSimple = async (data: {
 // 🔹 REAL API - GET PROFILE
 // ===========================
 export const getProfileSimple = async () => {
-  const response = await axios.get("/auth/v1/me");
+  const response = await axios.get("/api/v1/user/my-profile");
+  // Backend returns full User entity: { id, name, email, phone, passwd, createdAt, updatedAt, status, isDeleted }
+  return { data: response.data };
+};
+
+// ===========================
+// 🔹 REAL API - UPDATE PROFILE (NOT IMPLEMENTED IN BACKEND YET)
+// ===========================
+export const updateProfile = async (data: {
+  name?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  avatar_url?: string;
+}) => {
+  // TODO: Backend needs to implement this endpoint
+  // const response = await axios.put("/users/me", data);
+  // return { data: response.data };
+  throw new Error("Update profile endpoint not yet implemented in backend");
+};
+
+// ===========================
+// 🔹 REAL API - CHANGE PASSWORD (NOT IMPLEMENTED IN BACKEND YET)
+// ===========================
+export const changePassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  // TODO: Backend needs to implement this endpoint
+  // const response = await axios.put("/auth/v1/change-password", data);
+  // return { data: response.data };
+  throw new Error("Change password endpoint not yet implemented in backend");
+};
+
+// ===========================
+// 🔹 REAL API - LOGOUT
+// ===========================
+export const logoutSimple = async (refreshToken?: string) => {
+  // Backend expects refreshToken as query param
+  const token = refreshToken || localStorage.getItem("refresh_token");
+  const response = await axios.post("/auth/v1/logout", null, {
+    params: { refreshToken: token }
+  });
+  localStorage.removeItem("id_token");
+  localStorage.removeItem("refresh_token");
   return { data: response.data };
 };
