@@ -33,9 +33,9 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       },
-      // FE gọi /api/... (fallback) -> các service khác
+      // FE gọi /api/... (fallback) -> auth-service (for user endpoints)
       "/api": {
-        target: "http://localhost:8083",
+        target: "http://localhost:8081",
         changeOrigin: true,
         secure: false
       },
@@ -56,5 +56,3 @@ export default defineConfig({
     },
   },
 });
-
-

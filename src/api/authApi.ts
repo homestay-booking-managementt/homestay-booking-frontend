@@ -69,3 +69,11 @@ export const getProfileSimple = async () => {
   const response = await axios.get("/auth/v1/me");
   return { data: response.data };
 };
+
+// ===========================
+// 🔹 REAL API - GET FULL PROFILE
+// ===========================
+export const getFullProfile = async () => {
+  const response = await axios.get("/api/v1/user/my-profile");
+  return { data: response.data };
+};
