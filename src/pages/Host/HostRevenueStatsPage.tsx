@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaDollarSign,
   FaCalendarAlt,
@@ -10,6 +10,8 @@ import {
   FaDownload,
   FaTrophy,
 } from "react-icons/fa";
+import { fetchHostRevenue } from "@/api/hostApi";
+import type { RevenueStatistics } from "@/types/host";
 
 // Mock data for revenue statistics
 const generateMockRevenueData = (period: "week" | "month" | "year") => {
@@ -143,11 +145,62 @@ const generateMockTransactions = () => {
 };
 
 const HostRevenueStatsPage = () => {
-  const [period, setPeriod] = useState<"week" | "month" | "year">("month");
+  const [period, setPeriod] = useState<"week" | "month" | "year">("year");
   const [showTransactions, setShowTransactions] = useState(false);
+  const [revenueData, setRevenueData] = useState<RevenueStatistics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const revenueData = generateMockRevenueData(period);
-  const transactions = generateMockTransactions();
+  const transactions = generateMockTransactions(); // TODO: Integrate with real transactions API
+
+  // Load revenue data from API
+  const loadRevenueData = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      console.log(`🔄 Loading revenue data for period: ${period}`);
+      const data = await fetchHostRevenue(period);
+      console.log("✅ Revenue data loaded:", data);
+      console.log("📊 Period data length:", data?.periodData?.length);
+      setRevenueData(data);
+    } catch (err: any) {
+      console.error("❌ Failed to load revenue data:", err);
+      console.error("Error details:", { status: err.status, message: err.message });
+      
+      if (err.status === 401) {
+        setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 2000);
+      } else if (err.status === 403) {
+        setError("Bạn không có quyền truy cập trang này.");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 2000);
+      } else if (err.message?.includes("network")) {
+        setError("Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.");
+      } else {
+        setError("Không thể tải dữ liệu doanh thu. Vui lòng thử lại sau.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRevenueData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
+
+  // Use real data or show empty state
+  const displayData = revenueData || {
+    totalRevenue: 0,
+    totalBookings: 0,
+    averageBookingValue: 0,
+    period: period,
+    periodData: []
+  };
 
   const getPeriodLabel = () => {
     switch (period) {
@@ -171,10 +224,92 @@ const HostRevenueStatsPage = () => {
     }
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <>
+        <style>{pageStyles}</style>
+        <div style={{ padding: "24px" }}>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "400px",
+            gap: "16px"
+          }}>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              border: "4px solid #e5e7eb",
+              borderTop: "4px solid #10b981",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite"
+            }} />
+            <p style={{ color: "#6b7280", fontSize: "14px" }}>
+              Đang tải dữ liệu...
+            </p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <>
+        <style>{pageStyles}</style>
+        <div style={{ padding: "24px" }}>
+          <div style={{
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            borderRadius: "12px",
+            padding: "20px",
+            textAlign: "center"
+          }}>
+            <p style={{ color: "#dc2626", marginBottom: "12px" }}>{error}</p>
+            <button
+              onClick={loadRevenueData}
+              style={{
+                padding: "8px 16px",
+                background: "#10b981",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600"
+              }}
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <style>{pageStyles}</style>
       <div style={{ padding: "24px" }}>
+        {/* Info Banner */}
+        {revenueData && displayData.periodData.length === 0 && (
+          <div style={{
+            background: "#dbeafe",
+            border: "1px solid #60a5fa",
+            borderRadius: "12px",
+            padding: "16px 20px",
+            marginBottom: "24px",
+            fontSize: "14px",
+            color: "#1e40af"
+          }}>
+            <strong>ℹ️ Thông báo:</strong> Chưa có dữ liệu đặt phòng hoàn thành trong khoảng thời gian này. 
+            Dữ liệu sẽ được cập nhật khi có booking với trạng thái "completed" trong database.
+          </div>
+        )}
+        
         {/* Header */}
         <div style={{ marginBottom: "24px" }}>
           <h1
@@ -329,31 +464,8 @@ const HostRevenueStatsPage = () => {
                   margin: "8px 0",
                 }}
               >
-                {revenueData.totalRevenue.toLocaleString("vi-VN")} ₫
+                {displayData.totalRevenue.toLocaleString("vi-VN")} ₫
               </p>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  fontSize: "13px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    background: "rgba(255,255,255,0.2)",
-                    padding: "4px 8px",
-                    borderRadius: "6px",
-                  }}
-                >
-                  <FaArrowUp />
-                  <span>{revenueData.growthRate}%</span>
-                </div>
-                <span style={{ opacity: 0.9 }}>so với kỳ trước</span>
-              </div>
             </div>
           </div>
 
@@ -414,7 +526,7 @@ const HostRevenueStatsPage = () => {
                   margin: "8px 0",
                 }}
               >
-                {revenueData.totalBookings}
+                {displayData.totalBookings}
               </p>
               <div style={{ fontSize: "13px", opacity: 0.9 }}>
                 <span>Đơn đặt phòng thành công</span>
@@ -479,7 +591,7 @@ const HostRevenueStatsPage = () => {
                   margin: "8px 0",
                 }}
               >
-                {revenueData.averageBookingValue.toLocaleString("vi-VN")} ₫
+                {displayData.averageBookingValue.toLocaleString("vi-VN")} ₫
               </p>
               <div style={{ fontSize: "13px", opacity: 0.9 }}>
                 <span>Giá trị trung bình mỗi đơn</span>
@@ -523,9 +635,9 @@ const HostRevenueStatsPage = () => {
 
           {/* Bar Chart */}
           <div style={{ padding: "0 8px" }}>
-            {revenueData.periodData.map((data, index) => {
+            {displayData.periodData.length > 0 ? displayData.periodData.map((data, index) => {
               const maxRevenue = Math.max(
-                ...revenueData.periodData.map((d) => d.revenue)
+                ...displayData.periodData.map((d) => d.revenue)
               );
               const percentage = (data.revenue / maxRevenue) * 100;
               const colors = [
@@ -577,7 +689,7 @@ const HostRevenueStatsPage = () => {
                           color: "#9ca3af",
                         }}
                       >
-                        ({data.date})
+                        {data.date}
                       </span>
                     </div>
                     <div style={{ textAlign: "right" }}>
@@ -629,7 +741,15 @@ const HostRevenueStatsPage = () => {
                   </div>
                 </div>
               );
-            })}
+            }) : (
+              <div style={{
+                textAlign: "center",
+                padding: "40px 20px",
+                color: "#6b7280"
+              }}>
+                <p>Chưa có dữ liệu doanh thu</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -737,7 +857,7 @@ const HostRevenueStatsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {revenueData.periodData.map((data, index) => (
+                {displayData.periodData.map((data, index) => (
                   <tr
                     key={index}
                     style={{
@@ -768,7 +888,7 @@ const HostRevenueStatsPage = () => {
                         color: "#6b7280",
                       }}
                     >
-                      {data.date}
+                      -
                     </td>
                     <td
                       style={{
@@ -853,7 +973,7 @@ const HostRevenueStatsPage = () => {
                         fontSize: "13px",
                       }}
                     >
-                      {revenueData.totalBookings}
+                      {displayData.totalBookings}
                     </span>
                   </td>
                   <td
@@ -866,7 +986,7 @@ const HostRevenueStatsPage = () => {
                       borderTop: "2px solid #e5e7eb",
                     }}
                   >
-                    {revenueData.totalRevenue.toLocaleString("vi-VN")} ₫
+                    {displayData.totalRevenue.toLocaleString("vi-VN")} ₫
                   </td>
                   <td
                     style={{
@@ -878,7 +998,7 @@ const HostRevenueStatsPage = () => {
                       borderTop: "2px solid #e5e7eb",
                     }}
                   >
-                    {revenueData.averageBookingValue.toLocaleString("vi-VN")} ₫
+                    {displayData.averageBookingValue.toLocaleString("vi-VN")} ₫
                   </td>
                 </tr>
               </tfoot>
@@ -1185,6 +1305,11 @@ const pageStyles = `
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 `;
 
