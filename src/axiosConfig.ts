@@ -24,6 +24,25 @@ const isAuthRoute = (url?: string) => {
   }
 };
 
+/** Helper function to decode JWT and extract user ID */
+const extractUserIdFromToken = (token: string): string | null => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    const payload = JSON.parse(jsonPayload);
+    return payload.userId ? String(payload.userId) : null;
+  } catch (error) {
+    console.error('Error decoding JWT token:', error);
+    return null;
+  }
+};
+
 /** Request interceptor: gắn Authorization cho route thường, bỏ cho /auth/* (trừ /auth/refresh) */
 const handleAxiosRequest = async (config: InternalAxiosRequestConfig) => {
   const url = config.url ?? "";
@@ -42,6 +61,15 @@ const handleAxiosRequest = async (config: InternalAxiosRequestConfig) => {
     const id_token = localStorage.getItem("id_token");
     if (id_token) {
       config.headers.set?.("Authorization", "Bearer " + id_token);
+      
+      // Extract user ID from JWT token and add to headers
+      const userId = extractUserIdFromToken(id_token);
+      if (userId) {
+        config.headers.set?.("X-User-Id", userId);
+        console.log("✅ Added X-User-Id header:", userId);
+      } else {
+        console.warn("⚠️ Could not extract userId from JWT token");
+      }
     }
   }
 

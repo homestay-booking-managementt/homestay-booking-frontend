@@ -20,6 +20,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       },
+      // FE gọi /api/v1/host/dashboard/... -> Vite proxy sang API Gateway
+      "/api/v1/host/dashboard": {
+        target: "http://localhost:8080",
+        changeOrigin: true,
+        secure: false
+      },
+      // FE gọi /api/v1/host/... -> Vite proxy sang booking-service
+      "/api/v1/host": {
+        target: "http://localhost:8084",
+        changeOrigin: true,
+        secure: false
+      },
       // FE gọi /api/v1/bookings/... -> Vite proxy sang booking-service
       "/api/v1/bookings": {
         target: "http://localhost:8084",

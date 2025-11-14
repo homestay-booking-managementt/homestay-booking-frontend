@@ -46,6 +46,6 @@ export const deleteHomestay = (homestayId: number) =>
   });
 
 export const fetchMyHomestays = () =>
-  sendRequest("/homestays/mine", {
+  sendRequest("/api/v1/homestays/my-homestays", {
     method: "GET",
   }) as Promise<Homestay[]>;
