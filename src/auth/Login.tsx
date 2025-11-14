@@ -28,7 +28,7 @@ export default function Login() {
       } else if (roles.includes("HOST")) {
         navigate("/host");
       } else {
-        navigate("/");
+        navigate("/homestays");
       }
     }
     else if (loginRequest.rejected.match(result)) {
