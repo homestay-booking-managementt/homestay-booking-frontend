@@ -89,6 +89,7 @@ const confirmCancelBooking = async (bookingId: number) => {
 
         // ✅ Parse dữ liệu từ JSON
         const data: BookingDetail = await res.json();
+        console.log(data);
         setBooking(data);
       } catch (error) {
         console.error(error);
@@ -134,7 +135,7 @@ const confirmCancelBooking = async (bookingId: number) => {
 
 const handlePay = (bookingId: number) => {
   console.log("Pay booking: ", bookingId);
-  navigate(`/payments/${bookingId}`);
+  window.open(booking.payUrl, "_blank");
 };
 
 
@@ -166,33 +167,33 @@ const handlePay = (bookingId: number) => {
   {/* Nút Hủy */}
   <button
     className="btn btn-outline-danger px-4"
-    disabled={!(booking.status === "pending" || booking.status === "confirmed")}
+    disabled={!(booking.status === "pending_payment" || booking.status === "confirmed")}
 
     onClick={() => handleCancel(booking.bookingId)}
     style={{
       opacity:
-        booking.status === "pending" || booking.status === "confirmed"
+        booking.status === "pending_payment" || booking.status === "confirmed"
           ? 1
           : 0.5,
       pointerEvents:
-        booking.status === "pending" || booking.status === "confirmed"
+        booking.status === "pending_payment" || booking.status === "confirmed"
           ? "auto"
           : "none",
     }}
   >
-    {booking.status === "pending" || booking.status === "confirmed" ? "Hủy đặt phòng": "Không thể hủy"}
+    {booking.status === "pending_payment" || booking.status === "confirmed" ? "Hủy đặt phòng": "Không thể hủy"}
     
   </button>
 
   {/* Nút Thanh toán */}
   <button
     className="btn btn-primary px-4"
-    disabled={booking.status !== "pending"}
+    disabled={booking.status !== "pending_payment"}
 
     onClick={() => handlePay(booking.bookingId)}
     style={{
-      opacity: booking.status === "pending" ? 1 : 0.5,
-      pointerEvents: booking.status === "pending" ? "auto" : "none",
+      opacity: booking.status === "pending_payment" ? 1 : 0.5,
+      pointerEvents: booking.status === "pending_payment" ? "auto" : "none",
     }}
   >
     {booking.status === "cancelled"?"Thanh toán":"Thanh toán"}

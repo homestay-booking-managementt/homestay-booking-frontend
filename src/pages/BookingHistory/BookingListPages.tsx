@@ -64,7 +64,10 @@ const BookingListPage: React.FC = () => {
         if (!res.ok)
           throw new Error(`Không thể tải dữ liệu booking! (${res.status})`);
         const data = await res.json();
-        setAll(data);
+        if(data){
+          setAll(data);
+        }
+        
       } catch (err: any) {
         console.error(err);
         setError(err.message || "Lỗi không xác định");
@@ -135,7 +138,7 @@ const BookingListPage: React.FC = () => {
           </div>
         ) : error ? (
           <div className="text-danger text-center py-5">
-            Lỗi: {error}
+            Chưa có booking nào được đặt...
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center text-muted py-5">

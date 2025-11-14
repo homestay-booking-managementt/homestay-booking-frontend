@@ -243,7 +243,7 @@ const toVND = (n: number) =>
 // ======================
 const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
   const map: Record<Booking["status"], string> = {
-    pending: "warning",
+    pending_payment: "warning",
     confirmed: "primary",
     paid: "info",
     checked_in: "info",
@@ -253,7 +253,7 @@ const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
     completed: "success",
   };
   const labelMap: Record<Booking["status"], string> = {
-    pending: "Chờ xử lý",
+    pending_payment: "Chờ thanh toán",
     confirmed: "Đã xác nhận",
     paid: "Đã thanh toán",
     checked_in: "Đã nhận phòng",

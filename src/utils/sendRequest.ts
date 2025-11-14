@@ -142,10 +142,11 @@ export const sendRequest = async (url: string, options?: Partial<RequestOptions>
       }
 
       // ✅ Giữ nguyên logic rejectWithValue nếu dùng trong Redux Toolkit
-      return (
-        options?.thunkApi &&
-        options.thunkApi.rejectWithValue(error.response?.data || error.message)
-      );
+      // return (
+      //   options?.thunkApi &&
+      //   options.thunkApi.rejectWithValue(error.response?.data || error.message)
+      // );
+      throw error;
     });
 
   return trackPromise(request);
