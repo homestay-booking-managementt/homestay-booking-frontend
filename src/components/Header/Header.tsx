@@ -45,7 +45,7 @@ const Header = () => {
           to="/"
           title="Go to home page"
         >
-          🏠 Homestay Booking
+          Homestay Booking
         </NavLink>
         <button
           className="navbar-toggler"
@@ -110,26 +110,26 @@ const Header = () => {
                     end
                     title="Browse all available homestays"
                   >
-                    <i className="bi bi-grid me-2"></i>Home
+                    <i className="bi bi-grid me-2"></i>Trang chủ
                   </NavLink>
                 </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <NavLink
                 className={navLinkClass}
                 to="/bookings"
                 end
                 title="Manage your current bookings"
               >
-                Bookings
+                Đặt phòng
               </NavLink>
-            </li>
+            </li> */}
             <li className="nav-item">
               <NavLink
                 className={navLinkClass}
                 to="/bookings/history"
                 title="View your booking history"
               >
-                History
+                Lịch sử
               </NavLink>
             </li>
             
@@ -138,12 +138,12 @@ const Header = () => {
            
             <li className="nav-item">
               <NavLink className={navLinkClass} to="/support" title="Get help and support">
-                Support
+                Hỗ trợ
               </NavLink>
             </li>
             <li className="nav-item">
               <NavLink className={navLinkClass} to="/profile" title="View and edit your profile">
-                Profile
+                Hồ sơ
               </NavLink>
             </li>
             
@@ -154,7 +154,7 @@ const Header = () => {
                 type="button"
                 title="Sign out of your account"
               >
-                Logout
+                Đăng xuất
               </button>
             </li>
             {/* <li className="nav-item ms-lg-2">

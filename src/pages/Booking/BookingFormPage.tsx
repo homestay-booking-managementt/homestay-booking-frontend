@@ -58,6 +58,17 @@ const [dialog, setDialog] = useState<DialogState>({
   message: "",
   confirmText: "",
 });
+const translateError = (msg: string) => {
+  if (!msg) return "Đã xảy ra lỗi.";
+
+  if (msg.includes("already booked"))
+    return "Homestay đã được đặt trong khoảng thời gian này.";
+
+  if (msg.includes("not found"))
+    return "Không tìm thấy dữ liệu.";
+
+  return msg; // fallback
+};
 
 
   // form state
@@ -137,6 +148,7 @@ const [dialog, setDialog] = useState<DialogState>({
     checkOut: checkOut,
     nights: nights,
   };
+ 
 // 🌟 Tạo booking trước khi thanh toán
 const handleCreateBooking = async () => {
   try {
@@ -148,30 +160,51 @@ const handleCreateBooking = async () => {
     };
 
     const created = await createBooking(payload);
+    const future = getFutureTime(100);
 
-    console.log("🎉 Tạo booking thành công:", created);
+// 👉 Format ra tiếng Việt chuẩn MySQL
+    const bookingDl = formatDateTimeVN(future);
+    console.log(created);
+    if(created?.momoResponse){
+      console.log("🎉 Tạo booking thành công:", created);
     setDialog({
       show: true,
       title: "Đặt phòng thành công",
-      message: "Bạn muốn thanh toán ngay không?",
-      confirmText: "Thanh toán",
+      message: `Bạn đã đặt phòng thành công. Vui lòng thanh toán trước ${bookingDl} nữa để giữ phòng.`,
+      confirmText: "Thanh toán luôn ",
       cancelText: "Để sau",
       onConfirm: () => {
-        navigate(`/payments/${created.bookingId}`);
+        window.open(created.momoResponse.payUrl, "_blank");
+        navigate(`/bookings/history`);
       },
       onCancel: () => {
         navigate(`/bookings/history`);
       }
     });
-  } catch (err:any) {
-    console.error("❌ Lỗi tạo booking:", err);
-    setDialog({
+    }else{
+      setDialog({
       show: true,
       title: "Lỗi",
-      message: err?.message || "Đặt phòng thất bại, vui lòng thử lại!",
+      message: "1 Đặt phòng thất bại, vui lòng thử lại!",
       confirmText: "Đã hiểu",
       cancelText: "",
     });
+    }
+    
+  } catch (err:any) {
+    console.error("❌ Lỗi tạo booking:", err);
+      const msg =
+    err?.response?.data?.message ||
+    err?.message ||
+    "Đặt phòng thất bại!";
+
+  setDialog({
+    show: true,
+    title: "Lỗi khi đặt phòng",
+    message: translateError(msg),
+    confirmText: "Đã hiểu",
+    cancelText: "",
+  });
   }
 };
 
@@ -184,6 +217,22 @@ const handleCreateBooking = async () => {
   const d = new Date(iso);
   return d.toLocaleDateString("vi-VN"); 
 };
+// ⭐ Format thời gian theo chuẩn MySQL, giờ Việt Nam (UTC+7)
+function formatDateTimeVN(date: Date) {
+  const vnDate = new Date(date.getTime() + 7 * 60 * 60 * 1000); // chuyển sang UTC+7
+
+  const yyyy = vnDate.getUTCFullYear();
+  const mm = String(vnDate.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(vnDate.getUTCDate()).padStart(2, "0");
+  const hh = String(vnDate.getUTCHours()).padStart(2, "0");
+  const min = String(vnDate.getUTCMinutes()).padStart(2, "0");
+  const ss = String(vnDate.getUTCSeconds()).padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}`;
+}
+function getFutureTime(minutesToAdd: number) {
+  return new Date(Date.now() + minutesToAdd * 60 * 1000);
+}
 
   return (
     <div className="container my-4">
@@ -299,12 +348,15 @@ const handleCreateBooking = async () => {
         {/* RIGHT: Summary */}
         <div className="col-md-4">
           <div className="card shadow-sm">
-            <img
-              src={homestay?.images?.[0].url}
-              alt={homestay?.images?.[0].alt}
-              className="card-img-top"
-              style={{ height: "200px", objectFit: "cover" }}
-            />
+            {homestay?.images?.[0] && (
+              <img
+                src={homestay.images[0].url}
+                alt={homestay.images[0].alt}
+                className="card-img-top"
+                style={{ height: "200px", objectFit: "cover" }}
+              />
+            )}
+
             <div className="card-body">
               <h5>{homestay?.name}</h5>
               <p className="text-muted">{homestay?.address}</p>
@@ -344,6 +396,7 @@ const handleCreateBooking = async () => {
   cancelText={dialog.cancelText}
   onConfirm={dialog.onConfirm}
   onCancel={dialog.onCancel}
+  onClose={() => setDialog((old) => ({ ...old, show: false }))}
 />
 
     </div>

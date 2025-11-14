@@ -32,7 +32,7 @@ const BookingTimeline: React.FC<BookingTimelineProps> = ({
 
   const getStepStatus = (key: string): { isDone: boolean; isActive: boolean } => {
     const order = [
-      "pending",
+      "pending_payment",
       "confirmed",
       "paid",
       "checked_in",
@@ -49,7 +49,7 @@ const BookingTimeline: React.FC<BookingTimelineProps> = ({
   };
 
   const steps: Step[] = [
-    { key: "pending", label: "Đã Đặt", date: created_at, ...getStepStatus("pending") },
+    { key: "pending_payment", label: "Đã Đặt", date: created_at, ...getStepStatus("pending_payment") },
     { key: "confirmed", label: "Đã Xác Nhận", ...getStepStatus("confirmed") },
     { key: "checked_in", label: "Đã Nhận Phòng", date: check_in, ...getStepStatus("checked_in") },
     { key: "checked_out", label: "Đã Trả Phòng", date: check_out, ...getStepStatus("checked_out") },

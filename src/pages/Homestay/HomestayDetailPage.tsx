@@ -4,6 +4,8 @@ import { showAlert } from "@/utils/showAlert";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "@/styles/HomestayDetailPage.css";
+import { Review } from "@/types/review";
+import { fetchReviewsByHomestay } from "@/api/reviewApi";
 
 
 const HomestayDetailPage = () => {
@@ -11,18 +13,30 @@ const HomestayDetailPage = () => {
   const { homestayId } = useParams<{ homestayId: string }>();
   const [homestay, setHomestay] = useState<Homestay | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const loadHomestay = async (id: number) => {
     setLoading(true);
     try {
       const data = await fetchHomestayById(id);
-      if(data) setHomestay(data);
+      if(data) {
+        setHomestay(data);
+      }
     } catch {
       showAlert("Không thể tải chi tiết homestay", "danger");
     } finally {
       setLoading(false);
     }
   };
+  const loadReviews = async (id: number) => {
+  try {
+    const data = await fetchReviewsByHomestay(id);
+    setReviews(data);
+  } catch {
+    console.error("Không thể tải review");
+  }
+};
+
 
   useEffect(() => {
     if (homestayId) {
@@ -33,6 +47,7 @@ const HomestayDetailPage = () => {
         return;
       }
       loadHomestay(id);
+      loadReviews(id);
     }
   }, [homestayId, navigate]);
 
@@ -245,6 +260,32 @@ const HomestayDetailPage = () => {
 
         </div>
       )}
+      {/* USER REVIEWS */}
+<div className="mt-5">
+  <h5 className="fw-bold mb-3">
+    <i className="bi bi-chat-dots-fill me-2 text-purple"></i>
+    Đánh giá từ khách hàng
+  </h5>
+      {Array.isArray(reviews) && reviews.length > 0 ? (
+  reviews.map((rv) => (
+    <div key={rv.id} className="p-3 border rounded-3 shadow-sm bg-light">
+      <div className="d-flex justify-content-between">
+        <strong>{rv.customer.name}</strong>
+        <span className="text-warning">{"⭐".repeat(rv.rating)}</span>
+      </div>
+
+      <p className="mt-2 mb-1">{rv.comment}</p>
+
+      <small className="text-muted">
+        {new Date(rv.createdAt).toLocaleDateString("vi-VN")}
+      </small>
+    </div>
+  ))
+) : (
+  <p className="text-muted fst-italic">Chưa có đánh giá nào.</p>
+)}
+
+</div>
 
     </div>
   </div>

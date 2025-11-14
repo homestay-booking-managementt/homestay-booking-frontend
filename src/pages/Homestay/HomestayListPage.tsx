@@ -55,7 +55,10 @@ const HomestayListPage = () => {
   const loadHomestays = async (query?: HomestayFilters) => {
     setLoading(true);
     try {
+      
       const data = await fetchHomestays(query);
+      console.log("query",query);
+      console.log(data);
       setHomestays(Array.isArray(data) ? data : []);
     } catch {
       showAlert("Không thể tải danh sách homestay", "danger");
@@ -208,9 +211,6 @@ const HomestayListPage = () => {
       <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
         <div>
           <h1 className="h3 mb-1">Danh sách Homestay</h1>
-          <p className="text-muted mb-0">
-            Duyệt qua các homestay hiện có trong hệ thống.
-          </p>
         </div>
       </div>
 
@@ -224,7 +224,7 @@ const HomestayListPage = () => {
             className="form-control"
             id="city"
             name="city"
-            placeholder="VD: Đà Lạt"
+            placeholder="VD: Hà Nội"
             value={filters.city}
             onChange={handleFiltersChange}
           />
@@ -412,13 +412,6 @@ const HomestayListPage = () => {
           </div>
         )}
       </div>
-      {/* <AppDialog
-                        show={dialog.show}
-                        title={dialog.title}
-                        message={dialog.message}
-                        onClose={() => setDialog((old) => ({ ...old, show: false }))}
-                        confirmText="Đã hiểu"
-                      /> */}
         <AppDialog
         show={dialog.show}
         title={dialog.title}

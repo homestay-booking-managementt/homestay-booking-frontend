@@ -8,7 +8,7 @@ export interface BookingPayload {
 // Dữ liệu cập nhật trạng thái
 export interface BookingStatusPayload {
   status:
-    | "pending"
+    | "pending_payment"
     | "confirmed"
     | "paid"
     | "checked_in"
@@ -75,9 +75,10 @@ export interface BookingDetail {
   createdAt: string ;
   homestay: BookingHomestay;
   user: BookingUser;
+  payUrl: string;
 }
 export const STATUS_LABEL: Record<BookingStatusPayload["status"], string> = {
-  pending: "Chờ xác nhận",
+  pending_payment: "Chờ xác nhận",
   confirmed: "Đã xác nhận",
   paid: "Đã thanh toán",
   checked_in: "Đã nhận phòng",
@@ -87,7 +88,7 @@ export const STATUS_LABEL: Record<BookingStatusPayload["status"], string> = {
   completed: "Hoàn tất",
 };
 export const STATUS_BADGE: Record<BookingStatusPayload["status"], string> = {
-  pending: "bg-warning-subtle text-warning-emphasis",
+  pending_payment: "bg-warning-subtle text-warning-emphasis",
   confirmed: "bg-info-subtle text-info-emphasis",
   paid: "bg-success-subtle text-success-emphasis",
   checked_in: "bg-primary-subtle text-primary-emphasis",

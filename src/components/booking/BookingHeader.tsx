@@ -21,7 +21,7 @@ const BookingHeader: React.FC<Props> = ({
     <div className="mb-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <Link
-          to="/bookings"
+          to="/bookings/history"
           className="btn btn-outline-primary rounded-pill px-3 shadow-sm"
         >
           ← Quay lại danh sách
