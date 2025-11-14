@@ -261,6 +261,51 @@ const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
     cancelled: "Đã hủy",
     refunded: "Đã hoàn tiền",
     completed: "Hoàn tất",
+import type { AdminBookingSummary } from "@/types/admin";
+import { formatCurrency } from "@/utils/bookingUtils";
+import { FaCalendarAlt, FaArrowRight } from "react-icons/fa";
+
+// Map trạng thái sang tiếng Việt
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Chờ xác nhận",
+  CONFIRMED: "Đã xác nhận",
+  COMPLETED: "Hoàn tất",
+  CANCELLED: "Đã hủy",
+  CANCELED: "Đã hủy",
+  PAID: "Đã thanh toán",
+  CHECKED_IN: "Đã nhận phòng",
+  CHECKED_OUT: "Đã trả phòng",
+  REFUNDED: "Đã hoàn tiền",
+  // Lowercase versions
+  pending: "Chờ xác nhận",
+  confirmed: "Đã xác nhận",
+  completed: "Hoàn tất",
+  cancelled: "Đã hủy",
+  canceled: "Đã hủy",
+  paid: "Đã thanh toán",
+  checked_in: "Đã nhận phòng",
+  checked_out: "Đã trả phòng",
+  refunded: "Đã hoàn tiền",
+};
+
+interface BookingCardProps {
+  booking: AdminBookingSummary;
+  onClick?: () => void;
+}
+
+const BookingCard = ({ booking, onClick }: BookingCardProps) => {
+  const getStatusClass = (status: string) => {
+    return status.toLowerCase();
+  };
+
+  const getStatusLabel = (status: string) => {
+    return STATUS_LABELS[status] || status;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && onClick) {
+      onClick();
+    }
   };
   return (
     <span className={`badge badge-status bg-${map[status]}`}>{labelMap[status]}</span>

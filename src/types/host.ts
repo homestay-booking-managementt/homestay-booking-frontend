@@ -38,3 +38,25 @@ export interface PaymentTransfer {
   transferredAt?: string;
   errorMessage?: string;
 }
+
+export interface HostStatistics {
+  totalHomestays: number;
+  approvedHomestays: number;
+  pendingHomestays: number;
+  totalBookings: number;
+  pendingBookings: number;
+  confirmedBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  totalPayments: number;
+  completedPayments: number;
+  pendingPayments: number;
+  failedPayments: number;
+}
+
+export interface TopHomestay {
+  homestayId: number;
+  homestayName: string;
+  totalRevenue: number;
+  totalBookings: number;
+}

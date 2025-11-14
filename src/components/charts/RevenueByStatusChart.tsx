@@ -46,58 +46,70 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
 
   return (
     <div className="revenue-by-status-chart" role="img" aria-label="Biểu đồ doanh thu theo trạng thái đặt phòng">
-      <ResponsiveContainer width="100%" height={350}>
+      <ResponsiveContainer width="100%" height={400}>
         <BarChart
           data={data}
           margin={{
-            top: 5,
-            right: 30,
+            top: 20,
+            right: 40,
             left: 20,
-            bottom: 5,
+            bottom: 40,
           }}
           aria-label="Biểu đồ cột thể hiện doanh thu theo từng trạng thái đặt phòng"
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <defs>
+            {data.map((entry, index) => (
+              <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={entry.color} stopOpacity={0.9} />
+                <stop offset="100%" stopColor={entry.color} stopOpacity={0.6} />
+              </linearGradient>
+            ))}
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
           <XAxis
             dataKey="status"
             stroke="#6b7280"
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: "13px", fontWeight: 600 }}
+            tick={{ fill: "#1f2937" }}
+            height={60}
             aria-label="Trục trạng thái đặt phòng"
           />
           <YAxis
             stroke="#6b7280"
-            style={{ fontSize: "12px" }}
+            style={{ fontSize: "12px", fontWeight: 500 }}
             tickFormatter={formatRevenueAxis}
-            label={{ value: "Doanh thu (VND)", angle: -90, position: "insideLeft" }}
+            tick={{ fill: "#374151" }}
+            label={{ 
+              value: "Doanh thu (VND)", 
+              angle: -90, 
+              position: "insideLeft",
+              style: { fill: "#1f2937", fontWeight: 600, fontSize: 13 }
+            }}
             aria-label="Trục doanh thu"
           />
           <Tooltip
-            formatter={(value: number, name: string) => {
-              if (name === "Doanh thu") {
-                return formatChartTooltip(value, "revenue");
-              }
-              return [value, name];
-            }}
+            cursor={{ fill: "rgba(102, 126, 234, 0.1)" }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload as RevenueByStatusData;
                 return (
                   <div
                     style={{
-                      backgroundColor: "white",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "8px",
-                      padding: "12px",
+                      backgroundColor: "rgba(255, 255, 255, 0.98)",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: "12px",
+                      padding: "14px 16px",
+                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
                     }}
                   >
-                    <p style={{ margin: "0 0 8px 0", fontWeight: 600 }}>
+                    <p style={{ margin: "0 0 10px 0", fontWeight: 700, fontSize: "15px", color: "#1f2937" }}>
                       {data.status}
                     </p>
-                    <p style={{ margin: "0 0 4px 0", fontSize: "14px" }}>
-                      Doanh thu: {formatChartTooltip(data.revenue, "revenue")}
+                    <p style={{ margin: "0 0 6px 0", fontSize: "14px", fontWeight: 600, color: data.color }}>
+                      💰 Doanh thu: {formatChartTooltip(data.revenue, "revenue")}
                     </p>
-                    <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
-                      Số đơn: {data.count}
+                    <p style={{ margin: 0, fontSize: "14px", color: "#6b7280", fontWeight: 600 }}>
+                      📦 Số đơn: {data.count}
                     </p>
                   </div>
                 );
@@ -107,12 +119,16 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
           />
           <Legend
             wrapperStyle={{
-              paddingTop: "20px",
+              paddingTop: "24px",
+              fontSize: "14px",
+              fontWeight: 600,
             }}
+            iconType="rect"
+            iconSize={14}
           />
-          <Bar dataKey="revenue" name="Doanh thu" radius={[8, 8, 0, 0]}>
+          <Bar dataKey="revenue" name="Doanh thu" radius={[12, 12, 0, 0]} maxBarSize={100}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell key={`cell-${index}`} fill={`url(#gradient-${index})`} />
             ))}
           </Bar>
         </BarChart>
@@ -130,7 +146,7 @@ const RevenueByStatusChart = ({ data, loading, error, onRetry }: RevenueByStatus
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          height: 350px;
+          height: 400px;
           color: #6b7280;
         }
 

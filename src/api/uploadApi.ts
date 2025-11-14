@@ -12,7 +12,7 @@ export const uploadHomestayImage = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = (await sendRequest("/upload", {
+  const response = (await sendRequest("/api/upload", {
     method: "POST",
     payload: formData,
     headers: { "Content-Type": "multipart/form-data" },

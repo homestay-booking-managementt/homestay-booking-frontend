@@ -104,9 +104,9 @@ const HostBookingManagementPage = () => {
 
   const getStatusBadge = (status: BookingRequest["status"]) => {
     const statusMap = {
-      pending: { class: "bg-warning-subtle text-warning-emphasis", text: "Pending" },
-      confirmed: { class: "bg-success-subtle text-success-emphasis", text: "Confirmed" },
-      rejected: { class: "bg-danger-subtle text-danger-emphasis", text: "Rejected" },
+      pending: { class: "bg-warning-subtle text-warning-emphasis", text: "Chờ xử lý" },
+      confirmed: { class: "bg-success-subtle text-success-emphasis", text: "Đã xác nhận" },
+      rejected: { class: "bg-danger-subtle text-danger-emphasis", text: "Đã từ chối" },
     };
     return statusMap[status];
   };

@@ -9,7 +9,6 @@ import ResolveComplaintModal from "./ResolveComplaintModal";
 const AdminComplaintsPage = () => {
   const [complaints, setComplaints] = useState<AdminComplaintSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("ALL");
   const [selectedComplaint, setSelectedComplaint] = useState<AdminComplaintSummary | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showResolveModal, setShowResolveModal] = useState(false);
@@ -86,9 +85,6 @@ const AdminComplaintsPage = () => {
     }
   };
 
-  const filteredComplaints =
-    filter === "ALL" ? complaints : complaints.filter((c) => c.status === filter);
-
   const totalComplaints = complaints.length;
   const openComplaints = complaints.filter((c) => c.status === "OPEN").length;
   const resolvedComplaints = complaints.filter((c) => c.status === "RESOLVED").length;
@@ -145,45 +141,6 @@ const AdminComplaintsPage = () => {
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="filter-tabs">
-        <button
-          className={`filter-tab ${filter === "ALL" ? "active" : ""}`}
-          onClick={() => setFilter("ALL")}
-          type="button"
-        >
-          Tất cả
-        </button>
-        <button
-          className={`filter-tab ${filter === "OPEN" ? "active" : ""}`}
-          onClick={() => setFilter("OPEN")}
-          type="button"
-        >
-          Đang xử lý
-        </button>
-        <button
-          className={`filter-tab ${filter === "IN_PROGRESS" ? "active" : ""}`}
-          onClick={() => setFilter("IN_PROGRESS")}
-          type="button"
-        >
-          Đang tiến hành
-        </button>
-        <button
-          className={`filter-tab ${filter === "RESOLVED" ? "active" : ""}`}
-          onClick={() => setFilter("RESOLVED")}
-          type="button"
-        >
-          Đã giải quyết
-        </button>
-        <button
-          className={`filter-tab ${filter === "CLOSED" ? "active" : ""}`}
-          onClick={() => setFilter("CLOSED")}
-          type="button"
-        >
-          Đã đóng
-        </button>
-      </div>
-
       {/* Complaints List */}
       {loadError ? (
         <div className="error-state">
@@ -208,15 +165,15 @@ const AdminComplaintsPage = () => {
             </div>
           ))}
         </div>
-      ) : filteredComplaints.length === 0 ? (
+      ) : complaints.length === 0 ? (
         <div className="empty-state">
           <FaInbox className="empty-icon" />
           <h3>Không có khiếu nại</h3>
-          <p>Không tìm thấy khiếu nại nào phù hợp với bộ lọc</p>
+          <p>Không tìm thấy khiếu nại nào</p>
         </div>
       ) : (
         <div className="complaints-list">
-          {filteredComplaints.map((complaint) => (
+          {complaints.map((complaint) => (
             <div 
               key={complaint.id} 
               className="complaint-row"
@@ -440,53 +397,6 @@ const AdminComplaintsPage = () => {
           box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        /* Filter Tabs */
-        .filter-tabs {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 24px;
-          overflow-x: auto;
-          padding-bottom: 4px;
-        }
-
-        .filter-tabs::-webkit-scrollbar {
-          height: 4px;
-        }
-
-        .filter-tabs::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 2px;
-        }
-
-        .filter-tabs::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 2px;
-        }
-
-        .filter-tab {
-          padding: 10px 20px;
-          background: white;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 500;
-          color: #6b7280;
-          cursor: pointer;
-          transition: all 0.2s;
-          white-space: nowrap;
-        }
-
-        .filter-tab:hover {
-          border-color: #667eea;
-          color: #667eea;
-        }
-
-        .filter-tab.active {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border-color: transparent;
-        }
-
         /* Complaints List */
         .complaints-list {
           background: white;
@@ -646,17 +556,6 @@ const AdminComplaintsPage = () => {
           background: #1e293b;
         }
 
-        .dark .filter-tab {
-          background: #1e293b;
-          border-color: #334155;
-          color: #94a3b8;
-        }
-
-        .dark .filter-tab:hover {
-          border-color: #667eea;
-          color: #667eea;
-        }
-
         .dark .complaints-list {
           background: #1e293b;
         }
@@ -732,15 +631,6 @@ const AdminComplaintsPage = () => {
         @media (max-width: 480px) {
           .stats-grid {
             grid-template-columns: 1fr;
-          }
-
-          .filter-tabs {
-            gap: 6px;
-          }
-
-          .filter-tab {
-            padding: 8px 16px;
-            font-size: 13px;
           }
         }
       `}</style>

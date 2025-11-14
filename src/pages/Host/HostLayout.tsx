@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { useAppSelector } from "@/app/hooks";
 import {
   FaHome,
   FaCalendarCheck,
@@ -22,6 +23,7 @@ import "@/styles/dark-theme.css";
 const HostLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.auth.currentUser);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -592,7 +594,7 @@ const HostLayout = () => {
               <div className="host-dropdown" ref={userMenuRef}>
                 <div className="host-user" onClick={toggleUserMenu}>
                   <FaUser />
-                  <span>Host User</span>
+                  <span>{currentUser?.userName || "Host User"}</span>
                 </div>
 
                 {showUserMenu && (

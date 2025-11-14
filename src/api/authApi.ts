@@ -114,3 +114,11 @@ export const logoutSimple = async (refreshToken?: string) => {
   localStorage.removeItem("refresh_token");
   return { data: response.data };
 };
+
+// ===========================
+// 🔹 REAL API - GET FULL PROFILE
+// ===========================
+export const getFullProfile = async () => {
+  const response = await axios.get("/api/v1/user/my-profile");
+  return { data: response.data };
+};

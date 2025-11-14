@@ -1,29 +1,69 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaSave, FaBell, FaLock, FaUser } from "react-icons/fa";
 import { hostCommonStyles } from "./HostCommonStyles";
 import { showAlert } from "@/utils/showAlert";
+import { getFullProfile } from "@/api/authApi";
 
 const HostSettingsPage = () => {
   const [settings, setSettings] = useState({
     // Profile settings
-    displayName: "Host Name",
-    email: "host@example.com",
-    phone: "+84 123 456 789",
-    
+    displayName: "",
+    email: "",
+    phone: "",
+
     // Notification settings
     emailNotifications: true,
     smsNotifications: false,
     bookingAlerts: true,
     paymentAlerts: true,
-    
+
     // Security settings
     twoFactorAuth: false,
     loginAlerts: true,
   });
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getFullProfile();
+        const profile = response.data;
+
+        setSettings(prev => ({
+          ...prev,
+          displayName: profile.name || "",
+          email: profile.email || "",
+          phone: profile.phone || "",
+        }));
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        showAlert("Không thể tải thông tin hồ sơ", "error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
   const handleSave = () => {
     showAlert("Cài đặt đã được lưu thành công", "success");
   };
+
+  if (loading) {
+    return (
+      <>
+        <style>{hostCommonStyles}</style>
+        <div className="host-page">
+          <div className="page-header">
+            <h1>Cài đặt</h1>
+            <p>Đang tải thông tin...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

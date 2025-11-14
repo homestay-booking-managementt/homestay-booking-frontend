@@ -1,8 +1,10 @@
 import type {
   HostBookingConfirmPayload,
   HostBookingRequest,
+  HostStatistics,
   PaymentTransfer,
   RevenueStatistics,
+  TopHomestay,
 } from "../types/host";
 import { sendRequest } from "../utils/sendRequest";
 
@@ -62,3 +64,19 @@ export const sendHostChatMessage = (conversationId: number, message: string) =>
     method: "POST",
     payload: { message },
   });
+
+// Host Dashboard APIs
+export const fetchHostStatistics = () =>
+  sendRequest("/api/v1/host/dashboard/statistics", {
+    method: "GET",
+  }) as Promise<HostStatistics>;
+
+export const fetchHostRevenue = (period: "week" | "month" | "year") =>
+  sendRequest(`/api/v1/host/dashboard/revenue?period=${period}`, {
+    method: "GET",
+  }) as Promise<RevenueStatistics>;
+
+export const fetchTopHomestays = (limit: number = 5) =>
+  sendRequest(`/api/v1/host/dashboard/top-homestays?limit=${limit}`, {
+    method: "GET",
+  }) as Promise<TopHomestay[]>;
