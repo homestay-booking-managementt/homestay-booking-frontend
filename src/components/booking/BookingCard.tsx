@@ -268,11 +268,12 @@ const StatusBadge: React.FC<{ status: Booking["status"] }> = ({ status }) => {
 };
 
 export const BookingCard: React.FC<{ b: Booking }> = ({ b }) => {
+  const imageUrl = b.homestay.primaryImageUrl ? b.homestay.primaryImageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroEvG7gO590u0otYmP1kMpUF6LBXz-QZ3OQ&s";
   return (
     
     <Link to={`/bookings/${b.bookingId}`} className="text-decoration-none text-reset">
   <div className="booking-card h-100">
-      {b.homestay.primaryImageUrl && (
+      {/* {b.homestay.primaryImageUrl && (
         <div className="ratio ratio-16x9">
           <img
             src={b.homestay.primaryImageUrl}
@@ -281,7 +282,15 @@ export const BookingCard: React.FC<{ b: Booking }> = ({ b }) => {
             style={{ objectFit: "cover" }}
           />
         </div>
-      )}
+      )} */}
+      <div className="ratio ratio-16x9">
+          <img
+            src= {imageUrl}
+            alt="Chưa có ảnh"
+            className="w-100 h-100"
+            style={{ objectFit: "cover" }}
+          />
+        </div>
 
       <div className="p-3">
         <div className="d-flex align-items-start justify-content-between gap-2 mb-2">

@@ -73,15 +73,13 @@ useEffect(() => {
         rating,
         comment,
       };
-
       console.log("Dữ liệu gửi đi:", payload);
-
       const res = await createReview(userId,payload);
       console.log("danhgia",res);
       setSubmitted(true);
       setTimeout(() => navigate("/bookings"), 1500);
     } catch (error) {
-      console.error(error);
+      console.error("loi",error);
       showAlert?.("Không thể gửi đánh giá!", "danger");
     }
   };

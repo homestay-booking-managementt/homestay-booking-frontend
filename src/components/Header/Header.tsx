@@ -113,7 +113,7 @@ const Header = () => {
                     <i className="bi bi-grid me-2"></i>Trang chủ
                   </NavLink>
                 </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <NavLink
                 className={navLinkClass}
                 to="/bookings"
@@ -122,7 +122,7 @@ const Header = () => {
               >
                 Đặt phòng
               </NavLink>
-            </li>
+            </li> */}
             <li className="nav-item">
               <NavLink
                 className={navLinkClass}

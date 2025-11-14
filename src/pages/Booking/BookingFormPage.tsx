@@ -348,12 +348,15 @@ function getFutureTime(minutesToAdd: number) {
         {/* RIGHT: Summary */}
         <div className="col-md-4">
           <div className="card shadow-sm">
-            <img
-              src={homestay?.images?.[0].url}
-              alt={homestay?.images?.[0].alt}
-              className="card-img-top"
-              style={{ height: "200px", objectFit: "cover" }}
-            />
+            {homestay?.images?.[0] && (
+              <img
+                src={homestay.images[0].url}
+                alt={homestay.images[0].alt}
+                className="card-img-top"
+                style={{ height: "200px", objectFit: "cover" }}
+              />
+            )}
+
             <div className="card-body">
               <h5>{homestay?.name}</h5>
               <p className="text-muted">{homestay?.address}</p>
