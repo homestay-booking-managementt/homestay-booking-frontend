@@ -45,6 +45,24 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, '/api')
       },
+      // FE gọi /api/upload -> Vite proxy sang homestay-service (upload images)
+      "/api/upload": {
+        target: "http://localhost:8082",
+        changeOrigin: true,
+        secure: false
+      },
+      // FE gọi /api/homestays/... -> Vite proxy sang homestay-service
+      "/api/homestays": {
+        target: "http://localhost:8082",
+        changeOrigin: true,
+        secure: false
+      },
+      // FE gọi /uploads/... -> Vite proxy sang homestay-service (serve uploaded images)
+      "/uploads": {
+        target: "http://localhost:8082",
+        changeOrigin: true,
+        secure: false
+      },
       // FE gọi /api/... (fallback) -> auth-service (for user endpoints)
       "/api": {
         target: "http://localhost:8081",

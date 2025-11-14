@@ -73,7 +73,6 @@ const AdminMainDashboard = () => {
 
   const loadData = async () => {
     setLoading(true);
-    let isApiSuccess = true;
     
     try {
       console.log("📊 Đang tải dữ liệu Admin Dashboard từ Backend API...");
@@ -82,47 +81,33 @@ const AdminMainDashboard = () => {
         await Promise.all([
           fetchUsers().catch((err: Error) => {
             console.error("❌ Lỗi tải users:", err);
-            isApiSuccess = false;
             return [];
           }),
           fetchRevenueReport().catch((err: Error) => {
             console.error("❌ Lỗi tải revenue:", err);
-            isApiSuccess = false;
             return null;
           }),
           fetchAdminBookings().catch((err: Error) => {
             console.error("❌ Lỗi tải bookings:", err);
-            isApiSuccess = false;
             return [];
           }),
           fetchPendingHomestayRequests().catch((err: Error) => {
             console.error("❌ Lỗi tải homestay requests:", err);
-            isApiSuccess = false;
             return [];
           }),
           fetchAllHomestaysForAdmin().catch((err: Error) => {
             console.error("❌ Lỗi tải homestays:", err);
-            isApiSuccess = false;
             return [];
           }),
         ]);
 
-      // Debug: Xem data nhận được
-      console.log("🔍 [DEBUG] usersData:", usersData);
-      console.log("🔍 [DEBUG] usersData type:", typeof usersData, "isArray:", Array.isArray(usersData));
-      console.log("🔍 [DEBUG] usersData length:", usersData?.length);
-      console.log("🔍 [DEBUG] isApiSuccess:", isApiSuccess);
-      console.log("🔍 [DEBUG] revenueData:", revenueData);
-      console.log("🔍 [DEBUG] revenueData.items:", revenueData?.items, "length:", revenueData?.items?.length);
-      console.log("🔍 [DEBUG] bookingsData:", bookingsData);
-      console.log("🔍 [DEBUG] requestsData:", requestsData);
-      console.log("🔍 [DEBUG] homestaysData:", homestaysData, "length:", homestaysData?.length);
-
-      // Nếu có data từ API thì dùng, không thì dùng mock
-      const hasApiData = Array.isArray(usersData) && usersData.length > 0;
-      console.log("🔍 [DEBUG] hasApiData:", hasApiData);
+      // Kiểm tra xem có ít nhất 1 API trả về data không
+      const hasUsersData = Array.isArray(usersData) && usersData.length > 0;
+      const hasBookingsData = Array.isArray(bookingsData) && bookingsData.length > 0;
+      const hasHomestaysData = Array.isArray(homestaysData) && homestaysData.length > 0;
+      const hasAnyApiData = hasUsersData || hasBookingsData || hasHomestaysData;
       
-      if (hasApiData && isApiSuccess) {
+      if (hasAnyApiData) {
         console.log("✅ Đã tải dữ liệu thực từ Backend API");
         setUsers(usersData);
         
