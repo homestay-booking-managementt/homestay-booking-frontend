@@ -55,7 +55,10 @@ const HomestayListPage = () => {
   const loadHomestays = async (query?: HomestayFilters) => {
     setLoading(true);
     try {
+      
       const data = await fetchHomestays(query);
+      console.log("query",query);
+      console.log(data);
       setHomestays(Array.isArray(data) ? data : []);
     } catch {
       showAlert("Không thể tải danh sách homestay", "danger");
@@ -412,13 +415,6 @@ const HomestayListPage = () => {
           </div>
         )}
       </div>
-      {/* <AppDialog
-                        show={dialog.show}
-                        title={dialog.title}
-                        message={dialog.message}
-                        onClose={() => setDialog((old) => ({ ...old, show: false }))}
-                        confirmText="Đã hiểu"
-                      /> */}
         <AppDialog
         show={dialog.show}
         title={dialog.title}

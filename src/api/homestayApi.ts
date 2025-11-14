@@ -24,7 +24,7 @@ import { sendRequest } from "@/utils/sendRequest";
 //   }) as Promise<Homestay>;
 export const fetchHomestayById = async (homestayId: number): Promise<Homestay | undefined> => {
   const allHomestays = await fetchHomestays();
-  const homestay = allHomestays.find((h) => h.id === homestayId);
+  const homestay = allHomestays.find(h => h.id === homestayId);
   return homestay;
 };
 
